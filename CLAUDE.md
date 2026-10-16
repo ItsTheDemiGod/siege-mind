@@ -259,6 +259,11 @@ Status key: [ ] not started, [~] in progress, [x] done
 - 2026-10-16 | 0 | Dev server is zero-dependency `scripts/serve.js` (node: built-ins only) on port 5173; 403 on path traversal, 404 on missing files | Keeps "no runtime deps" rule; simple and portable
 - 2026-10-16 | 0 | `npm test` script is `node --test "tests/**/*.test.js"` instead of `node --test tests/` | Node 24 treats a bare directory arg as a module and fails; quoted glob works on Node 20+ and Windows
 - 2026-10-16 | 0 | Placeholder modules under src/sim, src/data, experiments/bots.js contain only a comment + `export {};` | Valid ES modules until their phase
-- 2026-10-16 | 0 | Dev server is zero-dependency `scripts/serve.js` (node: built-ins only) on port 5173; 403 on path traversal, 404 on missing files | Keeps "no runtime deps" rule; simple and portable
-- 2026-10-16 | 0 | `npm test` script is `node --test "tests/**/*.test.js"` instead of `node --test tests/` | Node 24 treats a bare directory arg as a module and fails; quoted glob works on Node 20+ and Windows
-- 2026-10-16 |
+
+## 14. Known Issues / TODO
+<!-- Add items as they appear; remove when fixed -->
+- (none yet)
+
+## 15. Session Log
+<!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
+- 2026-10-16 | Phase 0 | Verified Node v24.18.0 / Git 2.54; git init (main), .gitignore, package.json, folder skeleton, placeholder modules, dev server, boot page, trivial tests; checks passed | Phase 1: game loop, RNG, event bus, map rendering
