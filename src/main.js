@@ -1,0 +1,10 @@
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+ctx.fillStyle = '#12161f';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillStyle = '#e6edf3';
+ctx.font = '48px system-ui, sans-serif';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText('SIEGE MIND — boot OK', canvas.width / 2, canvas.height / 2);
+console.log('Siege Mind boot OK');

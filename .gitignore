@@ -1,0 +1,9 @@
+node_modules/
+experiments/results/*.csv
+experiments/results/*.json
+.DS_Store
+Thumbs.db
+*.log
+.env
+.vscode/
+.idea/
