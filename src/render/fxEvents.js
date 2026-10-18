@@ -2,12 +2,14 @@
 import { config } from '../data/config.js';
 import { ENEMIES } from '../data/enemies.js';
 import { TOWER_ORDER } from '../data/towers.js';
+import { TOWER_VISUALS } from '../data/towerVisuals.js';
+import { bindTowerFx } from './towerFx.js';
 import { EVENT_TYPES } from '../sim/events.js';
-import { getTowerById, getTowerStats } from '../sim/towers.js';
 
 const TIER_SCALE = { low: 0.4, medium: 0.7, high: 1 }; // particle count multiplier per quality tier
 const SPARKS = { low: 1, medium: 2, high: 3 };
 const NUMBER_SLOTS = 256;
+const SHARD_BUDGET = { low: 4, medium: 10, high: 20 }; // frost shards per tick, per quality tier
 
 /**
  * @param {{game: object, fx: object, settings: {get: Function}, quality: {tier: string}, theme: object}} o
@@ -23,6 +25,8 @@ export function bindFxEvents({ game, fx, settings, quality, theme }) {
     byType: Object.fromEntries(Object.keys(ENEMIES).map((id) => [id, fx.color(theme.enemy[id])])),
   };
   const towerColor = Object.fromEntries(TOWER_ORDER.map((id) => [id, fx.color(theme.tower[id])]));
+  let shardTick = -1;
+  let shardBudget = 0;
   const reduced = () => settings.get('reducedMotion');
 
   const number = (slotKind, ev, text, color, size) => {
@@ -41,7 +45,17 @@ export function bindFxEvents({ game, fx, settings, quality, theme }) {
 
     bus.on(EVENT_TYPES.ENEMY_DAMAGED, (ev) => {
       if (ev.kind === 'direct') {
-        fx.burst(ev.x, ev.y, { count: SPARKS[quality.tier], speed: 130, life: 0.3, size0: 4, size1: 1, color: colors.byType[ev.type] });
+        if (ev.source === 'frost') {
+          // ice shards, throttled per tick so one pulse hitting many enemies stays cheap
+          if (ev.tick !== shardTick) { shardTick = ev.tick; shardBudget = SHARD_BUDGET[quality.tier]; }
+          const n = Math.min(TOWER_VISUALS.frost.shardCount, shardBudget);
+          shardBudget -= n;
+          if (n > 0) fx.shards(ev.x, ev.y, n, towerColor.frost);
+        } else if (ev.source === 'sniper') {
+          fx.burst(ev.x, ev.y, { count: SPARKS[quality.tier] * 3, speed: 200, life: 0.35, size0: 5, size1: 1, color: towerColor.sniper });
+        } else {
+          fx.burst(ev.x, ev.y, { count: SPARKS[quality.tier], speed: 130, life: 0.3, size0: 4, size1: 1, color: colors.byType[ev.type] });
+        }
       }
       if (!settings.get('damageNumbers')) return;
       if (ev.kind === 'dot') {
@@ -67,32 +81,7 @@ export function bindFxEvents({ game, fx, settings, quality, theme }) {
       fx.burst(ev.x, ev.y, { count: Math.round(16 * TIER_SCALE[quality.tier]), speed: 200, life: 0.5, color: colors.danger });
       fx.floatText(`-${ev.leakDamage}`, ev.x, ev.y - 28, { color: theme.colors.danger, size: 24, life: 1.1 });
     }),
-
-    // Phase 3A: minimal tower feedback (Phase 3B adds the real juice)
-    bus.on(EVENT_TYPES.TOWER_PLACED, (ev) => {
-      fx.ring(ev.x, ev.y, { color: towerColor[ev.type], size0: 8, size1: 40, life: 0.4 });
-      fx.burst(ev.x, ev.y, { count: Math.round(8 * TIER_SCALE[quality.tier]), speed: 120, life: 0.4, color: towerColor[ev.type] });
-    }),
-    bus.on(EVENT_TYPES.TOWER_SOLD, (ev) => {
-      fx.burst(ev.x, ev.y, { count: Math.round(12 * TIER_SCALE[quality.tier]), speed: 140, life: 0.45, color: towerColor[ev.type] });
-      fx.floatText(`+${ev.refund}`, ev.x, ev.y - 24, { color: theme.colors.gold, size: 20 });
-    }),
-    bus.on(EVENT_TYPES.TOWER_UPGRADED, (ev) => {
-      const t = getTowerById(game, ev.id);
-      if (t) fx.ring(t.x, t.y, { color: towerColor[ev.type], size0: 10, size1: 48, life: 0.45 });
-    }),
-    bus.on(EVENT_TYPES.TOWER_FIRED, (ev) => {
-      if (ev.kind === 'hitscan') {
-        fx.line(ev.x, ev.y, ev.tx, ev.ty, { color: towerColor[ev.type], life: 0.15, size: 2 });
-      } else if (ev.kind === 'pulse' && !reduced()) {
-        const t = getTowerById(game, ev.towerId);
-        fx.ring(ev.x, ev.y, { color: towerColor[ev.type], size0: 12, size1: t ? getTowerStats(t.type, t.level).range : 100, life: 0.4 });
-      }
-    }),
-    bus.on(EVENT_TYPES.PROJECTILE_IMPACT, (ev) => {
-      fx.burst(ev.x, ev.y, { count: Math.round(5 * TIER_SCALE[quality.tier]), speed: 110, life: 0.3, color: towerColor[ev.type] });
-      if (ev.kind === 'shell' && !reduced()) fx.ring(ev.x, ev.y, { color: towerColor[ev.type], size0: 6, size1: ev.radius, life: 0.35 });
-    }),
   ];
-  return () => { for (const off of offs) off(); };
+  const unbindTowers = bindTowerFx({ game, fx, settings, quality, theme });
+  return () => { for (const off of offs) off(); unbindTowers(); };
 }

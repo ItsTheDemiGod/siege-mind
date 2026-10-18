@@ -2,6 +2,7 @@
 import { THEME } from './render/theme.js';
 import { contrastRatio, deltaE76, simulateColorblind, CVD_MATRICES } from './render/color.js';
 import { ENEMY_TYPES, drawEnemyShape, drawSilhouette } from './render/shapes.js';
+import { TOWER_ORDER } from './data/towers.js';
 import { createGlowCache } from './render/glow.js';
 import { ICONS, iconSvg } from './ui/icons.js';
 import { h } from './ui/dom.js';
@@ -173,19 +174,21 @@ export function colorblindSection(el, content) {
   }
   el.append(radios);
 
-  const rows = ['none', ...kinds.slice(1)].map((k) => {
-    const colors = ENEMY_TYPES.map((t) => (k === 'none' ? THEME.enemy[t] : simulateColorblind(THEME.enemy[t], k)));
+  const sets = [['enemies', ENEMY_TYPES.map((t) => [THEME.enemy[t], ENEMY_LABEL[t]])], ['towers', TOWER_ORDER.map((t) => [THEME.tower[t], t[0].toUpperCase() + t.slice(1)])]];
+  const rows = sets.flatMap(([setName, items]) => ['none', ...kinds.slice(1)].map((k) => {
+    const labels = items.map(([, name]) => name);
+    const colors = items.map(([hex]) => (k === 'none' ? hex : simulateColorblind(hex, k)));
     let min = Infinity;
     let pair = '';
     for (let i = 0; i < colors.length; i++) {
       for (let j = i + 1; j < colors.length; j++) {
         const d = deltaE76(colors[i], colors[j]);
-        if (d < min) { min = d; pair = `${ENEMY_LABEL[ENEMY_TYPES[i]]} / ${ENEMY_LABEL[ENEMY_TYPES[j]]}`; }
+        if (d < min) { min = d; pair = `${labels[i]} / ${labels[j]}`; }
       }
     }
-    return h('tr', {}, [h('td', { text: k }), h('td', { class: 'mono', text: min.toFixed(1) }), h('td', { text: pair }),
+    return h('tr', {}, [h('td', { text: `${setName}: ${k}` }), h('td', { class: 'mono', text: min.toFixed(1) }), h('td', { text: pair }),
       h('td', { text: min < 10 ? 'Below 10: rely on silhouette' : 'ok' })]);
-  });
+  }));
   el.append(h('table', { class: 'g-table' }, [
     h('thead', {}, [h('tr', {}, ['Simulation', 'Min pairwise ΔE76', 'Closest pair', 'Note'].map((t) => h('th', { text: t })))]),
     h('tbody', {}, rows),

@@ -106,7 +106,7 @@ test('sell refunds floor(0.7 * invested), frees the tile, emits TOWER_SOLD', () 
   assert.equal(g.gold, before + refund);
   assert.equal(towerAt(g, TILE.col, TILE.row), null);
   assert.equal(g.towers.length, 0);
-  assert.deepEqual(log[0][1], { id: t.id, type: 'mortar', col: TILE.col, row: TILE.row, x: t.x, y: t.y, refund, tick: 0 });
+  assert.deepEqual(log[0][1], { id: t.id, type: 'mortar', level: 1, col: TILE.col, row: TILE.row, x: t.x, y: t.y, refund, tick: 0 });
   assert.deepEqual(sellTower(g, t.id), { ok: false, refund: 0 });
   assert.equal(placeTower(g, 'lance', TILE.col, TILE.row).ok, true); // tile reusable
 });

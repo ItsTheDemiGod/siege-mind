@@ -68,6 +68,7 @@ siege-mind/
     gallery.js               <- style gallery wiring (live stages, effects lab, quality)
     galleryStatic.js         <- gallery sections: palette, type, enemies, icons, UI kit, colorblind
     galleryEnemies.js        <- gallery: enemy states grid + sim-event effect buttons
+    galleryTowers.js         <- gallery: 15 live towers, silhouettes, effect buttons
     sim/                     <- PURE logic, runs in Node
       rng.js
       game.js                <- top-level game state + step()
@@ -94,6 +95,7 @@ siege-mind/
       map.js                 <- default map grid + waypoints
       enemies.js
       towers.js              <- 5 towers, upgrades, target modes
+      towerVisuals.js        <- per-tower animation/trail/impact parameters
       debugTools.js          <- debug tool/key table (Phase 2)
     render/                  <- canvas drawing only
       theme.js               <- palette, tokens, durations, fonts, cssVariables()
@@ -110,7 +112,19 @@ siege-mind/
       renderer.js            <- owns fx systems, draw order, fx API
       enemyRenderer.js       <- draws enemies: shape, flash, statuses, health bars
       fxEvents.js            <- sim events -> particles, numbers, shake, flash
-      towerRenderer.js       <- TEMPORARY tower/projectile glyphs (final art in 3B)
+      towerRenderer.js       <- final tower art: recoil, flash, charge, build-in, tier mark, sell ghost
+      towerShapes.js         <- pure tower shape data per type and level
+      towerPaths.js          <- Path2D cache built once from the shape data
+      towerAnim.js           <- pure recoil/flash/charge/build values, smoothAngle, spinAngle
+      towerView.js           <- render-side Maps: smoothed angles, upgrade flash times
+      towerFx.js             <- tower/projectile event feedback
+      projectileRenderer.js  <- bolts with comet tails, poison blobs, arcing shells
+      fxApi.js               <- the fx API used by event handlers
+      effectPools.js         <- sniper beam and scorch decal pools
+      ghosts.js              <- sell-dissolve ghost pool
+      shellArc.js            <- visual ballistic arc math
+      tint.js                <- precomputed status tint table
+      hash.js                <- pure integer hash for deterministic visuals
       overlays.js            <- placement ghost and selection overlays
       fit.js                 <- canvas fit to window, DPR + backing-pixel budget
     ui/                      <- HUD, menus, overlays, analytics panel
@@ -125,6 +139,8 @@ siege-mind/
       debugPanel.js          <- DOM debug readout
       debugTools.js          <- debug spawn keys and click tools (commands only)
       buildState.js          <- pure placement/selection state machine
+      panelPlacement.js      <- pure tower-panel placement
+      stress.js              <- ?debug=1&stress=1 tower crowd
       buildController.js     <- pointer + hotkeys -> sim commands
       buildTray.js           <- HUD tower buttons
       towerPanel.js          <- selected-tower panel
@@ -132,7 +148,7 @@ siege-mind/
       keys.js                <- dev keyboard controls
     audio/
       synth.js               <- WebAudio procedural SFX
-  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
+  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
   experiments/
     bots.js                  <- bot player strategies
     run.js                   <- headless batch runner
@@ -325,13 +341,16 @@ Implemented; awaiting user visual check, then tag phase-2-complete. (Not run in 
 **Done when:** each tower type counters/loses to the enemies in Section 6 (tested by the matchup harness) and a human can build, upgrade and sell towers.
 Implemented; awaiting user visual/gameplay check, then tag phase-3a-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
 
-### [ ] Phase 3B — Tower art, projectiles and juice
-- [ ] Final procedural tower art with a distinct silhouette per tower (not just color), visible upgrade levels, rotation with recoil, muzzle flash
-- [ ] Projectile trails per type and a distinct impact effect per tower (Mortar shockwave ring, Frost ice shards and aura pulse, Poison cloud, Sniper laser line, Lance piercing streak)
-- [ ] Build-in animation and sell dissolve, bolder slow-ring and poison-dot status overlays
-- [ ] Gallery section showing every tower at all three levels plus the colorblind check
-- [ ] Performance check with 40 towers
+### [~] Phase 3B — Tower art, projectiles and juice
+- [x] Final procedural tower art with a distinct silhouette per tower (not just color), visible upgrade levels (shape additions plus a tier mark), rotation with recoil, muzzle flash, sniper charge
+- [x] Projectile trails per type (lance comet tail, poison blob and drips, mortar arcing shell with shadow and smoke) and a distinct impact effect per tower (Mortar shockwave + scorch decal, Frost ice shards and pulse rings, Poison cloud, Sniper laser beam, Lance piercing streak)
+- [x] Build-in animation and sell dissolve, upgrade flash, bolder slow-ring and poison-dot status overlays (tinted body, haze, bubbles, status icons)
+- [x] Gallery section showing every tower at all three levels (live, with real fx) plus the colorblind check (enemy and tower accent tables)
+- [x] UI overlap fix, z-index tokens, debug panel hidden by default
+- [x] Stress mode (?debug=1&stress=1: 40 towers, spawn every 3 ticks)
+- [ ] Performance check with 40 towers in a real browser (stress mode is ready; not measured because no browser was available)
 **Done when:** each tower is recognizable by silhouette alone, every shot has feedback, and 40 towers plus 150 enemies hold 60 FPS.
+Implemented; awaiting user visual check, then tag phase-3b-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
 
 ### [ ] Phase 4 — Economy, static waves, game flow (playable baseline)
 - [ ] Lives, leaks reducing lives, win/lose conditions (gold, kill rewards and build/upgrade costs are done in Phase 3A)
@@ -449,6 +468,17 @@ Implemented; awaiting user visual/gameplay check, then tag phase-3a-complete. (N
 - 2026-10-18 | 3A | Harness primary tile is (15,2): the buildable tile with the most path inside Lance range, computed once; helpers go on the nearest buildable tiles | Same position for every pass
 - 2026-10-18 | 3A | New LINE particle kind (a static additive segment) draws the sniper tracer instead of many streak particles | One particle per beam
 - 2026-10-18 | 3A | Tooltip body rendered with textContent and white-space: pre-line (multi-line, no innerHTML) | Safe multi-line tower info
+- 2026-10-18 | 3B | UI overlap fix: the debug panel is hidden by default (config.debug.showHud false), centred at the bottom, pointer-events none; z-index tokens --z-canvas..--z-modal live in theme.js tokens and the style.css :root (parity-tested) and a test rejects raw z-index numbers; user-select none on the stage; the tower panel size/margin come from config.ui and its position from the pure placeTowerPanel (bottom-left, bottom-right, top-left, top-right, opposite side first) | The panel's Upgrade/Sell were hidden under the debug text; double click selected text
+- 2026-10-18 | 3B | Animations derive from sim state wherever possible: build-in from builtTick, recoil/flash from the cooldown, charge from cooldown + targetId (all in the pure towerAnim); only two render-side Maps remain (smoothed aim angle, last upgrade time), created lazily, deleted on TOWER_SOLD | Turret turn rate and upgrade flash are not sim facts; everything else replays identically from a snapshot
+- 2026-10-18 | 3B | The mortar shell arc is visual only (shellArc uses ox/oy/flightDistance); the sim still moves shells in a straight line | Keeps hit detection exact and simple
+- 2026-10-18 | 3B | Lance comet tails are stateless (drawn from the velocity direction each frame) | No per-projectile render state
+- 2026-10-18 | 3B | Status tints come from a table precomputed at load (tint.js); no color mixing at draw time. Slow tints toward the Defense blue (secondary) rather than the near-white frost accent | A near-white tint on a dark body is barely visible
+- 2026-10-18 | 3B | Stress mode (?debug=1&stress=1): 40 towers via applyStress (round-robin types, even tile spacing, every 4th upgraded to level 2), startGold 1e6, spawn every 3 ticks unless ?spawn= | Repeatable performance scenario
+- 2026-10-18 | 3B | Sim addition: projectiles carry ox, oy and flightDistance (also in snapshots); PROJECTILE_IMPACT carries angle (travel direction); TOWER_SOLD carries level (so the sell ghost can draw the right shape) | Needed by the visuals; no behaviour change, determinism tests unchanged
+- 2026-10-18 | 3B | TOWER_VISUALS keys are generic per tower (trailLength, shellArcHeight, dripEverySeconds, streakLength, ringSeconds, scorchSeconds, cloudSeconds, shardCount, beamSeconds) with 0 for unused; config.fx gained decalCapacity 12, beamCapacity 16, ghostCapacity 24, statusTintAmount 0.25, shellScaleGain, shellShadowShrink | Every key exists for every tower
+- 2026-10-18 | 3B | Envelope rule in tests: barrelLength is measured from the tower centre, so the envelope is max(bodyRadius, barrelLength) (+4 slack for plates/rings/flasks), not their sum; with the specified values the sniper (20 + 36) could not satisfy a sum limit of 48 | Resolved an inconsistency in the spec
+- 2026-10-18 | 3B | The sniper beam is drawn from a fixed pool (beams.js style core + wide line); the LINE particle from 3A remains for other uses; frost shards are STREAK particles with a per-tick budget (4/10/20 by tier) | Pulse hitting 20 enemies stays within the particle caps
+- 2026-10-18 | 3B | Shape distinctness is tested with a silhouette descriptor (aspect, 8-sector radial profile, barrel length, mean radius, part count); the closest pair of different towers at any level is poison/sniper at 0.148 and the threshold is 0.08 | Guarantees no two towers can look alike
 - 2026-10-18 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
 - 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
 - 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
@@ -462,7 +492,9 @@ Implemented; awaiting user visual/gameplay check, then tag phase-3a-complete. (N
 - Whether Rajdhani digits are tabular is unknown until the gallery numerals row is read; HUD numbers use tabular-nums plus min-width regardless.
 - p95 frame stat sorts a preallocated Float32Array 4x per second (typed-array sort may allocate internally); renderer allocates only at event time (fx.burst option spread, HUD count-up closures).
 - Gallery effect-lab/map-preview stages each run a full renderer; both pause when scrolled out of view.
-- Phase 3A temporary glyphs: towers are plain disks with a barrel and pips, projectiles are dots; final art, trails and juice are Phase 3B.
+- Phase 3B was NOT run in a real browser by Claude (extension not connected): all tower art, trails, impacts, status overlays, the panel layout and the 40-tower frame rate are verified only by pure-logic tests, node --check, stub-canvas smoke runs (all tiers, reduced motion on and off, stress layout) and file serving. No frame-time numbers exist.
+- Lance and Sniper share the same accent color (Defense primary); only their silhouettes tell them apart, which the gallery colorblind table reports as "rely on silhouette".
+- The poison liquid/bubbles and tier chevrons are drawn per frame with a few path commands (no allocation, but not cached Path2D).
 - Phase 3A was NOT run in a real browser by Claude (extension not connected): the build tray layout, tower panel positions, tooltips, hotkeys and pointer handling are verified only by tests of their pure parts, node --check and a stub-canvas smoke test.
 - Balance is rough: after the R1-R7 tuning each tower lands around 25 dps, mortar is weak against bruisers and regenerators, frost's direct damage triggers a hit flash on every pulse.
 - Gold has no spend limits beyond cost; the 80-tower cap is a safety limit. Sold towers keep their in-flight projectiles (by design).
@@ -479,3 +511,4 @@ Implemented; awaiting user visual/gameplay check, then tag phase-3a-complete. (N
 - 2026-10-18 | Phase 1B | Built perf meters, vendored fonts, color/theme/tween/particles/floatText/shake/quality/settings/icons modules, procedural enemy shapes, layered renderer with cached static background, DOM UI kit (HUD, tooltip, toast, settings modal, debug panel), style gallery; 206 tests pass; no real-browser run | User approves the look (check main page and gallery), then Phase 2
 - 2026-10-18 | Phase 2 | Built enemy data, damage model (armor/shield/DoT), statuses, spawn queue, order-preserving enemy lifecycle, corner-blended path sampling, enemy renderer (flash, spawn-in, statuses, health bars), sim-event fx, debug tools and keys, gallery enemy states; 272 tests pass; no real-browser run | User checks the visuals (main page + gallery), then Phase 3
 - 2026-10-18 | Phase 3A | Built tower data, economy core, placement/upgrade/sell, targeting, firing, projectiles, attribution, matchup harness with R1-R7, build tray, tower panel, placement/selection overlays, ?debug=1 gating; 353 tests pass; no real-browser run | User checks gameplay (build, upgrade, sell, counters), then Phase 3B
+- 2026-10-18 | Phase 3B | UI overlap fix (own commit), tower art/shapes/paths/animations, projectile trails and arcing shells, impact effects, sell ghosts and build-in, status overlays, stress mode, gallery towers; 424 tests pass; no real-browser run | User checks the visuals and the 40-tower performance (stress mode), then Phase 4

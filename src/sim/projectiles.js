@@ -6,8 +6,8 @@ import { getEnemyById, forEachEnemyInRadius } from './enemies.js';
 import { applyDamage } from './damage.js';
 import { applyStatus } from './statuses.js';
 
-function emitImpact(game, p, x, y, hits, radius) {
-  game.events.emit(EVENT_TYPES.PROJECTILE_IMPACT, { kind: p.kind, type: p.towerType, x, y, hit: hits > 0, hits, radius });
+function emitImpact(game, p, x, y, hits, radius, angle) {
+  game.events.emit(EVENT_TYPES.PROJECTILE_IMPACT, { kind: p.kind, type: p.towerType, x, y, hit: hits > 0, hits, radius, angle });
 }
 
 function boltImpact(game, p, target) {
@@ -20,10 +20,10 @@ function boltImpact(game, p, target) {
       applyStatus(game, e, status);
       hits++;
     });
-    emitImpact(game, p, target.x, target.y, hits, p.cloudRadius);
+    emitImpact(game, p, target.x, target.y, hits, p.cloudRadius, Math.atan2(target.y - p.y, target.x - p.x));
   } else {
     applyDamage(game, target, { amount: p.damage, kind: 'direct', armorPierce: p.armorPierce, shieldMult: p.shieldMult, source: p.towerType, towerId: p.towerId });
-    emitImpact(game, p, target.x, target.y, 1, 0);
+    emitImpact(game, p, target.x, target.y, 1, 0, Math.atan2(target.y - p.y, target.x - p.x));
   }
 }
 
@@ -35,7 +35,7 @@ function shellImpact(game, p) {
     applyDamage(game, e, { amount: p.damage * f, kind: 'direct', armorPierce: p.armorPierce, shieldMult: p.shieldMult, source: p.towerType, towerId: p.towerId });
     hits++;
   });
-  emitImpact(game, p, p.tx, p.ty, hits, r);
+  emitImpact(game, p, p.tx, p.ty, hits, r, Math.atan2(p.ty - p.oy, p.tx - p.ox)); // shells fly straight from the origin
 }
 
 /**
@@ -55,7 +55,7 @@ export function stepProjectiles(game) {
     if (p.kind === 'bolt') {
       const target = getEnemyById(game, p.targetId);
       if (!target) {
-        emitImpact(game, p, p.x, p.y, 0, 0); // fizzles
+        emitImpact(game, p, p.x, p.y, 0, 0, Math.atan2(p.y - p.oy, p.x - p.ox)); // fizzles
         done = true;
       } else {
         const dx = target.x - p.x;

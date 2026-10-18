@@ -1,6 +1,6 @@
 // Placement ghost and selection overlays. Allocation-free per frame (validity is cached until its inputs change).
 import { THEME } from './theme.js';
-import { drawTower } from './towerRenderer.js';
+import { drawTowerPlain } from './towerRenderer.js';
 import { canPlaceTower, getTowerStats, getTowerById } from '../sim/towers.js';
 
 const C = THEME.colors;
@@ -14,7 +14,7 @@ const REASON_TEXT = {
 const DEFAULT_REASON = "Can't build there";
 
 const check = { type: null, col: -1, row: -1, gold: -1, count: -1, ok: false, reason: '' }; // cached canPlaceTower result
-const ghost = { type: 'lance', x: 0, y: 0, angle: -Math.PI / 4, level: 0 };
+const UP = -Math.PI / 2;
 
 /**
  * Placing mode: tile outline, dashed range ring and a half-transparent glyph under the pointer.
@@ -22,7 +22,7 @@ const ghost = { type: 'lance', x: 0, y: 0, angle: -Math.PI / 4, level: 0 };
  * @param {{state: {mode: string, typeId: string|null, hoverCol: number|null, hoverRow: number|null}}} buildState
  * @param {number} time @returns {void}
  */
-export function drawPlacementOverlay(ctx, glow, game, buildState, time) {
+export function drawPlacementOverlay(ctx, glow, game, buildState, time, flags) {
   const s = buildState.state;
   if (s.mode !== 'placing' || s.hoverCol === null) return;
   if (check.type !== s.typeId || check.col !== s.hoverCol || check.row !== s.hoverRow || check.gold !== game.gold || check.count !== game.towers.length) {
@@ -51,9 +51,16 @@ export function drawPlacementOverlay(ctx, glow, game, buildState, time) {
   ctx.stroke();
   ctx.setLineDash(NO_DASH);
 
-  ghost.type = s.typeId; ghost.x = cx; ghost.y = cy;
+  // ghost: the level-0 silhouette at half alpha, aimed at the nearest enemy (or straight up when there is none)
+  let aim = UP;
+  let best = Infinity;
+  for (let i = 0; i < game.enemies.length; i++) {
+    const e = game.enemies[i];
+    const d = (e.x - cx) * (e.x - cx) + (e.y - cy) * (e.y - cy);
+    if (e.alive && d < best) { best = d; aim = Math.atan2(e.y - cy, e.x - cx); }
+  }
   ctx.globalAlpha = 0.5;
-  drawTower(ctx, glow, ghost, null, time);
+  drawTowerPlain(ctx, glow, s.typeId, 0, cx, cy, aim, time, flags);
   ctx.globalAlpha = 1;
 
   if (!check.ok) { // the reason in words, never colour alone

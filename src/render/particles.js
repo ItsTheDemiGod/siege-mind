@@ -65,8 +65,8 @@ export function createParticleSystem({ capacity, rng }) {
     },
     /** Expanding shockwave ring. opts: life, size0, size1, color. */
     ring(px, py, opts) {
-      const { life: l = 0.45, size0: s0 = 4, size1: s1 = 48, color: c = 0 } = opts;
-      emit(KIND.RING, px, py, 0, 0, l, s0, s1, c, 0);
+      const { life: l = 0.45, size0: s0 = 4, size1: s1 = 48, color: c = 0, vx: rvx = 0, vy: rvy = 0 } = opts;
+      emit(KIND.RING, px, py, rvx, rvy, l, s0, s1, c, 0);
     },
     /** Static thin additive line from (px,py) to (px+dx,py+dy). */
     line(px, py, dx, dy, opts) {

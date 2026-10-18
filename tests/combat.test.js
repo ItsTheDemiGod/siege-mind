@@ -216,3 +216,32 @@ test('a poison DoT kill is attributed to the poisoning tower', () => {
   assert.equal(t.kills, 1);
   assert.ok(t.damageDealt > 0);
 });
+
+test('projectiles record origin and flight distance; impacts carry the travel angle', () => {
+  const g = rig();
+  const t = place(g, 'lance');
+  dummy(g, 'armoredGrunt', t.x + 90, t.y + 120, { distance: 100, hp: 1e9 });
+  manualTick(g);
+  const p = g.projectiles[0];
+  assert.deepEqual([p.ox, p.oy], [t.x, t.y]);
+  near(p.flightDistance, 150);
+  let impact = null;
+  g.events.on(E.PROJECTILE_IMPACT, (ev) => { impact ??= ev; });
+  for (let i = 0; i < 30 && !impact; i++) manualTick(g);
+  assert.ok(impact);
+  near(impact.angle, Math.atan2(120, 90), 1e-9); // target is stationary: straight line from the tower
+});
+
+test('shell flightDistance matches the geometry and its impact angle points along the flight', () => {
+  const g = rig();
+  const t = place(g, 'mortar');
+  dummy(g, 'swarmling', t.x - 100, t.y + 0, { distance: 100, hp: 1e9 });
+  manualTick(g);
+  const p = g.projectiles[0];
+  near(p.flightDistance, 100);
+  let impact = null;
+  g.events.on(E.PROJECTILE_IMPACT, (ev) => { impact ??= ev; });
+  for (let i = 0; i < 60 && !impact; i++) manualTick(g);
+  assert.ok(impact);
+  near(Math.abs(impact.angle), Math.PI, 1e-9); // flying in the -x direction
+});

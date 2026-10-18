@@ -125,7 +125,7 @@ export function sellTower(game, towerId) {
   game.occupancy[t.row * game.map.cols + t.col] = 0;
   const i = game.towers.indexOf(t);
   game.towers.splice(i, 1); // stable order
-  game.events.emit(EVENT_TYPES.TOWER_SOLD, { id: t.id, type: t.type, col: t.col, row: t.row, x: t.x, y: t.y, refund, tick: game.tick });
+  game.events.emit(EVENT_TYPES.TOWER_SOLD, { id: t.id, type: t.type, level: t.level, col: t.col, row: t.row, x: t.x, y: t.y, refund, tick: game.tick });
   return { ok: true, refund };
 }
 
@@ -183,8 +183,9 @@ function fire(game, t, s, target) {
     return;
   }
   game.projectiles.push({
-    id: game.nextProjectileId++, kind: s.kind, towerType: t.type, towerId: t.id, x: t.x, y: t.y, prevX: t.x, prevY: t.y,
+    id: game.nextProjectileId++, kind: s.kind, towerType: t.type, towerId: t.id, x: t.x, y: t.y, prevX: t.x, prevY: t.y, ox: t.x, oy: t.y, // ox/oy/flightDistance: origin and total straight-line distance at fire time (visual arcs)
     speed: s.projectileSpeed, targetId: target.id, tx: target.x, ty: target.y, remaining: Math.hypot(target.x - t.x, target.y - t.y),
+    flightDistance: Math.hypot(target.x - t.x, target.y - t.y),
     damage: s.damage, armorPierce: s.armorPierce, shieldMult: s.shieldMult, splashRadius: s.splashRadius,
     splashMinFraction: s.splashMinFraction, poisonDps: s.poisonDps, poisonSeconds: s.poisonSeconds, cloudRadius: s.cloudRadius,
   });

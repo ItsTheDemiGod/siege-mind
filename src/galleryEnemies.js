@@ -9,6 +9,7 @@ import { h } from './ui/dom.js';
 
 const STATES = [
   ['full', (e) => e],
+  ['slow+poison', (e) => ({ ...e, slowRemaining: 1, poisonStacks: 3, poisonRemaining: 1 })],
   ['50% hp', (e) => ({ ...e, hp: e.maxHp * 0.5 })],
   ['20% hp', (e) => ({ ...e, hp: e.maxHp * 0.2 })],
   ['spawn-in', (e, loop) => ({ ...e, spawnTick: loop.tick - (loop.tick % 90) })],

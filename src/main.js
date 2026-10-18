@@ -19,6 +19,7 @@ import { createBuildState } from './ui/buildState.js';
 import { createBuildController } from './ui/buildController.js';
 import { createBuildTray } from './ui/buildTray.js';
 import { createTowerPanel } from './ui/towerPanel.js';
+import { applyStress } from './ui/stress.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -32,10 +33,13 @@ const seedParam = params.get('seed');
 const seed = seedParam === null ? crypto.getRandomValues(new Uint32Array(1))[0]
   : /^-?\d+$/.test(seedParam) ? Number(seedParam) : seedParam;
 const spawnParam = Number.parseInt(params.get('spawn') ?? '', 10);
-const debugSpawnEveryTicks = Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : undefined;
 const debug = params.get('debug') === '1';
+const stress = debug && params.get('stress') === '1'; // ?debug=1&stress=1: 40 towers and a spawn every 3 ticks
+const STRESS_SPAWN_TICKS = 3;
+const STRESS_GOLD = 1e6;
+const debugSpawnEveryTicks = Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : stress ? STRESS_SPAWN_TICKS : undefined;
 const goldParam = Number.parseInt(params.get('gold') ?? '', 10);
-const startGold = debug && Number.isInteger(goldParam) && goldParam >= 0 ? goldParam : undefined;
+const startGold = stress ? STRESS_GOLD : debug && Number.isInteger(goldParam) && goldParam >= 0 ? goldParam : undefined;
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* blocked storage: settings stay in memory */ }
@@ -45,6 +49,7 @@ applyReduced();
 
 const game = createGame({ seed, debugSpawnEveryTicks, startGold });
 startGame(game);
+const stressTowers = stress ? applyStress(game) : 0;
 const stepper = createStepper();
 const quality = createQualityController({ tier: settings.get('quality'), auto: settings.get('autoQuality') });
 const buildState = createBuildState();
@@ -148,7 +153,8 @@ function frame(now) {
       + `ticks/s ${tps.toFixed(0)}  sim speed ${(tps * config.sim.stepSeconds).toFixed(2)}x  tick ${game.tick}  time ${game.time.toFixed(1)}s\n`
       + `speed x${state.speed}  paused ${state.paused}  quality ${quality.tier}  particles ${s.particles}/${s.particleLimit}\n`
       + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}  debug ${debug}\n`
-      + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}\n`
+      + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}${stress ? `  stress mode: towers ${stressTowers}` : ''}\n`
+      + `fx: particles ${s.particles}  ghosts ${s.ghosts}  beams ${s.beams}  decals ${s.decals}\n`
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);
   }
   requestAnimationFrame(frame);

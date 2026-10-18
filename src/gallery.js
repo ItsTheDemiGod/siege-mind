@@ -11,12 +11,13 @@ import { createFrameStats } from './render/perf.js';
 import { createSettings } from './ui/settings.js';
 import { h } from './ui/dom.js';
 import { enemyStatesSection, fxEventButtons } from './galleryEnemies.js';
+import { towersSection } from './galleryTowers.js';
 import {
   paletteSection, typographySection, enemiesSection, iconsSection, uiSection, colorblindSection,
 } from './galleryStatic.js';
 
 const SECTIONS = [
-  ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['states', '3b Enemy states'], ['icons', '4 Icons'], ['fx', '5 Effects'],
+  ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['states', '3b Enemy states'], ['towers', '3c Towers'], ['icons', '4 Icons'], ['fx', '5 Effects'],
   ['ui', '6 UI'], ['map', '7 Map'], ['cvd', '8 Colorblind'], ['quality', '9 Quality'],
 ];
 const seed = 'gallery';
@@ -37,13 +38,13 @@ const observer = new IntersectionObserver((entries) => { for (const e of entries
 const isVisible = (el) => () => visible.get(el) ?? true;
 
 /** A full renderer on its own 1280x720 canvas, scaled to its container. */
-function makeStage(host, { spawnEvery }) {
+function makeStage(host, { spawnEvery, startGold }) {
   const canvas = h('canvas', { width: 1280, height: 720, 'aria-label': 'Live game stage' });
   const stage = h('div', { class: 'g-stage' }, [canvas]);
   host.append(stage);
   observer.observe(stage);
   const ctx = canvas.getContext('2d');
-  const game = createGame({ seed, debugSpawnEveryTicks: spawnEvery });
+  const game = createGame({ seed, debugSpawnEveryTicks: spawnEvery, startGold });
   const renderer = createRenderer({ canvas, ctx, game, settings, quality, seed });
   const stepper = createStepper();
   const frames = createFrameStats();
@@ -122,6 +123,12 @@ els.fx.append(h('div', { class: 'g-row' }, [
 fxEventButtons(els.fx, lab.game, rng);
 els.fx.append(h('p', { class: 'note', text: 'Click the stage to spawn a test effect at that spot.' }));
 
+// 3c. Towers: a real game stage with 15 towers and a steady stream of enemies
+const TOWER_STAGE_SPAWN_TICKS = 30;
+const TOWER_STAGE_GOLD = 1e6;
+const towersStage = makeStage(els.towers, { spawnEvery: TOWER_STAGE_SPAWN_TICKS, startGold: TOWER_STAGE_GOLD });
+towersSection(els.towers, towersStage.game);
+
 // 7. Map preview with live enemies
 const preview = makeStage(els.map, { spawnEvery: 45 });
 
@@ -135,7 +142,7 @@ for (const tier of ['low', 'medium', 'high']) {
   if (tier === 'high') input.checked = true;
   input.addEventListener('change', () => {
     quality.setTier(tier);
-    for (const s of [lab, preview]) { s.refit(); s.renderer.onQualityChange(); }
+    for (const s of [lab, preview, towersStage]) { s.refit(); s.renderer.onQualityChange(); }
   });
   tierRow.append(h('label', {}, [input, ` ${tier}`]));
 }

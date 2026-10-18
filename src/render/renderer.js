@@ -11,7 +11,12 @@ import { createShake } from './shake.js';
 import { createTweens } from './tween.js';
 import { drawEnemies } from './enemyRenderer.js';
 import { bindFxEvents } from './fxEvents.js';
-import { drawTowers, drawProjectiles } from './towerRenderer.js';
+import { drawTowers, drawTowerGhost } from './towerRenderer.js';
+import { drawProjectiles } from './projectileRenderer.js';
+import { createFxApi } from './fxApi.js';
+import { createTowerView } from './towerView.js';
+import { createGhostPool } from './ghosts.js';
+import { createBeamPool, createDecalPool } from './effectPools.js';
 import { drawPlacementOverlay, drawSelectionOverlay } from './overlays.js';
 import {
   buildStaticLayer, shouldRebuild, drawPathFlow, drawSpawnPortal, drawBaseCore,
@@ -76,37 +81,13 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
   applyQuality();
   settings.subscribe(applySettings);
 
-  const fx = {
-    /** Spark burst in world (map) coordinates. */
-    burst(x, y, opts = {}) {
-      particles.burst(x, y, { color: colorIds.primary, ...opts });
-    },
-    ring(x, y, opts = {}) {
-      particles.ring(x, y, { color: colorIds.primary, ...opts });
-    },
-    floatText(text, x, y, opts) { floatText.spawn(text, x, y, opts); },
-    /** Thin additive beam (sniper tracer) from (x,y) to (tx,ty). */
-    line(x, y, tx, ty, opts = {}) { particles.line(x, y, tx - x, ty - y, { color: colorIds.primary, ...opts }); },
-    shake,
-    /** Full-stage translucent flash that decays. */
-    flash(color, intensity) {
-      overlay.flashColor = color;
-      overlay.flashAlpha = Math.min(1, Math.max(overlay.flashAlpha, intensity));
-    },
-    /** Violet sweep across the HUD area (Phase 7 calls this when the Director changes composition). */
-    directorScan() {
-      overlay.scan = 0;
-      tweens.cancel(overlay);
-      tweens.start(overlay, 'scan', 1, SCAN_SECONDS, undefined, 0);
-    },
-    colors: colorIds,
-    /** Register a hex color for particles; returns its id. */
-    color: (hex) => particles.registerColor(hex),
-    /** Pulse the base core (leak feedback). */
-    corePulse() { overlay.corePulse = 1; },
-    corePos,
-    clear() { particles.clear(); floatText.clear(); },
-  };
+  const view = createTowerView();
+  const ghosts = createGhostPool();
+  const beams = createBeamPool();
+  const decals = createDecalPool();
+  let clock = 0;
+  const flags = { glow: true, reducedMotion: false }; // reused every frame
+  const fx = createFxApi({ particles, floatText, shake, rng, colorIds, overlay, tweens, beams, decals, ghosts, view, corePos, clock: () => clock });
 
   // 'document' is fine here: the renderer is browser-only (src/render is not sim).
   const ready = Promise.race([
@@ -115,7 +96,7 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
   ]);
 
   const unbindFx = bindFxEvents({ game, fx, settings, quality, theme: THEME });
-  const stats = { particles: 0, particleLimit: 0, glowSprites: 0 };
+  const stats = { particles: 0, particleLimit: 0, glowSprites: 0, ghosts: 0, beams: 0, decals: 0 };
 
   return {
     ready,
@@ -167,6 +148,12 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       floatText.update(step);
       shake.update(step);
       tweens.update(step);
+      ghosts.update(step);
+      beams.update(step);
+      decals.update(step);
+      clock = time;
+      flags.glow = p.glow;
+      flags.reducedMotion = reduced;
       if (!reduced) updateAmbientMotes(motes, step);
       if (overlay.flashAlpha > 0) overlay.flashAlpha = Math.max(0, overlay.flashAlpha - FLASH_DECAY * step);
       if (overlay.corePulse > 0) overlay.corePulse = Math.max(0, overlay.corePulse - CORE_PULSE_DECAY * step);
@@ -191,7 +178,9 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       drawAmbientMotes(ctx, motes);
       drawSpawnPortal(ctx, g, spawnPos.x, spawnPos.y, time);
       drawBaseCore(ctx, g, corePos.x, corePos.y, time, overlay.corePulse);
-      drawTowers(ctx, g, gameState, time);
+      decals.draw(ctx, THEME.tower.mortar);
+      drawTowers(ctx, g, gameState, time, step, alpha, view, flags, buildState && buildState.state.mode === 'selected' ? buildState.state.towerId : null);
+      for (let i = 0; i < ghosts.slots.length; i++) if (ghosts.slots[i].active) drawTowerGhost(ctx, g, ghosts.slots[i], time, flags);
 
       // 3. entities
       info.tick = gameState.tick;
@@ -199,14 +188,15 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       info.params = p;
       info.reducedMotion = reduced;
       drawEnemies(ctx, g, gameState, alpha, time, info, scratch);
-      drawProjectiles(ctx, g, gameState, alpha);
+      drawProjectiles(ctx, g, gameState, alpha, step, time, fx);
+      beams.draw(ctx, THEME.tower.sniper);
 
       // 4-5. effects and floating text
       particles.draw(ctx, g);
       floatText.draw(ctx);
       if (buildState) {
         drawSelectionOverlay(ctx, gameState, buildState);
-        drawPlacementOverlay(ctx, g, gameState, buildState, time);
+        drawPlacementOverlay(ctx, g, gameState, buildState, time, flags);
       }
       ctx.restore();
 
@@ -229,6 +219,9 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       stats.particles = particles.count;
       stats.particleLimit = particles.limit;
       stats.glowSprites = glow.size;
+      stats.ghosts = ghosts.count;
+      stats.beams = beams.count;
+      stats.decals = decals.count;
     },
   };
 }

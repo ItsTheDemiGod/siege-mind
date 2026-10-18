@@ -75,6 +75,12 @@ export const config = Object.freeze({
     killBurstBase: 6,
     killBurstPerRadius: 0.8,
     damageNumberMinInterval: 0.15,
+    decalCapacity: 12, // mortar scorch marks
+    beamCapacity: 16, // sniper beams
+    ghostCapacity: 24, // sell-dissolve ghosts
+    statusTintAmount: 0.25, // body mixed this far toward the slow/poison color
+    shellScaleGain: 0.35, // shell grows this much (fraction) at the apex of its visual arc
+    shellShadowShrink: 0.5, // ground shadow shrinks this much (fraction) at the apex
   }),
   debug: Object.freeze({
     clickEffects: true,

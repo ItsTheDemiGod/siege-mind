@@ -1,11 +1,24 @@
 // Procedural enemy shapes (Section 6B): distinct silhouette + color per type. Allocation-free per call.
 import { THEME } from './theme.js';
+import { mixHex } from './color.js';
+import { buildTintTable } from './tint.js';
+import { config } from '../data/config.js';
 
 const TAU = Math.PI * 2;
 const SIZES = Object.freeze({ armoredGrunt: 16, swarmling: 9, fastRunner: 12, regenerator: 14, shieldedBruiser: 22 });
 const DASH = [7, 6]; // shared constant: setLineDash copies it, we never mutate it
 const NO_DASH = [];
-const NEUTRAL = Object.freeze({ flash: 0, spawn: 1, glow: true });
+const NEUTRAL = Object.freeze({ flash: 0, spawn: 1, glow: true, tintKey: 0 });
+
+// Body fill per enemy and status (0 none, 1 slowed, 2 poisoned, 3 both): a dark body, mixed toward the status color. Computed once.
+// Slow uses the Defense blue (secondary) rather than the near-white frost tower accent so it stays distinguishable on a dark body.
+const SLOW_TINT = THEME.colors.secondary;
+const POISON_TINT = THEME.tower.poison;
+export const BODY_FILL = buildTintTable(
+  Object.fromEntries(Object.keys(SIZES).map((id) => [id, mixHex(THEME.colors.panel, THEME.enemy[id], 0.22)])),
+  { 1: SLOW_TINT, 2: POISON_TINT, 3: mixHex(SLOW_TINT, POISON_TINT, 0.5) },
+  { 0: 0, 1: config.fx.statusTintAmount, 2: config.fx.statusTintAmount, 3: config.fx.statusTintAmount },
+);
 
 export const ENEMY_TYPES = Object.freeze(Object.keys(SIZES));
 
@@ -68,7 +81,7 @@ function traceBody(ctx, typeId, r) {
  * @param {number} x @param {number} y - logical position
  * @param {number} scale @param {number} angle - heading in radians
  * @param {number} time - seconds, drives pulses/rotation
- * @param {{flash: number, spawn: number}} [opts] - flash 0-1 toward white-hot, spawn 0-1 scale-in (reuse one object)
+ * @param {{flash: number, spawn: number, tintKey?: number}} [opts] - flash 0-1 toward white-hot, spawn 0-1 scale-in, tintKey 0 none / 1 slowed / 2 poisoned / 3 both (reuse one object)
  * @returns {void}
  */
 export function drawEnemyShape(ctx, glow, typeId, x, y, scale, angle, time, opts = NEUTRAL) {
@@ -86,8 +99,8 @@ export function drawEnemyShape(ctx, glow, typeId, x, y, scale, angle, time, opts
   ctx.translate(x, y);
   ctx.rotate(typeId === 'swarmling' || typeId === 'fastRunner' || typeId === 'armoredGrunt' ? angle : 0);
   traceBody(ctx, typeId, r);
-  ctx.globalAlpha = 0.88;
-  ctx.fillStyle = THEME.colors.panel;
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = BODY_FILL[typeId][opts.tintKey || 0];
   ctx.fill();
   ctx.globalAlpha = 1;
   ctx.strokeStyle = color;
