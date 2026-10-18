@@ -54,6 +54,7 @@ Context: game development class project (solo). Goal is a polished, fully playab
 ```
 siege-mind/
   CLAUDE.md                  <- this file
+  .gitattributes             <- forces LF line endings
   README.md
   package.json               <- scripts: start, test, sim
   index.html
@@ -73,6 +74,7 @@ siege-mind/
       waves.js               <- static wave script + wave runner
       economy.js
       events.js              <- tiny event bus
+      stepper.js             <- fixed-timestep accumulator (pure math)
       director.js            <- adaptive Director AI (Phase 6)
       telemetry.js           <- per-wave stats collection (Phase 5)
     data/
@@ -80,16 +82,20 @@ siege-mind/
       enemies.js
       waves.js               <- static script + threat-budget curve
       config.js              <- economy, lives, director hyperparameters
+      map.js                 <- default map grid + waypoints
     render/                  <- canvas drawing only
       theme.js               <- palette, tokens, easing
       layers.js              <- layered renderer, cached background
       glow.js                <- glow sprite cache, additive helpers
       particles.js           <- pooled particle system
       tween.js               <- tween/easing utilities
+      fit.js                 <- canvas fit to window, DPR-aware
+      debugRenderer.js       <- TEMPORARY plain scene (replaced in Phase 1B/2)
     ui/                      <- HUD, menus, overlays, analytics panel
       style.css              <- CSS variables mirroring theme.js
       hud.js
       icons.js               <- inline SVG icon set
+      keys.js                <- dev keyboard controls
     audio/
       synth.js               <- WebAudio procedural SFX
   tests/                     <- node:test unit tests for src/sim/*
@@ -109,7 +115,7 @@ siege-mind/
 
 ## 6. Game Design Spec
 
-**Map:** one fixed winding path on a tile grid (initial: 20x11 tiles of 64 px = 1280x704, plus a HUD strip). Towers are placed only on buildable tiles next to the path. Single entry, single base.
+**Map:** one fixed winding path on a tile grid. Logical canvas 1280x720; a HUD strip is reserved at the top (80 px); the map grid is 20 columns x 10 rows of 64 px tiles = 1280x640, drawn below the HUD strip. The sim's world coordinates have their origin at the top-left corner of the MAP (not the canvas); only the renderer adds the 80 px HUD offset. Spawn tile (0,1), exit tile (19,7), path waypoints (in tile coordinates) (0,1) -> (17,1) -> (17,4) -> (2,4) -> (2,7) -> (19,7), an S-shaped path with two hairpin turns (total length 3520 world units). Blocked (non-buildable decor) tiles: (8,2) (9,2) (10,5) (11,5) (5,9) (6,9). Everything else is buildable. Towers are placed only on buildable tiles. Single entry, single base.
 
 **Economy and lives (initial values, tunable in `config.js`):** start gold 150, lives 20, kill reward per enemy type (in data), tower sell refund 70%, 2 upgrade levels per tower.
 
@@ -221,14 +227,14 @@ Collected via the event bus, never by sim code calling telemetry directly.
 4. Implement in small steps. Run the game/tests as you go (`npm start`, `npm test`).
 5. Respect Section 4 rules. If a rule must change, stop, tell the user why, and log it in Section 13.
 6. Do not add dependencies without asking.
-5b. VISUAL BAR: from Phase 2 onward a feature is not done until it follows Section 6B and has its juice effects. No placeholder rectangles after Phase 1B. At phase end, list 2-3 moments the user should screenshot or record into docs/screens/.
-7. At the end of the phase:
+7. VISUAL BAR: from Phase 2 onward a feature is not done until it follows Section 6B and has its juice effects. No placeholder rectangles after Phase 1B. At phase end, list 2-3 moments the user should screenshot or record into docs/screens/.
+8. At the end of the phase:
    - Run all tests; fix failures.
    - Update the Phase Tracker (Section 12): tick completed items, set status.
    - Add entries to Decisions Log (13), Known Issues (14), Session Log (15).
    - `git add -A` and commit with message `phase-N: <short summary>`, then tag `phase-N-complete`.
    - Give the user a summary: what was built, how to run it, exactly what to check manually, known issues.
-8. STOP and wait. Do not begin the next phase until the user says so.
+9. STOP and wait. Do not begin the next phase until the user says so.
 
 ## 12. Phase Tracker
 
@@ -242,13 +248,14 @@ Status key: [ ] not started, [~] in progress, [x] done
 - [x] Initial commit
 **Done when:** `npm start` opens a blank canvas page with no console errors and `npm test` passes.
 
-### [ ] Phase 1A — Core engine (no art yet)
-- [ ] Fixed-timestep loop with x1/x2/x3 speed and pause, render interpolation alpha
-- [ ] Seeded RNG (rng.js) plus determinism test
-- [ ] Event bus
-- [ ] Tile map, path definition, buildable cells (data only, plain rendering is fine)
-- [ ] DPR-aware canvas scaling to window, debug HUD (FPS, tick count)
+### [x] Phase 1A — Core engine (no art yet)
+- [x] Fixed-timestep loop with x1/x2/x3 speed and pause, render interpolation alpha
+- [x] Seeded RNG (rng.js) plus determinism test
+- [x] Event bus
+- [x] Tile map, path definition, buildable cells (data only, plain rendering is fine)
+- [x] DPR-aware canvas scaling to window, debug HUD (FPS, tick count)
 **Done when:** loop, pause, speed, and RNG determinism tests pass and a plain map renders at 60 FPS. Tag: phase-1a-complete.
+Debug scene and walkers are temporary; replaced in Phase 1B (visuals) and Phase 2 (real enemies).
 
 ### [ ] Phase 1B — Visual foundation and UI kit
 - [ ] src/render/theme.js (palette, tokens, easing), fonts vendored (or fallback), src/ui/style.css with matching CSS variables
@@ -337,16 +344,28 @@ Status key: [ ] not started, [~] in progress, [x] done
 - 2026-10-18 | 0 | Dev server binds both 127.0.0.1 and ::1 (never 0.0.0.0); ::1 failure with EADDRNOTAVAIL/EAFNOSUPPORT is ignored | On Windows localhost may resolve to IPv6 first and hit a different server
 - 2026-10-18 | 0 | Node 22+ required (package.json engines) | Glob patterns in node --test need it
 - 2026-10-18 | 0 | serve.js exports createStaticServer(rootDir) and only listens when run directly; covered by tests/serve.test.js (traversal cases) | Testable without opening a fixed port
+- 2026-10-18 | 1A | Stepper: pure accumulator (no clocks), frame time clamped to 0.25 s, max 12 steps/frame (excess backlog discarded), speed multiplies accumulated time so the step stays 1/60 s | Prevents the spiral of death and keeps the sim deterministic at x1/x2/x3
+- 2026-10-18 | 1A | RNG: mulberry32 with string seeds, getState/setState and fork(label) independent streams derived only from seed+label | The future Director's randomness will not shift when combat code consumes more numbers
+- 2026-10-18 | 1A | Event bus is strict by default (unknown types throw); listener lists are copy-on-write; a throwing handler never stops others | Catches typos early; emit never allocates and unsubscribing mid-emit is safe
+- 2026-10-18 | 1A | Map is 20x10 with an 80 px HUD strip (changed from 20x11); sim origin is the map's top-left, only the renderer adds the HUD offset | The HUD is a DOM overlay that would cover the top row of an 11-row map
+- 2026-10-18 | 1A | Sim purity enforced by tests/sim-purity.test.js (no DOM, clocks, localStorage or Math.random in src/sim) | Makes Architecture Rules 1 and 3 permanent
+- 2026-10-18 | 1A | .gitattributes forces LF (`* text=auto eol=lf`) | Stops Windows CRLF churn in diffs
+- 2026-10-18 | 1A | Dev controls: Space pause, 1/2/3 speed, N single-step while paused, backquote toggles debug HUD; tab hidden auto-pauses without auto-resume | Needed to inspect the loop before real UI exists
+- 2026-10-18 | 1A | validateMap checks grid size against config.world (cols x rows) rather than only internal consistency; createMap/validateMap take only the map def | Keeps map data and config from silently disagreeing
+- 2026-10-18 | 1A | Default seed when no ?seed= is a random 32-bit value from crypto.getRandomValues (render layer only; sim never calls Math.random) | Each page load differs; seeds can be replayed via the URL
 - 2026-10-18 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
 - 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
 - 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
 
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
-- (none yet)
+- Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
+- Phase 0 test `tests/boot.test.js` is a runner sanity check only; it can be removed once real tests dominate.
+- Debug walkers use `prevDistance`/`distance` interpolation; when real enemies arrive in Phase 2 they must keep the same prev/current pattern for smooth rendering.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
 - 2026-10-16 | Phase 0 | Verified Node v24.18.0 / Git 2.54; git init (main), .gitignore, package.json, folder skeleton, placeholder modules, dev server, boot page, trivial tests; checks passed | Phase 1: game loop, RNG, event bus, map rendering
 - 2026-10-18 | Maintenance | Moved dev server to port 8137 (PORT override), dual-stack loopback bind, added dev alias, traversal tests, Node 22+ | Phase 1: game loop, RNG, event bus, map rendering
 - 2026-10-18 | Docs | CLAUDE.md upgraded with Visual Design Bible, quality criteria, and Phase 1A/1B split | Phase 1A
+- 2026-10-18 | Phase 1A | Built fixed-timestep stepper, seeded RNG with forks, strict event bus, validated 20x10 map and path, game state with temporary debug walkers, DPR-aware fit, debug renderer, dev keys; 96 tests pass; headless sim ~4.2M steps/s | Phase 1B: visual foundation and UI kit

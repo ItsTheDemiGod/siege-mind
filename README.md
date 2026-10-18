@@ -19,3 +19,14 @@ set PORT=9000 && npm start
 # bash
 PORT=9000 npm start
 ```
+
+## Controls (dev)
+
+| Key | Action |
+|---|---|
+| Space | Pause / resume |
+| 1 / 2 / 3 | Game speed x1 / x2 / x3 |
+| N | Single step (while paused) |
+| ` (backquote) | Toggle debug HUD |
+
+Add `?seed=<integer or text>` to the URL to replay a specific seed, e.g. http://localhost:8137/?seed=12345.
