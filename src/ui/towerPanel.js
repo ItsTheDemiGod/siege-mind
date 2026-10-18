@@ -6,10 +6,9 @@ import { getTowerById } from '../sim/towers.js';
 import { h } from './dom.js';
 import { iconSvg } from './icons.js';
 import { statRows } from './towerInfo.js';
+import { placeTowerPanel } from './panelPlacement.js';
 
 const MODE_LABEL = { first: 'First', strongest: 'Strongest', closest: 'Closest' };
-const MARGIN = 16;
-const HALF_STAGE_X = 640;
 
 /**
  * @param {{root: HTMLElement, game: object, buildState: object, actions: {upgrade: Function, sell: Function, setMode: Function}}} o
@@ -52,8 +51,12 @@ export function createTowerPanel({ root, game, buildState, actions }) {
       h('div', { class: 'tp-actions' }, [refs.upgrade, refs.sell]),
     ]);
     root.append(panel);
-    panel.classList.toggle('is-right', t.x < HALF_STAGE_X); // opposite side of the tower so it never covers it
-    panel.style.setProperty('--tp-margin', `${MARGIN}px`);
+    const { width, height, hudHeight } = config.view;
+    const spot = placeTowerPanel({
+      towerX: t.x, towerY: t.y + hudHeight, towerRadius: config.ui.towerClearRadius, stageW: width, stageH: height, hudH: hudHeight,
+      panelW: config.ui.towerPanelWidth, panelH: config.ui.towerPanelHeight, margin: config.ui.towerPanelMargin,
+    });
+    Object.assign(panel.style, { left: `${spot.left}px`, top: `${spot.top}px`, width: `${config.ui.towerPanelWidth}px`, height: `${config.ui.towerPanelHeight}px` });
     shownId = t.id;
   }
 

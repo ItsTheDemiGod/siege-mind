@@ -40,6 +40,7 @@ export const THEME = Object.freeze({
     space: Object.freeze([4, 8, 12, 16, 24, 32]),
     borderWidth: 1,
     glowBorderAlpha: 0.35,
+    z: Object.freeze({ canvas: 0, hud: 10, debug: 20, panel: 30, tooltip: 40, toast: 50, modal: 60 }), // layering of DOM over the canvas
   }),
   durations: Object.freeze({ fast: config.ui.durFast, normal: config.ui.durNormal, slow: config.ui.durSlow }),
   fonts: Object.freeze({
@@ -68,6 +69,7 @@ export function cssVariables() {
   v['--radius-md'] = `${t.radiusMd}px`;
   v['--radius-lg'] = `${t.radiusLg}px`;
   t.space.forEach((s, i) => { v[`--space-${i + 1}`] = `${s}px`; });
+  for (const [k, n] of Object.entries(t.z)) v[`--z-${k}`] = String(n);
   v['--border-width'] = `${t.borderWidth}px`;
   v['--glow-border-alpha'] = String(t.glowBorderAlpha);
   for (const [k, s] of Object.entries(THEME.durations)) v[`--dur-${k}`] = `${Math.round(s * 1000)}ms`;

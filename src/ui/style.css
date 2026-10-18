@@ -44,6 +44,13 @@
   --space-4: 16px;
   --space-5: 24px;
   --space-6: 32px;
+  --z-canvas: 0;
+  --z-hud: 10;
+  --z-debug: 20;
+  --z-panel: 30;
+  --z-tooltip: 40;
+  --z-toast: 50;
+  --z-modal: 60;
   --border-width: 1px;
   --glow-border-alpha: 0.35;
   --dur-fast: 120ms;
@@ -63,11 +70,13 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 
 /* ---------- 4. Stage (canvas + DOM overlay share 1280x720 logical px) ---------- */
 #stage { position: relative; flex: none; overflow: hidden; }
-#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#stage, #stage * { user-select: none; -webkit-user-select: none; } /* no text selection by double-click */
+#stage input[type="text"], #stage textarea { user-select: text; -webkit-user-select: text; }
+#game { z-index: var(--z-canvas); position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #ui-root { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; pointer-events: none; }
 
 /* ---------- 5. HUD ---------- */
-.hud { position: absolute; left: 0; top: 0; width: 1280px; height: 80px; box-sizing: border-box; padding: 0 var(--space-5);
+.hud { z-index: var(--z-hud); position: absolute; left: 0; top: 0; width: 1280px; height: 80px; box-sizing: border-box; padding: 0 var(--space-5);
   display: flex; align-items: center; justify-content: space-between; pointer-events: none; }
 .hud > * { pointer-events: auto; }
 .hud-cluster { display: flex; align-items: center; gap: var(--space-4); }
@@ -116,19 +125,19 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .row .hint { color: var(--muted); font-size: 12px; }
 
 /* ---------- 8. Overlays: tooltip, toasts, modal ---------- */
-.tooltip { position: absolute; z-index: 30; max-width: 260px; pointer-events: none; padding: var(--space-2) var(--space-3); font-size: 12px; line-height: 1.4;
+.tooltip { position: absolute; z-index: var(--z-tooltip); max-width: 260px; pointer-events: none; padding: var(--space-2) var(--space-3); font-size: 12px; line-height: 1.4;
   background: var(--panel); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) 50%, transparent); border-radius: var(--radius-md);
   opacity: 0; transition: opacity var(--dur-fast); }
 .tooltip.is-visible { opacity: 1; }
 .tooltip .t-body { white-space: pre-line; } /* multi-line plain text via textContent */
 .tooltip .t-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--defense-primary); }
-.toasts { position: absolute; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 25; display: flex; flex-direction: column; gap: var(--space-2); align-items: center; pointer-events: none; }
+.toasts { position: absolute; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: var(--z-toast); display: flex; flex-direction: column; gap: var(--space-2); align-items: center; pointer-events: none; }
 .toast { pointer-events: auto; padding: var(--space-2) var(--space-4); background: var(--panel); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) 50%, transparent);
   border-radius: var(--radius-md); animation: toast-in var(--dur-normal) ease-out; }
 .toast.is-leaving { opacity: 0; transition: opacity var(--dur-normal); }
 .toast--director { border-color: var(--director); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
-.modal-backdrop { pointer-events: auto; position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg0) 70%, transparent); animation: fade-in var(--dur-normal); }
+.modal-backdrop { pointer-events: auto; position: absolute; inset: 0; z-index: var(--z-modal); display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg0) 70%, transparent); animation: fade-in var(--dur-normal); }
 .modal { width: 420px; max-height: 600px; overflow: auto; }
 .modal h2 { margin: 0 0 var(--space-3); font-family: var(--font-display); font-size: 24px; }
 .modal .actions { display: flex; justify-content: space-between; margin-top: var(--space-4); }
@@ -147,22 +156,21 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .tray-key { position: absolute; top: 2px; right: 3px; font: 600 10px var(--font-mono); color: var(--muted); }
 .tray-btn.is-unaffordable { opacity: 0.6; }
 .tray-btn.is-unaffordable .tray-cost { color: var(--danger); text-decoration: line-through; }
-.tower-panel { position: absolute; bottom: var(--tp-margin, 16px); left: var(--tp-margin, 16px); width: 300px; min-height: 170px; box-sizing: border-box; z-index: 15; pointer-events: auto; padding: var(--space-3); }
-.tower-panel.is-right { left: auto; right: var(--tp-margin, 16px); }
+.tower-panel { position: absolute; box-sizing: border-box; z-index: var(--z-panel); overflow: auto; /* left/top/width/height come from JS (config.ui) */ pointer-events: auto; padding: var(--space-2) var(--space-3); }
 .tp-head { display: flex; align-items: center; gap: var(--space-2); color: var(--defense-primary); }
-.tp-title { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--text); flex: 1; }
+.tp-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--text); flex: 1; }
 .tp-level { font: 600 12px var(--font-mono); color: var(--muted); }
-.tp-stats { white-space: pre-line; font-size: 12px; line-height: 1.4; margin: var(--space-2) 0; columns: 2; }
-.tp-counters { font-size: 12px; color: var(--muted); margin-bottom: var(--space-2); white-space: pre; }
-.tp-modes { display: flex; gap: 4px; margin-bottom: var(--space-2); }
-.tp-mode { flex: 1; min-height: 28px; padding: 0 4px; font-size: 13px; }
+.tp-stats { white-space: pre-line; font-size: 12px; line-height: 1.4; margin: 4px 0; columns: 2; }
+.tp-counters { font-size: 12px; color: var(--muted); margin-bottom: 4px; white-space: pre; }
+.tp-modes { display: flex; gap: 4px; margin-bottom: 4px; }
+.tp-mode { flex: 1; min-height: 26px; padding: 0 4px; font-size: 13px; }
 .tp-actions { display: flex; gap: var(--space-2); }
-.tp-actions .btn { flex: 1; min-height: 32px; padding: 0 var(--space-2); font-size: 14px; }
+.tp-actions .btn { flex: 1; min-height: 30px; padding: 0 var(--space-2); font-size: 14px; }
 .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
 .btn[aria-pressed="true"] { background: color-mix(in srgb, var(--defense-primary) 22%, var(--panel)); border-color: var(--defense-primary); color: var(--defense-primary); }
 
 /* ---------- 9. Debug panel ---------- */
-.debug-panel { position: absolute; left: var(--space-2); bottom: var(--space-2); margin: 0; padding: var(--space-2) var(--space-3); z-index: 20;
+.debug-panel { position: absolute; left: 50%; transform: translateX(-50%); bottom: var(--space-2); max-width: 560px; overflow: hidden; pointer-events: none; margin: 0; padding: var(--space-2) var(--space-3); z-index: var(--z-debug);
   font-family: var(--font-mono); font-size: 11px; line-height: 1.5; white-space: pre; color: var(--text);
   background: color-mix(in srgb, var(--bg0) 80%, transparent); border: var(--border-width) solid var(--grid-line); border-radius: var(--radius-sm); }
 .debug-panel[hidden] { display: none; }

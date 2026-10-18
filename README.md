@@ -33,7 +33,7 @@ Add `?seed=<integer or text>` to the URL to replay a specific seed, e.g. http://
 
 More dev controls:
 
-- Backquote toggles the debug panel (FPS, frame ms avg/p95/max, ticks/s, sim speed, quality, particles).
+- Backquote shows/hides the debug panel (hidden by default; FPS, frame ms avg/p95/max, ticks/s, sim speed, quality, particles).
 - `?spawn=N` sets the placeholder auto-spawner (one random enemy every N ticks, 0 = off; default 90). It stays on by default until Phase 4 adds waves.
 - The gear button in the HUD opens Settings (quality, auto-lower quality, screen shake, reduced motion, particle density).
 - Style gallery: http://localhost:8137/gallery.html

@@ -40,6 +40,10 @@ export const config = Object.freeze({
     durSlow: 0.25,
     tooltipDelay: 0.25,
     towerPanelRefreshSeconds: 0.25,
+    towerPanelWidth: 300,
+    towerPanelHeight: 176,
+    towerPanelMargin: 16,
+    towerClearRadius: 26, // largest tower body radius: keeps the panel clear of the selected tower
   }),
   economy: Object.freeze({
     sellRefundFraction: 0.7,
@@ -77,6 +81,6 @@ export const config = Object.freeze({
     enabledByUrl: true, // documentation only: the switch is the ?debug=1 URL parameter
     autoSpawnEveryTicks: 90, // TEMPORARY (Phase 2): placeholder spawner, 0 = off; replaced by the wave runner in Phase 4
     tools: true,
-    showHud: true,
+    showHud: false, // the debug panel is hidden by default; the backquote key toggles it
   }),
 });
