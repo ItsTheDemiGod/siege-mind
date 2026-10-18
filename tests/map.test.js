@@ -154,3 +154,52 @@ test('invalid: stray path tile off the polyline', () => {
 test('invalid: polyline tile not marked as path', () => {
   assert.throws(() => validateMap(setCell(clone(), 5, 1, '.')), /not marked as path/);
 });
+
+// ---- path.sampleAt (lane offsets with corner blending) ----
+const sp = { x: 0, y: 0, angle: 0 };
+const nearTo = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} vs ${b}`);
+
+test('sampleAt: lane 0 equals positionAt away from corners; heading is the segment angle mid-segment', () => {
+  const ref = { x: 0, y: 0, angle: 0 };
+  for (const d of [100, 600, 1200, 1700, 2500, 3300]) {
+    map.path.sampleAt(d, 0, sp);
+    map.path.positionAt(d, ref);
+    nearTo(sp.x, ref.x); nearTo(sp.y, ref.y); nearTo(sp.angle, ref.angle);
+  }
+});
+
+test('sampleAt: continuous through all corners for lanes +10 and -10', () => {
+  for (const lane of [10, -10]) {
+    let prev = { ...map.path.sampleAt(0, lane, { x: 0, y: 0, angle: 0 }) };
+    for (let d = 1; d <= map.path.totalLength; d++) {
+      map.path.sampleAt(d, lane, sp);
+      assert.ok(Math.hypot(sp.x - prev.x, sp.y - prev.y) <= 3, `jump at ${d} lane ${lane}`);
+      prev = { ...sp };
+    }
+  }
+});
+
+test('sampleAt: heading turns smoothly by PI/2 through a corner', () => {
+  const corner = 17 * 64; // end of the first segment
+  let prev = map.path.sampleAt(corner - 45, 0, { x: 0, y: 0, angle: 0 }).angle;
+  const start = prev;
+  let last = prev;
+  for (let d = corner - 44; d <= corner + 45; d++) {
+    map.path.sampleAt(d, 0, sp);
+    assert.ok(Math.abs(sp.angle - last) <= 0.1, `angle jump at ${d}`);
+    assert.ok(sp.angle >= last - 1e-12, 'monotonic'); // right turn: angle increases
+    last = sp.angle;
+  }
+  nearTo(Math.abs(last - start), Math.PI / 2, 1e-9);
+});
+
+test('sampleAt: clamps distance and reuses out', () => {
+  const a = map.path.sampleAt(-100, 5, { x: 0, y: 0, angle: 0 });
+  const b = map.path.sampleAt(0, 5, { x: 0, y: 0, angle: 0 });
+  assert.deepEqual(a, b);
+  const c = map.path.sampleAt(1e9, 5, { x: 0, y: 0, angle: 0 });
+  const d = map.path.sampleAt(map.path.totalLength, 5, { x: 0, y: 0, angle: 0 });
+  assert.deepEqual(c, d);
+  const out = { x: 0, y: 0, angle: 0 };
+  assert.equal(map.path.sampleAt(100, 0, out), out);
+});

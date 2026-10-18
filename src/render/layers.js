@@ -222,11 +222,11 @@ export function drawSpawnPortal(ctx, glow, x, y, time) {
 }
 
 /** Base core: holographic hex with counter-rotating rings and a gentle pulse in Defense primary. */
-export function drawBaseCore(ctx, glow, x, y, time) {
-  const pulse = 1 + 0.06 * Math.sin(time * 2.4);
+export function drawBaseCore(ctx, glow, x, y, time, hit = 0) {
+  const pulse = 1 + 0.06 * Math.sin(time * 2.4) + hit * 0.35; // `hit` 0..1: leak feedback
   if (glow) {
     ctx.globalCompositeOperation = 'lighter';
-    glow.draw(ctx, C.primary, 44 * pulse, x, y, 0.5);
+    glow.draw(ctx, C.primary, 44 * pulse, x, y, Math.min(1, 0.5 + hit * 0.4));
     ctx.globalCompositeOperation = 'source-over';
   }
   ctx.save();

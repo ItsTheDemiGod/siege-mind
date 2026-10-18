@@ -40,11 +40,34 @@ export const config = Object.freeze({
     durSlow: 0.25,
     tooltipDelay: 0.25,
   }),
+  combat: Object.freeze({
+    minArmorDamageFraction: 0.2,
+    killEpsilon: 1e-6,
+    dotEventTicks: 15,
+    maxEnemies: 600,
+  }),
+  statuses: Object.freeze({
+    slowMinFactor: 0.2,
+    poisonMaxStacks: 5,
+  }),
+  path: Object.freeze({
+    cornerBlendUnits: 40,
+  }),
+  enemies: Object.freeze({
+    laneMax: 10, // lane range = laneMax - radius * 0.3
+  }),
+  fx: Object.freeze({
+    spawnScaleSeconds: 0.25,
+    hitFlashSeconds: 0.08,
+    spawnRingSeconds: 0.35,
+    killBurstBase: 6,
+    killBurstPerRadius: 0.8,
+    damageNumberMinInterval: 0.15,
+  }),
   debug: Object.freeze({
     clickEffects: true,
-    walkerSpawnEveryTicks: 60,
-    walkerBaseSpeed: 96, // world units per second
-    walkerSpeedJitter: 0.2,
+    autoSpawnEveryTicks: 90, // TEMPORARY (Phase 2): placeholder spawner, 0 = off; replaced by the wave runner in Phase 4
+    tools: true,
     showHud: true,
   }),
 });

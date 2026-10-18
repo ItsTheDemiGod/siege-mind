@@ -10,12 +10,13 @@ import { createQualityController } from './render/quality.js';
 import { createFrameStats } from './render/perf.js';
 import { createSettings } from './ui/settings.js';
 import { h } from './ui/dom.js';
+import { enemyStatesSection, fxEventButtons } from './galleryEnemies.js';
 import {
   paletteSection, typographySection, enemiesSection, iconsSection, uiSection, colorblindSection,
 } from './galleryStatic.js';
 
 const SECTIONS = [
-  ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['icons', '4 Icons'], ['fx', '5 Effects'],
+  ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['states', '3b Enemy states'], ['icons', '4 Icons'], ['fx', '5 Effects'],
   ['ui', '6 UI'], ['map', '7 Map'], ['cvd', '8 Colorblind'], ['quality', '9 Quality'],
 ];
 const seed = 'gallery';
@@ -23,12 +24,13 @@ const content = document.getElementById('g-content');
 const nav = document.getElementById('g-nav');
 const els = {};
 for (const [id, label] of SECTIONS) {
-  els[id] = h('section', { id, class: 'g-section' }, [h('h2', { text: label.slice(2) })]);
+  els[id] = h('section', { id, class: 'g-section' }, [h('h2', { text: label.replace(/^S+s/, '') })]);
   content.append(els[id]);
   nav.append(h('a', { href: `#${id}`, text: label }));
 }
 
 const settings = createSettings({ storage: null });
+settings.set('damageNumbers', true); // so the damage-number button is visible in the lab
 const quality = createQualityController({ tier: 'high', auto: false });
 const visible = new Map();
 const observer = new IntersectionObserver((entries) => { for (const e of entries) visible.set(e.target, e.isIntersecting); });
@@ -76,11 +78,14 @@ typographySection(els.type);
 const enemiesHost = h('div');
 els.enemies.append(enemiesHost);
 enemiesSection(enemiesHost, isVisible(els.enemies));
+const statesHost = h('div');
+els.states.append(statesHost);
+enemyStatesSection(statesHost, isVisible(els.states));
 iconsSection(els.icons);
 uiSection(els.ui);
 
-// 5. Effects lab (no walkers: spawn interval is effectively never)
-const lab = makeStage(els.fx, { spawnEvery: 1e9 });
+// 5. Effects lab (auto-spawner off)
+const lab = makeStage(els.fx, { spawnEvery: 0 });
 const rng = createRng('gallery-ui');
 const at = () => ({ x: rng.range(200, 1080), y: rng.range(100, 520) });
 const effects = [
@@ -114,9 +119,10 @@ els.fx.append(h('div', { class: 'g-row' }, [
   h('button', { type: 'button', class: 'btn btn--primary', text: 'Stress: fill the particle pool', onclick: stress }),
   report,
 ]));
+fxEventButtons(els.fx, lab.game, rng);
 els.fx.append(h('p', { class: 'note', text: 'Click the stage to spawn a test effect at that spot.' }));
 
-// 7. Map preview with the live walkers
+// 7. Map preview with live enemies
 const preview = makeStage(els.map, { spawnEvery: 45 });
 
 // 8. Colorblind filters over the whole page content

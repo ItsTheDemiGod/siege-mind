@@ -5,9 +5,10 @@ const SELF_HANDLED = 'button, select, input, textarea, [role="switch"]';
 /**
  * Bind the dev keys.
  * @param {{togglePause: () => void, setSpeed: (n: number) => void, singleStep: () => void, toggleHud: () => void}} handlers
+ * @param {Record<string, (e: KeyboardEvent) => void>} [extraKeys] - single-character keys (lowercase); same ignore rules, no auto-repeat
  * @returns {() => void} unbind function
  */
-export function bindKeys(handlers) {
+export function bindKeys(handlers, extraKeys = {}) {
   const onKeyDown = (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const t = e.target;
@@ -24,7 +25,10 @@ export function bindKeys(handlers) {
       case 'Backquote':
         if (!e.repeat) handlers.toggleHud();
         break;
-      default:
+      default: {
+        const fn = e.key.length === 1 ? extraKeys[e.key.toLowerCase()] : undefined;
+        if (fn && !e.repeat) fn(e);
+      }
     }
   };
   window.addEventListener('keydown', onKeyDown);

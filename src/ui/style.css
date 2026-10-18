@@ -20,6 +20,7 @@
   --white-hot: #e6fbff;
   --director: #a56bff;
   --danger: #ff4d5e;
+  --gold: #ffc94a;
   --defense-primary: #35e0ff;
   --defense-secondary: #5b8cff;
   --defense-tertiary: #7af0d0;
@@ -73,6 +74,7 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .chip { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3);
   background: color-mix(in srgb, var(--panel) 80%, transparent); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) calc(var(--glow-border-alpha) * 100%), transparent);
   border-radius: var(--radius-md); color: var(--defense-primary); }
+.chip--gold { color: var(--gold); }
 .chip .label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .num { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1; color: var(--text);
   font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; display: inline-block; min-width: 3.2ch; text-align: right; }

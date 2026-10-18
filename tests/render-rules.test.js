@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 const jsIn = (dir) => readdirSync(join(root, dir)).filter((f) => f.endsWith('.js')).map((f) => `${dir}/${f}`);
 
-const visual = [...jsIn('src/render'), ...jsIn('src/ui'), 'src/gallery.js', 'src/galleryStatic.js'].filter((f) => existsSync(join(root, f)));
+const visual = [...jsIn('src/render'), ...jsIn('src/ui'), 'src/gallery.js', 'src/galleryStatic.js', 'src/galleryEnemies.js'].filter((f) => existsSync(join(root, f)));
 const all = [...visual, 'src/main.js'];
 
 for (const file of all) {

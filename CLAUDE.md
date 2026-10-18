@@ -61,11 +61,13 @@ siege-mind/
   gallery.html               <- style gallery page (visual QA)
   vendor/                    <- chart.umd.js (vendored)
   assets/
+    favicon.svg
     fonts/                   <- vendored woff2 (Rajdhani 500/600/700, Inter 400/500/600), OFL licenses, README.md
   src/
     main.js                  <- bootstraps game, wires sim + render + ui
     gallery.js               <- style gallery wiring (live stages, effects lab, quality)
     galleryStatic.js         <- gallery sections: palette, type, enemies, icons, UI kit, colorblind
+    galleryEnemies.js        <- gallery: enemy states grid + sim-event effect buttons
     sim/                     <- PURE logic, runs in Node
       rng.js
       game.js                <- top-level game state + step()
@@ -77,6 +79,8 @@ siege-mind/
       economy.js
       events.js              <- tiny event bus
       stepper.js             <- fixed-timestep accumulator (pure math)
+      damage.js              <- armor/shield/DoT damage model + events
+      statuses.js            <- slow, poison, regen suppression
       director.js            <- adaptive Director AI (Phase 6)
       telemetry.js           <- per-wave stats collection (Phase 5)
     data/
@@ -85,6 +89,8 @@ siege-mind/
       waves.js               <- static script + threat-budget curve
       config.js              <- economy, lives, director hyperparameters
       map.js                 <- default map grid + waypoints
+      enemies.js
+      debugTools.js          <- debug tool/key table (Phase 2)
     render/                  <- canvas drawing only
       theme.js               <- palette, tokens, durations, fonts, cssVariables()
       color.js               <- hex/mix/contrast/deltaE, colorblind simulation (Machado 2009)
@@ -98,6 +104,8 @@ siege-mind/
       shapes.js              <- procedural enemy shapes + silhouettes
       layers.js              <- cached static layer, path flow, portal, core, motes
       renderer.js            <- owns fx systems, draw order, fx API
+      enemyRenderer.js       <- draws enemies: shape, flash, statuses, health bars
+      fxEvents.js            <- sim events -> particles, numbers, shake, flash
       fit.js                 <- canvas fit to window, DPR + backing-pixel budget
     ui/                      <- HUD, menus, overlays, analytics panel
       style.css              <- CSS variables mirroring theme.js (parity tested)
@@ -109,10 +117,11 @@ siege-mind/
       settings.js            <- persisted settings (injectable storage)
       settingsPanel.js       <- settings modal
       debugPanel.js          <- DOM debug readout
+      debugTools.js          <- debug spawn keys and click tools (commands only)
       keys.js                <- dev keyboard controls
     audio/
       synth.js               <- WebAudio procedural SFX
-  tests/                     <- node:test unit tests (sim, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
+  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
   experiments/
     bots.js                  <- bot player strategies
     run.js                   <- headless batch runner
@@ -145,13 +154,15 @@ siege-mind/
 
 **Enemies**
 
-| Enemy | Traits | Threat cost |
+| Enemy | Traits | Threat cost (per unit) |
 |---|---|---|
-| Armored Grunt | Medium HP, flat armor reduces non-piercing damage | defined in data |
-| Swarmling | Low HP, spawns in packs of 8 | defined in data |
-| Fast Runner | Low-medium HP, ~2x speed | defined in data |
-| Regenerator | High HP, regenerates unless poisoned | defined in data |
-| Shielded Bruiser | High HP plus a shield layer that must break first; shield ignores DoT | defined in data |
+| Armored Grunt | hp 120, speed 55, flat armor 6 (non-piercing damage), reward 10 | 10 |
+| Swarmling | hp 28, speed 70, packs of 8 spaced 12 ticks, reward 2 | 3 (pick cost 24 per pack) |
+| Fast Runner | hp 45, speed 130 (~2x), reward 6 | 8 |
+| Regenerator | hp 260, speed 45, armor 1, regenerates 2% maxHp/s unless poisoned, reward 16, leaks for 2 lives | 16 |
+| Shielded Bruiser | hp 220, speed 38, armor 3, shield 160 that must break first and blocks DoT, reward 24, leaks for 3 lives | 24 |
+
+These are initial values (src/data/enemies.js), retuned in Phase 9.
 
 Exact numeric stats are decided in Phases 2 and 3, stored in `src/data/`, and recorded in Section 13.
 
@@ -282,13 +293,14 @@ Debug scene and walkers are temporary; replaced in Phase 1B (visuals) and Phase 
 **Done when:** the map looks on-style at 60 FPS, the gallery page shows every component, and the user approves the look. Tag: phase-1b-complete.
 Implemented; awaiting user visual approval, then tag phase-1b-complete. (Not verified in a real browser by Claude: the Chrome extension was not connected.)
 
-### [ ] Phase 2 — Enemy system
-- [ ] Path-following movement with `pathProgress` tracking
-- [ ] 5 enemy types from `data/enemies.js` (HP, speed, armor, regen, shield, pack spawn)
-- [ ] Damage model (armor, shield, DoT immunity rules), death and leak events
-- [ ] Health bars/placeholder visuals; debug spawner (keys to spawn each type)
-- [ ] Enemies drawn procedurally per Section 6B (distinct silhouette and color per type), spawn-in, hit flash, death burst, leak effect, floating damage/gold numbers (toggle)
+### [~] Phase 2 — Enemy system
+- [x] Path-following movement with `pathProgress` tracking
+- [x] 5 enemy types from `data/enemies.js` (HP, speed, armor, regen, shield, pack spawn)
+- [x] Damage model (armor, shield, DoT immunity rules), death and leak events
+- [x] Health bars/placeholder visuals; debug spawner (keys to spawn each type)
+- [x] Enemies drawn procedurally per Section 6B (distinct silhouette and color per type), spawn-in, hit flash, death burst, leak effect, floating damage/gold numbers (toggle)
 **Done when:** all 5 enemy types walk the path, behave per spec, and leak/die with correct events; unit tests for damage math.
+Implemented; awaiting user visual check, then tag phase-2-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
 
 ### [ ] Phase 3 — Tower system
 - [ ] Tile selection, placement, sell, 2 upgrade levels
@@ -382,6 +394,20 @@ Implemented; awaiting user visual approval, then tag phase-1b-complete. (Not ver
 - 2026-10-18 | 1B | Font URLs in style.css are relative (../../assets/fonts/) instead of absolute /assets/fonts/ | Keeps working under a GitHub Pages sub-path
 - 2026-10-18 | 1B | renderer.draw(game, alpha, dt, time, paused): extra paused flag freezes fx; renderer.handleClick does the dev click effect; waypoints for the static layer come from DEFAULT_MAP | Keeps main.js wiring-only; sim map object stays unchanged
 - 2026-10-18 | 1B | Gallery splits into src/gallery.js and src/galleryStatic.js; effects lab and map preview each run a full renderer on a shared quality controller | Module size limit; same code path as the game
+- 2026-10-18 | 2 | Damage model: armor is flat with a 20% floor (effective = max(dmg - armor, 0.2 * dmg)); shield absorbs first, shieldMult converts shield damage (shieldDamage = min(shield, dmg * mult), overflow = dmg - shieldDamage / mult) and armor applies only to the overflow; DoT ignores armor and is fully blocked while a shield with shieldBlocksDot is up | Gives each tower a clear counter relationship (Section 6)
+- 2026-10-18 | 2 | Statuses (slow, stacking poison, regeneration suppression) implemented now; Phase 3 towers only call applyStatus / applyDamage | Towers stay thin
+- 2026-10-18 | 2 | DoT damage events are aggregated: damage accrues in enemy.dotAcc and one ENEMY_DAMAGED (kind dot) is emitted every 15 ticks, flushed immediately before a kill or leak | Keeps the event stream and floating numbers sane (4 per second per poisoned enemy, not 60)
+- 2026-10-18 | 2 | Enemy list uses stable write-index compaction instead of swap-remove | Draw order must not flicker when enemies die
+- 2026-10-18 | 2 | Lanes come from a forked rng stream (rngs.lane), offset = rand(-1,1) * (laneMax 10 - radius * 0.3) | Enemies spread across the path width without disturbing other streams
+- 2026-10-18 | 2 | path.sampleAt blends heading and lateral normal across each corner (smoothstep over +/-40 units, shortest arc); positionAt unchanged | Lane-offset enemies move continuously around hairpins
+- 2026-10-18 | 2 | Hit flash derives from lastHitTick and spawn scale from spawnTick; no render-side per-enemy state | Renderer stays stateless and deterministic
+- 2026-10-18 | 2 | HUD gold and lives intentionally not wired to kills/leaks until Phase 4 | Economy does not exist yet
+- 2026-10-18 | 2 | Initial enemy stats (hp/speed/armor/regen/shield/pack/threat/reward/leak): grunt 120/55/6/-/-/1/10/10/1, swarmling 28/70/0/-/-/8 every 12 ticks/3/2/1, fast runner 45/130/0/-/-/1/8/6/1, regenerator 260/45/1/2% per s/-/1/16/16/2, bruiser 220/38/3/-/160 (blocks DoT)/1/24/24/3 | Starting point, retuned in Phase 9 from harness data
+- 2026-10-18 | 2 | Debug tools: spawn keys Q W E R T (Y one of each, K nuke), tool keys Z direct40, X pierce40, C sniper60, V poison, B frost, M splash25; click applies the selected tool through applyDamage/applyStatus; ?spawn=N sets the placeholder auto-spawner interval in ticks (0 = off, default 90) | Lets Phase 3 counters be verified by hand
+- 2026-10-18 | 2 | maxEnemies cap 600; spawnEnemyNow returns null at the cap | Bounds sim and render cost (Section 2 criterion 8 asks for 150+)
+- 2026-10-18 | 2 | queueEnemy delayTicks counts from the NEXT step (atTick = tick + 1 + delay + i * interval) instead of tick + delay | With tick + delay a pack queued between steps spawned its first unit one tick late, giving uneven spacing (11 vs 12 ticks)
+- 2026-10-18 | 2 | Added theme color gold #ffc94a (HUD gold chip and floating +reward, contrast >= 3 on bg0) mirrored in style.css | No gold token existed
+- 2026-10-18 | 2 | enemy.type is already the shapes.js type id, so enemyRenderer needs no mapping table; renderer.draw/handleClick keep Phase 1B signatures; fxEvents handlers use a 256-slot Float32Array for damage-number rate limiting | Fewer moving parts
 - 2026-10-18 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
 - 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
 - 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
@@ -395,6 +421,9 @@ Implemented; awaiting user visual approval, then tag phase-1b-complete. (Not ver
 - Whether Rajdhani digits are tabular is unknown until the gallery numerals row is read; HUD numbers use tabular-nums plus min-width regardless.
 - p95 frame stat sorts a preallocated Float32Array 4x per second (typed-array sort may allocate internally); renderer allocates only at event time (fx.burst option spread, HUD count-up closures).
 - Gallery effect-lab/map-preview stages each run a full renderer; both pause when scrolled out of view.
+- Phase 2 was NOT run in a real browser by Claude (extension not connected): only the stub-canvas smoke tests, node --check and file serving were verified. Visual feel, 60 FPS with ~600 enemies, and click targeting need the user's check.
+- The placeholder auto-spawner (random enemy every 90 ticks) is temporary; the wave runner replaces it in Phase 4. Enemies that reach the base only emit ENEMY_LEAKED (no lives are subtracted until Phase 4).
+- Headless sim cost with 600 enemies: about 26k steps/s (roughly 0.04 ms per step); the render side at 600 enemies is unmeasured.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -403,3 +432,4 @@ Implemented; awaiting user visual approval, then tag phase-1b-complete. (Not ver
 - 2026-10-18 | Docs | CLAUDE.md upgraded with Visual Design Bible, quality criteria, and Phase 1A/1B split | Phase 1A
 - 2026-10-18 | Phase 1A | Built fixed-timestep stepper, seeded RNG with forks, strict event bus, validated 20x10 map and path, game state with temporary debug walkers, DPR-aware fit, debug renderer, dev keys; 96 tests pass; headless sim ~4.2M steps/s | Phase 1B: visual foundation and UI kit
 - 2026-10-18 | Phase 1B | Built perf meters, vendored fonts, color/theme/tween/particles/floatText/shake/quality/settings/icons modules, procedural enemy shapes, layered renderer with cached static background, DOM UI kit (HUD, tooltip, toast, settings modal, debug panel), style gallery; 206 tests pass; no real-browser run | User approves the look (check main page and gallery), then Phase 2
+- 2026-10-18 | Phase 2 | Built enemy data, damage model (armor/shield/DoT), statuses, spawn queue, order-preserving enemy lifecycle, corner-blended path sampling, enemy renderer (flash, spawn-in, statuses, health bars), sim-event fx, debug tools and keys, gallery enemy states; 272 tests pass; no real-browser run | User checks the visuals (main page + gallery), then Phase 3

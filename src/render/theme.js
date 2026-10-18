@@ -14,6 +14,7 @@ export const THEME = Object.freeze({
     tertiary: '#7af0d0',
     whiteHot: '#e6fbff',
     director: '#a56bff',
+    gold: '#ffc94a', // currency: HUD gold chip and floating +reward text
     danger: '#ff4d5e', // leak / damage red, distinct from enemy coral by hue and use
   }),
   enemy: Object.freeze({
@@ -58,7 +59,7 @@ const kebab = (s) => s.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
 export function cssVariables() {
   const v = {};
   const c = THEME.colors;
-  for (const k of ['bg0', 'bg1', 'panel', 'gridLine', 'text', 'muted', 'whiteHot', 'director', 'danger']) v[`--${kebab(k)}`] = c[k];
+  for (const k of ['bg0', 'bg1', 'panel', 'gridLine', 'text', 'muted', 'whiteHot', 'director', 'danger', 'gold']) v[`--${kebab(k)}`] = c[k];
   for (const k of ['primary', 'secondary', 'tertiary']) v[`--defense-${k}`] = c[k];
   for (const [k, val] of Object.entries(THEME.enemy)) v[`--${k === 'shieldRing' ? '' : 'enemy-'}${kebab(k)}`] = val;
   for (const [k, val] of Object.entries(THEME.tower)) v[`--tower-${k}`] = val;

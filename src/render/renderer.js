@@ -8,8 +8,9 @@ import { createGlowCache } from './glow.js';
 import { createParticleSystem, KIND } from './particles.js';
 import { createFloatText } from './floatText.js';
 import { createShake } from './shake.js';
-import { createTweens, easeOutBack, clamp01 } from './tween.js';
-import { ENEMY_TYPES, drawEnemyShape } from './shapes.js';
+import { createTweens } from './tween.js';
+import { drawEnemies } from './enemyRenderer.js';
+import { bindFxEvents } from './fxEvents.js';
 import {
   buildStaticLayer, shouldRebuild, drawPathFlow, drawSpawnPortal, drawBaseCore,
   createAmbientMotes, updateAmbientMotes, drawAmbientMotes,
@@ -19,7 +20,7 @@ const { width, height, hudHeight } = config.view;
 const FLASH_DECAY = 3; // intensity per second
 const SCAN_SECONDS = 0.9;
 const SCAN_SLICES = 10;
-const SPAWN_SCALE_IN = 40; // world units over which an enemy scales in
+const CORE_PULSE_DECAY = 2.5; // per second
 
 /**
  * @param {{canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, game: object, settings: object, quality: object, seed: number|string}} o
@@ -43,8 +44,8 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
   const scratch = { x: 0, y: 0, angle: 0 };
   const spawnPos = map.path.positionAt(0, { x: 0, y: 0, angle: 0 });
   const corePos = map.path.positionAt(map.path.totalLength, { x: 0, y: 0, angle: 0 });
-  const enemyOpts = { flash: 0, spawn: 1, glow: true };
-  const overlay = { flashColor: THEME.colors.danger, flashAlpha: 0, scan: -1 }; // tweened/decayed values
+  const info = { tick: 0, alpha: 0, stepSeconds: config.sim.stepSeconds, params: null, reducedMotion: false }; // reused every frame
+  const overlay = { flashColor: THEME.colors.danger, flashAlpha: 0, scan: -1, corePulse: 0 }; // tweened/decayed values
 
   let motes = createAmbientMotes(0, rng, map.width, map.height);
   let staticLayer = null;
@@ -95,6 +96,11 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
       tweens.start(overlay, 'scan', 1, SCAN_SECONDS, undefined, 0);
     },
     colors: colorIds,
+    /** Register a hex color for particles; returns its id. */
+    color: (hex) => particles.registerColor(hex),
+    /** Pulse the base core (leak feedback). */
+    corePulse() { overlay.corePulse = 1; },
+    corePos,
     clear() { particles.clear(); floatText.clear(); },
   };
 
@@ -104,6 +110,7 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
     new Promise((resolve) => setTimeout(resolve, 1500)),
   ]);
 
+  const unbindFx = bindFxEvents({ game, fx, settings, quality, theme: THEME });
   const stats = { particles: 0, particleLimit: 0, glowSprites: 0 };
 
   return {
@@ -116,6 +123,15 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
       applyQuality();
     },
     onQualityChange: applyQuality,
+    /** Stop listening to sim events. */
+    dispose() { unbindFx(); },
+    /** Pointer event -> world (map) coordinates; written into `out`. */
+    clientToWorld(event, out) {
+      const rect = canvas.getBoundingClientRect();
+      out.x = ((event.clientX - rect.left) / rect.width) * width;
+      out.y = ((event.clientY - rect.top) / rect.height) * height - hudHeight;
+      return out;
+    },
     /** Convert client coordinates to map-space; null outside the map. */
     handleClick(clientX, clientY) {
       if (!config.debug.clickEffects) return false;
@@ -149,6 +165,7 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
       tweens.update(step);
       if (!reduced) updateAmbientMotes(motes, step);
       if (overlay.flashAlpha > 0) overlay.flashAlpha = Math.max(0, overlay.flashAlpha - FLASH_DECAY * step);
+      if (overlay.corePulse > 0) overlay.corePulse = Math.max(0, overlay.corePulse - CORE_PULSE_DECAY * step);
 
       // 1. static layer (rebuilt at most every 150 ms; otherwise the previous canvas is scaled)
       const now = performance.now();
@@ -169,16 +186,14 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
       drawPathFlow(ctx, g, map, time, p, reduced, scratch);
       drawAmbientMotes(ctx, motes);
       drawSpawnPortal(ctx, g, spawnPos.x, spawnPos.y, time);
-      drawBaseCore(ctx, g, corePos.x, corePos.y, time);
+      drawBaseCore(ctx, g, corePos.x, corePos.y, time, overlay.corePulse);
 
-      // 3. entities: TEMPORARY debug walkers cycling through the five enemy types (replaced in Phase 2)
-      const walkers = gameState.walkers;
-      for (let i = 0; i < walkers.length; i++) {
-        const w = walkers[i];
-        map.path.positionAt(w.prevDistance + (w.distance - w.prevDistance) * alpha, scratch);
-        enemyOpts.spawn = easeOutBack(clamp01(w.distance / SPAWN_SCALE_IN));
-        drawEnemyShape(ctx, g, ENEMY_TYPES[w.id % ENEMY_TYPES.length], scratch.x, scratch.y, 1, scratch.angle, time, enemyOpts);
-      }
+      // 3. entities
+      info.tick = gameState.tick;
+      info.alpha = alpha;
+      info.params = p;
+      info.reducedMotion = reduced;
+      drawEnemies(ctx, g, gameState, alpha, time, info, scratch);
 
       // 4-5. effects and floating text
       particles.draw(ctx, g);

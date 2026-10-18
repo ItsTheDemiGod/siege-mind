@@ -95,3 +95,9 @@ test('listenerCount and clear work', () => {
 test('EVENT_TYPES is frozen', () => {
   assert.ok(Object.isFrozen(EVENT_TYPES));
 });
+
+test('ENEMY_DAMAGED exists and EVENT_TYPES is still frozen', () => {
+  assert.equal(EVENT_TYPES.ENEMY_DAMAGED, 'enemy_damaged');
+  assert.ok(Object.isFrozen(EVENT_TYPES));
+  assert.doesNotThrow(() => createEventBus().on(EVENT_TYPES.ENEMY_DAMAGED, () => {}));
+});

@@ -9,7 +9,7 @@ const fakeStorage = () => {
 
 test('defaults', () => {
   assert.deepEqual(createSettings().getAll(), {
-    quality: 'high', autoQuality: true, screenShake: true, reducedMotion: false, particleDensity: 1,
+    quality: 'high', autoQuality: true, screenShake: true, reducedMotion: false, particleDensity: 1, damageNumbers: false,
   });
 });
 
@@ -88,4 +88,14 @@ test('reducedMotion default follows the injected preference; reset restores defa
   s.reset();
   assert.equal(s.get('reducedMotion'), true);
   assert.equal(s.get('quality'), 'high');
+});
+
+test('damageNumbers: default false, boolean-validated, persisted', () => {
+  const st = fakeStorage();
+  const a = createSettings({ storage: st });
+  assert.equal(a.get('damageNumbers'), false);
+  a.set('damageNumbers', 'yes');
+  assert.equal(a.get('damageNumbers'), false);
+  a.set('damageNumbers', true);
+  assert.equal(createSettings({ storage: st }).get('damageNumbers'), true);
 });

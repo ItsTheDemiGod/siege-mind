@@ -13,6 +13,7 @@ import { createTooltip } from './ui/tooltip.js';
 import { createToaster } from './ui/toast.js';
 import { createSettingsPanel } from './ui/settingsPanel.js';
 import { createDebugPanel } from './ui/debugPanel.js';
+import { createDebugTools } from './ui/debugTools.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -20,11 +21,12 @@ const ctx = canvas.getContext('2d');
 const uiRoot = document.getElementById('ui-root');
 const params = new URLSearchParams(location.search);
 
-// ?seed= may be an integer or any string; otherwise a random 32-bit seed. ?spawn=N overrides the debug spawn interval (ticks).
+// ?seed= may be an integer or any string; otherwise a random 32-bit seed. ?spawn=N sets the placeholder auto-spawner interval in ticks (0 = off).
 const seedParam = params.get('seed');
 const seed = seedParam === null ? crypto.getRandomValues(new Uint32Array(1))[0]
   : /^-?\d+$/.test(seedParam) ? Number(seedParam) : seedParam;
 const spawnParam = Number.parseInt(params.get('spawn') ?? '', 10);
+const debugSpawnEveryTicks = Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : undefined;
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* blocked storage: settings stay in memory */ }
@@ -32,7 +34,7 @@ const settings = createSettings({ storage, prefersReducedMotion: window.matchMed
 const applyReduced = () => document.documentElement.classList.toggle('reduced-motion', settings.get('reducedMotion'));
 applyReduced();
 
-const game = createGame({ seed, debugSpawnEveryTicks: spawnParam > 0 ? spawnParam : undefined });
+const game = createGame({ seed, debugSpawnEveryTicks });
 startGame(game);
 const stepper = createStepper();
 const quality = createQualityController({ tier: settings.get('quality'), auto: settings.get('autoQuality') });
@@ -44,6 +46,10 @@ const frameStats = createFrameStats();
 const toaster = createToaster({ root: uiRoot });
 createTooltip({ root: uiRoot });
 const debugPanel = createDebugPanel({ root: uiRoot, visible: config.debug.showHud });
+
+const debugTools = config.debug.tools ? createDebugTools({ game, fx: renderer.fx, toaster }) : null;
+const guardedKeys = {};
+if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) guardedKeys[k] = (e) => { if (!panel.isOpen) fn(e); };
 
 const control = {
   togglePause() { control.setPaused(!state.paused); },
@@ -97,8 +103,13 @@ bindKeys({
   setSpeed: (n) => { if (!panel.isOpen) control.setSpeed(n); },
   singleStep: () => { if (state.paused && !panel.isOpen) stepper.requestSingleStep(); },
   toggleHud: () => debugPanel.toggle(),
+}, guardedKeys);
+const world = { x: 0, y: 0 };
+canvas.addEventListener('pointerdown', (e) => {
+  renderer.clientToWorld(e, world);
+  const handled = debugTools ? debugTools.handleMapClick(world.x, world.y) : false;
+  if (!handled) renderer.handleClick(e.clientX, e.clientY); // plain Phase 1B test effect
 });
-canvas.addEventListener('pointerdown', (e) => { renderer.handleClick(e.clientX, e.clientY); });
 
 let last = null;
 let animTime = 0;
@@ -128,7 +139,9 @@ function frame(now) {
       `FPS ${frameStats.fps.toFixed(0)}  frame avg ${frameStats.avgMs.toFixed(1)} / p95 ${frameStats.p95Ms.toFixed(1)} / max ${frameStats.maxMs.toFixed(1)} ms\n`
       + `ticks/s ${tps.toFixed(0)}  sim speed ${(tps * config.sim.stepSeconds).toFixed(2)}x  tick ${game.tick}  time ${game.time.toFixed(1)}s\n`
       + `speed x${state.speed}  paused ${state.paused}  quality ${quality.tier}  particles ${s.particles}/${s.particleLimit}\n`
-      + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}  walkers ${game.walkers.length}`);
+      + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}
+`
+      + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);
   }
   requestAnimationFrame(frame);
 }

@@ -14,6 +14,7 @@ export function createSettings({ storage = null, prefersReducedMotion = false } 
     screenShake: true,
     reducedMotion: prefersReducedMotion,
     particleDensity: 1,
+    damageNumbers: false,
   });
   // Each key: coerce a candidate value to a valid one, or return undefined to reject it.
   const validators = {
@@ -21,6 +22,7 @@ export function createSettings({ storage = null, prefersReducedMotion = false } 
     autoQuality: (v) => (typeof v === 'boolean' ? v : undefined),
     screenShake: (v) => (typeof v === 'boolean' ? v : undefined),
     reducedMotion: (v) => (typeof v === 'boolean' ? v : undefined),
+    damageNumbers: (v) => (typeof v === 'boolean' ? v : undefined),
     particleDensity: (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0.25, v)) : undefined),
   };
 

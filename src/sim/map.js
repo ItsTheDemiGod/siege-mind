@@ -105,6 +105,35 @@ export function createMap(def) {
     return out;
   };
 
+  // Corner blending for sampleAt: heading and lateral normal ease across a range around each waypoint corner.
+  const segAngle = [];
+  for (let i = 1; i < pts.length; i++) segAngle.push(Math.atan2(pts[i].y - pts[i - 1].y, pts[i].x - pts[i - 1].x));
+  const corners = [];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const w = Math.min(config.path.cornerBlendUnits, 0.5 * Math.min(cum[i] - cum[i - 1], cum[i + 1] - cum[i]));
+    let delta = segAngle[i] - segAngle[i - 1];
+    delta -= Math.round(delta / (2 * Math.PI)) * 2 * Math.PI; // shortest arc
+    corners.push({ at: cum[i], w, a1: segAngle[i - 1], delta });
+  }
+
+  const sampleAt = (distance, lane, out) => {
+    const d = Math.min(Math.max(distance, 0), totalLength);
+    positionAt(d, out);
+    let angle = out.angle;
+    for (let i = 0; i < corners.length; i++) {
+      const c = corners[i];
+      if (Math.abs(d - c.at) < c.w) {
+        const t = (d - (c.at - c.w)) / (2 * c.w);
+        angle = c.a1 + c.delta * t * t * (3 - 2 * t);
+        break;
+      }
+    }
+    out.angle = angle;
+    out.x += -Math.sin(angle) * lane;
+    out.y += Math.cos(angle) * lane;
+    return out;
+  };
+
   const buildable = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (grid[r][c] === '.') buildable.push({ col: c, row: r });
 
@@ -127,6 +156,7 @@ export function createMap(def) {
     path: {
       totalLength,
       positionAt,
+      sampleAt,
       progressAt: (distance) => Math.min(Math.max(distance / totalLength, 0), 1),
     },
   };

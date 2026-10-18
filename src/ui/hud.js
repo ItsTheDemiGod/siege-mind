@@ -5,9 +5,9 @@ import { iconSvg } from './icons.js';
 
 const reduced = () => document.documentElement.classList.contains('reduced-motion');
 
-function chip(icon, label, numClass = 'num') {
+function chip(icon, label, numClass = 'num', extra = '') {
   const num = h('span', { class: numClass, text: '0' });
-  const root = h('div', { class: 'chip', role: 'group', 'aria-label': label }, [
+  const root = h('div', { class: `chip ${extra}`.trim(), role: 'group', 'aria-label': label }, [
     h('span', { html: iconSvg(icon, 22) }),
     h('span', { class: 'label', text: label }),
     num,
@@ -27,7 +27,7 @@ function pulse(el, cls) {
  * @returns {{set: Function, setSpeed: (n: number) => void, setPaused: (p: boolean) => void}}
  */
 export function createHud({ root, handlers }) {
-  const gold = chip('gold', 'Gold');
+  const gold = chip('gold', 'Gold', 'num', 'chip--gold');
   const lives = chip('lives', 'Lives');
   const wave = chip('wave', 'Wave', 'num num--wide');
   const shown = { gold: 0, lives: 0 };

@@ -1,26 +1,31 @@
 // Top-level game state and the fixed-step update.
 import { config } from '../data/config.js';
 import { DEFAULT_MAP } from '../data/map.js';
+import { ENEMY_ORDER } from '../data/enemies.js';
 import { createRng } from './rng.js';
 import { createEventBus, EVENT_TYPES } from './events.js';
 import { createMap } from './map.js';
+import { queueEnemy, stepEnemies } from './enemies.js';
 
 /**
  * Create a new game (plain-object state).
  * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number}} options
  * @returns {object} game state
  */
-export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.walkerSpawnEveryTicks }) {
+export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.autoSpawnEveryTicks }) {
+  const main = createRng(seed);
   return {
     seed,
-    rng: createRng(seed),
+    rng: main, // kept for compatibility; same object as rngs.main
+    rngs: { main, lane: main.fork('lane'), debug: main.fork('debugSpawn') },
     events: events ?? createEventBus(),
     map: createMap(mapDef),
     tick: 0,
     time: 0,
-    debugSpawnEveryTicks, // TEMPORARY (Phase 1A), stress-test knob for the debug walkers
-    walkers: [], // TEMPORARY (Phase 1A), see stepGame
-    nextWalkerId: 1,
+    debugSpawnEveryTicks, // TEMPORARY (Phase 2): 0 = off
+    enemies: [],
+    spawnQueue: [],
+    nextEnemyId: 1,
   };
 }
 
@@ -39,42 +44,29 @@ export function startGame(game) {
  * @returns {void}
  */
 export function stepGame(game) {
-  const { stepSeconds } = config.sim;
   game.tick++;
-  game.time = game.tick * stepSeconds;
+  game.time = game.tick * config.sim.stepSeconds;
 
-  // TEMPORARY (Phase 1A): proves loop, interpolation, path and RNG; replaced by the real enemy system in Phase 2
-  const dbg = config.debug;
-  if (game.tick % game.debugSpawnEveryTicks === 0) {
-    game.walkers.push({
-      id: game.nextWalkerId++,
-      distance: 0,
-      prevDistance: 0,
-      speed: dbg.walkerBaseSpeed * (1 + game.rng.range(-dbg.walkerSpeedJitter, dbg.walkerSpeedJitter)),
-    });
+  // TEMPORARY (Phase 2): replaced by the wave runner in Phase 4
+  if (game.debugSpawnEveryTicks > 0 && game.tick % game.debugSpawnEveryTicks === 0) {
+    queueEnemy(game, game.rngs.debug.pick(ENEMY_ORDER));
   }
-  const { walkers } = game;
-  for (let i = walkers.length - 1; i >= 0; i--) {
-    const w = walkers[i];
-    w.prevDistance = w.distance;
-    w.distance += w.speed * stepSeconds;
-    if (w.distance >= game.map.path.totalLength) {
-      walkers[i] = walkers[walkers.length - 1];
-      walkers.pop();
-    }
-  }
+
+  stepEnemies(game);
 }
 
 /**
- * JSON-serializable summary of the state, for tests and logging.
+ * JSON-serializable copy of the state, for tests and logging.
  * @param {object} game
- * @returns {{seed: number|string, tick: number, rngState: number, walkers: object[]}}
+ * @returns {object}
  */
 export function snapshotGame(game) {
   return {
     seed: game.seed,
     tick: game.tick,
-    rngState: game.rng.getState(),
-    walkers: game.walkers.map(({ id, distance, prevDistance, speed }) => ({ id, distance, prevDistance, speed })),
+    rngStates: { main: game.rngs.main.getState(), lane: game.rngs.lane.getState(), debug: game.rngs.debug.getState() },
+    nextEnemyId: game.nextEnemyId,
+    queue: game.spawnQueue.map((q) => ({ ...q })),
+    enemies: game.enemies.map((e) => ({ ...e })),
   };
 }

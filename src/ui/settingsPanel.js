@@ -24,7 +24,7 @@ export function createSettingsPanel({ root, settings, game }) {
   const sync = () => {
     if (!backdrop) return;
     refs.quality.value = settings.get('quality');
-    for (const k of ['autoQuality', 'screenShake', 'reducedMotion']) refs[k].setAttribute('aria-checked', String(settings.get(k)));
+    for (const k of ['autoQuality', 'screenShake', 'reducedMotion', 'damageNumbers']) refs[k].setAttribute('aria-checked', String(settings.get(k)));
     refs.particleDensity.value = settings.get('particleDensity');
   };
   settings.subscribe(sync);
@@ -48,6 +48,7 @@ export function createSettingsPanel({ root, settings, game }) {
       make('autoQuality', 'Auto-lower quality', 'Drops one tier if FPS stays low'),
       make('screenShake', 'Screen shake', 'Camera kick on impacts'),
       make('reducedMotion', 'Reduced motion', 'Minimizes animation and effects'),
+      make('damageNumbers', 'Floating damage numbers', 'Gold +N on kills is always shown'),
       h('div', { class: 'row' }, [h('div', { text: 'Particle density' }), refs.particleDensity]),
       h('div', { class: 'actions' }, [
         h('button', { type: 'button', class: 'btn btn--ghost', text: 'Reset', 'aria-label': 'Reset settings to defaults', onclick: () => settings.reset() }),

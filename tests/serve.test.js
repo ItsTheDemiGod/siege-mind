@@ -24,6 +24,7 @@ before(async () => {
   await writeFile(join(tmp, 'secret.txt'), MARKER);
   await writeFile(join(tmp, 'site', 'index.html'), '<h1>hi</h1>');
   await writeFile(join(tmp, 'site', 'app.js'), 'export {};');
+  await writeFile(join(tmp, 'site', 'icon.svg'), '<svg></svg>');
   server = createStaticServer(join(tmp, 'site'));
   await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
   port = server.address().port;
@@ -44,6 +45,12 @@ test('serves JS with a JavaScript content-type', async () => {
   const r = await get('/app.js');
   assert.equal(r.status, 200);
   assert.match(r.type, /^text\/javascript/);
+});
+
+test('serves SVG as image/svg+xml', async () => {
+  const r = await get('/icon.svg');
+  assert.equal(r.status, 200);
+  assert.match(r.type, /^image\/svg\+xml/);
 });
 
 test('missing file is 404', async () => {

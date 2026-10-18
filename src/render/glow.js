@@ -1,4 +1,4 @@
-// Glow sprite cache: pre-rendered radial gradients drawn additively (replaces per-frame shadowBlur).
+// Glow sprite cache: pre-rendered radial gradients drawn additively (replaces per-frame blur shadows).
 import { hexToRgb } from './color.js';
 
 const STEP = 4; // radius quantization in px

@@ -18,7 +18,7 @@ test('text and muted are readable on bg0 and panel (>= 4.5)', () => {
 
 test('enemy, defense, director and danger colors reach 3:1 on bg0', () => {
   const list = [
-    ...Object.values(enemy), colors.primary, colors.secondary, colors.tertiary, colors.whiteHot, colors.director, colors.danger,
+    ...Object.values(enemy), colors.primary, colors.secondary, colors.tertiary, colors.whiteHot, colors.director, colors.danger, colors.gold,
   ];
   for (const c of list) assert.ok(contrastRatio(c, colors.bg0) >= 3, `${c}: ${contrastRatio(c, colors.bg0)}`);
 });

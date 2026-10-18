@@ -5,6 +5,7 @@ export const EVENT_TYPES = Object.freeze({
   WAVE_STARTED: 'wave_started',
   WAVE_ENDED: 'wave_ended',
   ENEMY_SPAWNED: 'enemy_spawned',
+  ENEMY_DAMAGED: 'enemy_damaged',
   ENEMY_KILLED: 'enemy_killed',
   ENEMY_LEAKED: 'enemy_leaked',
   TOWER_PLACED: 'tower_placed',
