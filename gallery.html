@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Siege Mind — Style Gallery</title>
+<link rel="stylesheet" href="src/ui/style.css">
+<style>
+  /* Gallery-only layout. Colors come from the theme variables in style.css. */
+  html, body { height: auto; overflow: auto; display: block; }
+  body { padding-bottom: var(--space-6); }
+  #g-nav { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-2) var(--space-5);
+    background: color-mix(in srgb, var(--bg0) 92%, transparent); border-bottom: var(--border-width) solid var(--grid-line); backdrop-filter: blur(6px); }
+  #g-nav a { color: var(--defense-primary); text-decoration: none; font-family: var(--font-display); font-weight: 600; }
+  #g-nav a:hover { color: var(--white-hot); }
+  #g-content { max-width: 1000px; margin: 0 auto; padding: 0 var(--space-5); }
+  .g-section { padding-top: var(--space-5); scroll-margin-top: 48px; }
+  .g-section h2 { font-family: var(--font-display); font-size: 30px; margin: 0 0 var(--space-3); color: var(--defense-primary); }
+  .g-section h3 { font-family: var(--font-display); font-size: 18px; margin: var(--space-4) 0 var(--space-2); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .g-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin: var(--space-2) 0; }
+  .g-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--space-3); }
+  .g-swatch .chipcolor { height: 44px; border-radius: var(--radius-md); border: var(--border-width) solid var(--grid-line); }
+  .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .mono { font-family: var(--font-mono); font-size: 12px; }
+  .note { color: var(--muted); font-size: 13px; }
+  .sample-display { font-family: var(--font-display); font-size: 26px; }
+  .sample-body { font-family: var(--font-body); font-size: 16px; margin: 4px 0; }
+  .g-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-3); }
+  .g-icon { padding: var(--space-3); background: var(--panel); border-radius: var(--radius-md); color: var(--defense-primary); }
+  .g-icon .sizes { display: flex; align-items: flex-end; gap: var(--space-3); }
+  .g-stage { position: relative; display: inline-block; border: var(--border-width) solid var(--grid-line); border-radius: var(--radius-md); overflow: hidden; line-height: 0; }
+  .g-stage canvas { display: block; }
+  .g-hud { width: 100%; height: 60px; overflow: hidden; position: relative; background: var(--bg0); border-radius: var(--radius-md); }
+  .g-hud-inner { position: absolute; left: 0; top: 0; width: 1280px; height: 80px; transform: scale(0.75); transform-origin: 0 0; }
+  .g-hud-inner .hud { position: absolute; }
+  .g-zone { position: relative; min-height: 430px; border: var(--border-width) dashed var(--grid-line); border-radius: var(--radius-md); padding: var(--space-3); overflow: hidden; }
+  .g-table { border-collapse: collapse; width: 100%; margin-top: var(--space-3); }
+  .g-table th, .g-table td { text-align: left; padding: 6px 10px; border-bottom: var(--border-width) solid var(--grid-line); font-size: 13px; }
+</style>
+</head>
+<body>
+<nav id="g-nav" aria-label="Gallery sections"></nav>
+<main id="g-content"></main>
+<script type="module" src="src/gallery.js"></script>
+</body>
+</html>

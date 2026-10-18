@@ -36,3 +36,20 @@ test('backing size is round(css * dpr) and aspect is preserved', () => {
   assert.ok(Math.abs(f.backingWidth / f.backingHeight - 16 / 9) < 0.01);
   assert.ok(Math.abs(f.cssWidth / f.cssHeight - 16 / 9) < 1e-9);
 });
+
+test('pixel budget reduces dpr for huge windows but never below 1', () => {
+  const budget = 3686400;
+  const big = computeFit(1920, 1080, 1280, 720, 2, 2, budget);
+  assert.ok(big.dpr < 2 && big.dpr >= 1);
+  assert.ok(big.cssWidth * big.cssHeight * big.dpr * big.dpr <= budget * 1.0001);
+  const normal = computeFit(1280, 720, 1280, 720, 2, 2, budget);
+  assert.equal(normal.dpr, 2);
+  const tiny = computeFit(7680, 4320, 1280, 720, 1, 2, budget);
+  assert.equal(tiny.dpr, 1);
+});
+
+test('cssScale is the CSS-only scale', () => {
+  const f = computeFit(1920, 1080, 1280, 720, 2, 2);
+  assert.equal(f.cssScale, 1.5);
+  assert.equal(f.scale, 3);
+});

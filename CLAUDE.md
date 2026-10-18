@@ -61,9 +61,11 @@ siege-mind/
   gallery.html               <- style gallery page (visual QA)
   vendor/                    <- chart.umd.js (vendored)
   assets/
-    fonts/                   <- vendored woff2 (Rajdhani, Inter)
+    fonts/                   <- vendored woff2 (Rajdhani 500/600/700, Inter 400/500/600), OFL licenses, README.md
   src/
     main.js                  <- bootstraps game, wires sim + render + ui
+    gallery.js               <- style gallery wiring (live stages, effects lab, quality)
+    galleryStatic.js         <- gallery sections: palette, type, enemies, icons, UI kit, colorblind
     sim/                     <- PURE logic, runs in Node
       rng.js
       game.js                <- top-level game state + step()
@@ -84,21 +86,33 @@ siege-mind/
       config.js              <- economy, lives, director hyperparameters
       map.js                 <- default map grid + waypoints
     render/                  <- canvas drawing only
-      theme.js               <- palette, tokens, easing
-      layers.js              <- layered renderer, cached background
+      theme.js               <- palette, tokens, durations, fonts, cssVariables()
+      color.js               <- hex/mix/contrast/deltaE, colorblind simulation (Machado 2009)
+      tween.js               <- easing + pooled tween manager
       glow.js                <- glow sprite cache, additive helpers
-      particles.js           <- pooled particle system
-      tween.js               <- tween/easing utilities
-      fit.js                 <- canvas fit to window, DPR-aware
-      debugRenderer.js       <- TEMPORARY plain scene (replaced in Phase 1B/2)
+      particles.js           <- pooled SoA particle system
+      floatText.js           <- pooled floating texts
+      shake.js               <- screen shake (fx rng)
+      quality.js             <- Low/Medium/High controller, auto-downgrade only
+      perf.js                <- rate meter + frame stats (pure)
+      shapes.js              <- procedural enemy shapes + silhouettes
+      layers.js              <- cached static layer, path flow, portal, core, motes
+      renderer.js            <- owns fx systems, draw order, fx API
+      fit.js                 <- canvas fit to window, DPR + backing-pixel budget
     ui/                      <- HUD, menus, overlays, analytics panel
-      style.css              <- CSS variables mirroring theme.js
-      hud.js
+      style.css              <- CSS variables mirroring theme.js (parity tested)
+      dom.js                 <- tiny element helper
+      hud.js                 <- top HUD bar
       icons.js               <- inline SVG icon set
+      tooltip.js             <- shared tooltip
+      toast.js               <- aria-live toasts
+      settings.js            <- persisted settings (injectable storage)
+      settingsPanel.js       <- settings modal
+      debugPanel.js          <- DOM debug readout
       keys.js                <- dev keyboard controls
     audio/
       synth.js               <- WebAudio procedural SFX
-  tests/                     <- node:test unit tests for src/sim/*
+  tests/                     <- node:test unit tests (sim, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
   experiments/
     bots.js                  <- bot player strategies
     run.js                   <- headless batch runner
@@ -257,15 +271,16 @@ Status key: [ ] not started, [~] in progress, [x] done
 **Done when:** loop, pause, speed, and RNG determinism tests pass and a plain map renders at 60 FPS. Tag: phase-1a-complete.
 Debug scene and walkers are temporary; replaced in Phase 1B (visuals) and Phase 2 (real enemies).
 
-### [ ] Phase 1B — Visual foundation and UI kit
-- [ ] src/render/theme.js (palette, tokens, easing), fonts vendored (or fallback), src/ui/style.css with matching CSS variables
-- [ ] Layered renderer with cached static background (grid, vignette), glowing path with animated flow, subtle ambient animation
-- [ ] Glow sprite cache and additive-blend helpers
-- [ ] Pooled particle system with quality tiers and caps; tween/easing utilities; floating text
-- [ ] UI kit: HUD top bar skeleton (gold, lives, wave), panels, buttons, tooltips, inline SVG icon set
-- [ ] Quality settings (Low/Med/High, auto-downgrade), reduced-motion and screen-shake toggles
-- [ ] gallery.html style gallery page
+### [~] Phase 1B — Visual foundation and UI kit
+- [x] src/render/theme.js (palette, tokens, easing), fonts vendored (or fallback), src/ui/style.css with matching CSS variables
+- [x] Layered renderer with cached static background (grid, vignette), glowing path with animated flow, subtle ambient animation
+- [x] Glow sprite cache and additive-blend helpers
+- [x] Pooled particle system with quality tiers and caps; tween/easing utilities; floating text
+- [x] UI kit: HUD top bar skeleton (gold, lives, wave), panels, buttons, tooltips, inline SVG icon set
+- [x] Quality settings (Low/Med/High, auto-downgrade), reduced-motion and screen-shake toggles
+- [x] gallery.html style gallery page
 **Done when:** the map looks on-style at 60 FPS, the gallery page shows every component, and the user approves the look. Tag: phase-1b-complete.
+Implemented; awaiting user visual approval, then tag phase-1b-complete. (Not verified in a real browser by Claude: the Chrome extension was not connected.)
 
 ### [ ] Phase 2 — Enemy system
 - [ ] Path-following movement with `pathProgress` tracking
@@ -353,6 +368,20 @@ Debug scene and walkers are temporary; replaced in Phase 1B (visuals) and Phase 
 - 2026-10-18 | 1A | Dev controls: Space pause, 1/2/3 speed, N single-step while paused, backquote toggles debug HUD; tab hidden auto-pauses without auto-resume | Needed to inspect the loop before real UI exists
 - 2026-10-18 | 1A | validateMap checks grid size against config.world (cols x rows) rather than only internal consistency; createMap/validateMap take only the map def | Keeps map data and config from silently disagreeing
 - 2026-10-18 | 1A | Default seed when no ?seed= is a random 32-bit value from crypto.getRandomValues (render layer only; sim never calls Math.random) | Each page load differs; seeds can be replayed via the URL
+- 2026-10-18 | 1B | Fonts vendored from @fontsource/rajdhani 5.3.0 and @fontsource/inter 5.3.0 (npm pack in a temp dir, latin woff2, SIL OFL 1.1), 119 KB total | Offline demos, no CDN; no package.json dependency added
+- 2026-10-18 | 1B | DOM UI is authored in 1280x720 logical px inside #ui-root and scaled with the stage (transform scale = fit.cssScale, not fit.scale, which includes DPR) | Canvas and DOM share one coordinate system
+- 2026-10-18 | 1B | Static layer cached at backing resolution, rebuilt on size/dpr/tier/map change at most every 150 ms (shouldRebuild); old canvas is scaled in between | Resize stays cheap, no per-frame background cost
+- 2026-10-18 | 1B | Spawn portal is drawn in Director violet | The Director sends the waves
+- 2026-10-18 | 1B | Quality tiers Low/Medium/High; auto-downgrade only (one tier after FPS < 45 for 3 s, 10 s cooldown), never upgrades; first sample after start/reset seeds the FPS average | Avoids oscillation; fast reaction on a bad start
+- 2026-10-18 | 1B | Backing-pixel budget 3686400 (2560x1440): dpr reduced, never below 1 | Bounds fill cost on large/hi-dpi displays
+- 2026-10-18 | 1B | Settings persisted in localStorage under siegeMind.settings.v1 through an injectable storage (only settings.js and one try/catch line in main.js touch it) | Testable, safe when storage is blocked
+- 2026-10-18 | 1B | CSS/theme parity enforced by tests/theme.test.js (style.css :root must equal cssVariables()); :root was generated from theme.js once | theme.js and CSS cannot drift
+- 2026-10-18 | 1B | ticks/s reading of 34 at x1: measurement artifact. The Phase 1A meter divided a count over a fixed 1 s window that also contained paused/hidden time. Replaced by render/perf.js (bucketed rate meter reset on resume, ticks only counted while running) plus a "sim speed" readout (ticks/s x step) that should read 1.00 / 2.00 / 3.00 | Stepper tests already prove 60/120/180 steps per simulated second
+- 2026-10-18 | 1B | createGame accepts debugSpawnEveryTicks (default config.debug.walkerSpawnEveryTicks) for ?spawn=N stress tests; sim stays pure | Only sim change in 1B
+- 2026-10-18 | 1B | Tower accent colors: lance primary, mortar secondary, frost whiteHot, poison tertiary, sniper primary; danger red #ff4d5e (6.07:1 on bg0); palette passed all contrast and deltaE>=25 tests unchanged | Section 6B starting palette held up
+- 2026-10-18 | 1B | Font URLs in style.css are relative (../../assets/fonts/) instead of absolute /assets/fonts/ | Keeps working under a GitHub Pages sub-path
+- 2026-10-18 | 1B | renderer.draw(game, alpha, dt, time, paused): extra paused flag freezes fx; renderer.handleClick does the dev click effect; waypoints for the static layer come from DEFAULT_MAP | Keeps main.js wiring-only; sim map object stays unchanged
+- 2026-10-18 | 1B | Gallery splits into src/gallery.js and src/galleryStatic.js; effects lab and map preview each run a full renderer on a shared quality controller | Module size limit; same code path as the game
 - 2026-10-18 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
 - 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
 - 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
@@ -362,6 +391,10 @@ Debug scene and walkers are temporary; replaced in Phase 1B (visuals) and Phase 
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
 - Phase 0 test `tests/boot.test.js` is a runner sanity check only; it can be removed once real tests dominate.
 - Debug walkers use `prevDistance`/`distance` interpolation; when real enemies arrive in Phase 2 they must keep the same prev/current pattern for smooth rendering.
+- Phase 1B was NOT run in a real browser by Claude (extension not connected): no measured FPS, and layout/visuals are unverified beyond node --check, a stub-canvas smoke test and file serving. User approval pass needed.
+- Whether Rajdhani digits are tabular is unknown until the gallery numerals row is read; HUD numbers use tabular-nums plus min-width regardless.
+- p95 frame stat sorts a preallocated Float32Array 4x per second (typed-array sort may allocate internally); renderer allocates only at event time (fx.burst option spread, HUD count-up closures).
+- Gallery effect-lab/map-preview stages each run a full renderer; both pause when scrolled out of view.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -369,3 +402,4 @@ Debug scene and walkers are temporary; replaced in Phase 1B (visuals) and Phase 
 - 2026-10-18 | Maintenance | Moved dev server to port 8137 (PORT override), dual-stack loopback bind, added dev alias, traversal tests, Node 22+ | Phase 1: game loop, RNG, event bus, map rendering
 - 2026-10-18 | Docs | CLAUDE.md upgraded with Visual Design Bible, quality criteria, and Phase 1A/1B split | Phase 1A
 - 2026-10-18 | Phase 1A | Built fixed-timestep stepper, seeded RNG with forks, strict event bus, validated 20x10 map and path, game state with temporary debug walkers, DPR-aware fit, debug renderer, dev keys; 96 tests pass; headless sim ~4.2M steps/s | Phase 1B: visual foundation and UI kit
+- 2026-10-18 | Phase 1B | Built perf meters, vendored fonts, color/theme/tween/particles/floatText/shake/quality/settings/icons modules, procedural enemy shapes, layered renderer with cached static background, DOM UI kit (HUD, tooltip, toast, settings modal, debug panel), style gallery; 206 tests pass; no real-browser run | User approves the look (check main page and gallery), then Phase 2

@@ -1,0 +1,144 @@
+/* Siege Mind UI. Variables in :root mirror src/render/theme.js (tests/theme.test.js enforces parity).
+   Sections: 1 fonts, 2 variables, 3 base, 4 stage, 5 HUD, 6 buttons, 7 controls, 8 overlays, 9 debug, 10 motion. */
+
+/* ---------- 1. Fonts (vendored, SIL OFL; see assets/fonts/README.md) ---------- */
+@font-face { font-family: "Rajdhani"; font-weight: 500; font-display: swap; src: url("../../assets/fonts/rajdhani-500.woff2") format("woff2"); }
+@font-face { font-family: "Rajdhani"; font-weight: 600; font-display: swap; src: url("../../assets/fonts/rajdhani-600.woff2") format("woff2"); }
+@font-face { font-family: "Rajdhani"; font-weight: 700; font-display: swap; src: url("../../assets/fonts/rajdhani-700.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 400; font-display: swap; src: url("../../assets/fonts/inter-400.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 500; font-display: swap; src: url("../../assets/fonts/inter-500.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: swap; src: url("../../assets/fonts/inter-600.woff2") format("woff2"); }
+
+/* ---------- 2. Variables ---------- */
+:root {
+  --bg0: #070b14;
+  --bg1: #0d1424;
+  --panel: #111a2e;
+  --grid-line: #17233f;
+  --text: #e8f0ff;
+  --muted: #7f90b0;
+  --white-hot: #e6fbff;
+  --director: #a56bff;
+  --danger: #ff4d5e;
+  --defense-primary: #35e0ff;
+  --defense-secondary: #5b8cff;
+  --defense-tertiary: #7af0d0;
+  --enemy-armored-grunt: #ff8a3d;
+  --enemy-swarmling: #ff3d8b;
+  --enemy-fast-runner: #ffd84d;
+  --enemy-regenerator: #a6ff4d;
+  --enemy-shielded-bruiser: #ff5252;
+  --shield-ring: #ffe9e9;
+  --tower-lance: #35e0ff;
+  --tower-mortar: #5b8cff;
+  --tower-frost: #e6fbff;
+  --tower-poison: #7af0d0;
+  --tower-sniper: #35e0ff;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --border-width: 1px;
+  --glow-border-alpha: 0.35;
+  --dur-fast: 120ms;
+  --dur-normal: 180ms;
+  --dur-slow: 250ms;
+  --font-display: "Rajdhani", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+/* ---------- 3. Base ---------- */
+html, body { margin: 0; height: 100%; background: var(--bg0); color: var(--text); overflow: hidden; }
+body { display: flex; align-items: center; justify-content: center; font-family: var(--font-body); font-size: 14px; }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--defense-primary); outline-offset: 2px; }
+svg.icon { display: inline-block; flex: none; vertical-align: middle; }
+
+/* ---------- 4. Stage (canvas + DOM overlay share 1280x720 logical px) ---------- */
+#stage { position: relative; flex: none; overflow: hidden; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#ui-root { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; pointer-events: none; }
+
+/* ---------- 5. HUD ---------- */
+.hud { position: absolute; left: 0; top: 0; width: 1280px; height: 80px; box-sizing: border-box; padding: 0 var(--space-5);
+  display: flex; align-items: center; justify-content: space-between; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hud-cluster { display: flex; align-items: center; gap: var(--space-4); }
+.chip { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3);
+  background: color-mix(in srgb, var(--panel) 80%, transparent); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) calc(var(--glow-border-alpha) * 100%), transparent);
+  border-radius: var(--radius-md); color: var(--defense-primary); }
+.chip .label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.num { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1; color: var(--text);
+  font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; display: inline-block; min-width: 3.2ch; text-align: right; }
+.num--wide { min-width: 7ch; }
+.chip.is-pop { animation: pop var(--dur-normal) ease-out; }
+.chip.is-hurt { animation: hurt var(--dur-slow) ease-out; }
+@keyframes pop { 40% { transform: scale(1.12); } }
+@keyframes hurt { 0%, 60% { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 12px color-mix(in srgb, var(--danger) 50%, transparent); } }
+
+/* ---------- 6. Buttons ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 36px; padding: 0 var(--space-4);
+  font-family: var(--font-display); font-weight: 600; font-size: 16px; letter-spacing: 0.04em; cursor: pointer;
+  background: color-mix(in srgb, var(--panel) 85%, transparent); color: var(--text);
+  border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) calc(var(--glow-border-alpha) * 100%), transparent);
+  border-radius: var(--radius-md); transition: background var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast), box-shadow var(--dur-fast); }
+.btn:hover { border-color: var(--defense-primary); box-shadow: 0 0 10px color-mix(in srgb, var(--defense-primary) 35%, transparent); }
+.btn:active { transform: translateY(1px) scale(0.98); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
+.btn--primary { background: var(--defense-primary); color: var(--bg0); border-color: var(--defense-primary); }
+.btn--primary:hover { background: var(--white-hot); }
+.btn--ghost { background: transparent; border-color: transparent; }
+.btn--icon { width: 36px; padding: 0; }
+.btn--danger { border-color: var(--danger); color: var(--danger); }
+.btn.is-active, .btn[aria-pressed="true"] { background: color-mix(in srgb, var(--defense-primary) 22%, var(--panel)); border-color: var(--defense-primary); color: var(--defense-primary); }
+
+/* ---------- 7. Controls: switch, slider, select, panel ---------- */
+.panel { background: color-mix(in srgb, var(--panel) 88%, transparent); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) calc(var(--glow-border-alpha) * 100%), transparent);
+  border-radius: var(--radius-lg); padding: var(--space-4); box-shadow: 0 0 24px color-mix(in srgb, var(--defense-primary) 10%, transparent); }
+.panel--director { border-color: color-mix(in srgb, var(--director) 55%, transparent); box-shadow: 0 0 24px color-mix(in srgb, var(--director) 18%, transparent); }
+.switch { position: relative; width: 44px; height: 24px; padding: 0; cursor: pointer; border-radius: 12px;
+  background: var(--bg1); border: var(--border-width) solid var(--muted); transition: background var(--dur-fast), border-color var(--dur-fast); }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted);
+  transition: transform var(--dur-fast), background var(--dur-fast); }
+.switch[aria-checked="true"] { background: color-mix(in srgb, var(--defense-primary) 30%, var(--bg1)); border-color: var(--defense-primary); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); background: var(--defense-primary); }
+.slider { width: 160px; accent-color: var(--defense-primary); }
+.select { min-height: 32px; padding: 0 var(--space-2); background: var(--bg1); border: var(--border-width) solid var(--muted); border-radius: var(--radius-sm); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-2) 0; }
+.row .hint { color: var(--muted); font-size: 12px; }
+
+/* ---------- 8. Overlays: tooltip, toasts, modal ---------- */
+.tooltip { position: absolute; z-index: 30; max-width: 260px; pointer-events: none; padding: var(--space-2) var(--space-3); font-size: 12px; line-height: 1.4;
+  background: var(--panel); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) 50%, transparent); border-radius: var(--radius-md);
+  opacity: 0; transition: opacity var(--dur-fast); }
+.tooltip.is-visible { opacity: 1; }
+.tooltip .t-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--defense-primary); }
+.toasts { position: absolute; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 25; display: flex; flex-direction: column; gap: var(--space-2); align-items: center; pointer-events: none; }
+.toast { pointer-events: auto; padding: var(--space-2) var(--space-4); background: var(--panel); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) 50%, transparent);
+  border-radius: var(--radius-md); animation: toast-in var(--dur-normal) ease-out; }
+.toast.is-leaving { opacity: 0; transition: opacity var(--dur-normal); }
+.toast--director { border-color: var(--director); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
+.modal-backdrop { pointer-events: auto; position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg0) 70%, transparent); animation: fade-in var(--dur-normal); }
+.modal { width: 420px; max-height: 600px; overflow: auto; }
+.modal h2 { margin: 0 0 var(--space-3); font-family: var(--font-display); font-size: 24px; }
+.modal .actions { display: flex; justify-content: space-between; margin-top: var(--space-4); }
+@keyframes fade-in { from { opacity: 0; } }
+
+/* ---------- 9. Debug panel ---------- */
+.debug-panel { position: absolute; left: var(--space-2); bottom: var(--space-2); margin: 0; padding: var(--space-2) var(--space-3); z-index: 20;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.5; white-space: pre; color: var(--text);
+  background: color-mix(in srgb, var(--bg0) 80%, transparent); border: var(--border-width) solid var(--grid-line); border-radius: var(--radius-sm); }
+.debug-panel[hidden] { display: none; }
+
+/* ---------- 10. Reduced motion ---------- */
+.reduced-motion *, .reduced-motion *::before, .reduced-motion *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

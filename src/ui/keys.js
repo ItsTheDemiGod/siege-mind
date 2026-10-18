@@ -1,5 +1,7 @@
 // Dev keyboard controls. Calls handlers only; owns no state.
 
+const SELF_HANDLED = 'button, select, input, textarea, [role="switch"]';
+
 /**
  * Bind the dev keys.
  * @param {{togglePause: () => void, setSpeed: (n: number) => void, singleStep: () => void, toggleHud: () => void}} handlers
@@ -8,8 +10,8 @@
 export function bindKeys(handlers) {
   const onKeyDown = (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const tag = e.target?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return;
+    const t = e.target;
+    if (t instanceof Element && (t.matches(SELF_HANDLED) || t.isContentEditable)) return; // controls handle their own keys
     switch (e.code) {
       case 'Space':
         e.preventDefault(); // stop the page scrolling

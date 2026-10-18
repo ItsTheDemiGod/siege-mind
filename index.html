@@ -4,14 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Siege Mind</title>
-<style>
-  html, body { margin: 0; height: 100%; background: #070b14; overflow: hidden; }
-  body { display: flex; align-items: center; justify-content: center; }
-  canvas { display: block; } /* size is set by JS (src/render/fit.js) */
-</style>
+<link rel="stylesheet" href="src/ui/style.css">
 </head>
 <body>
-<canvas id="game" width="1280" height="720"></canvas>
+<div id="stage">
+  <canvas id="game" width="1280" height="720"></canvas>
+  <div id="ui-root"></div>
+</div>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

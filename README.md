@@ -30,3 +30,11 @@ PORT=9000 npm start
 | ` (backquote) | Toggle debug HUD |
 
 Add `?seed=<integer or text>` to the URL to replay a specific seed, e.g. http://localhost:8137/?seed=12345.
+
+More dev controls:
+
+- Click on the map = spawn a test effect (ring, sparks, floating "+25", small shake).
+- Backquote toggles the debug panel (FPS, frame ms avg/p95/max, ticks/s, sim speed, quality, particles).
+- `?spawn=N` sets the debug walker spawn interval in ticks (stress test: `?spawn=6` gives roughly 360 walkers).
+- The gear button in the HUD opens Settings (quality, auto-lower quality, screen shake, reduced motion, particle density).
+- Style gallery: http://localhost:8137/gallery.html

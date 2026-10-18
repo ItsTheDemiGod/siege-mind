@@ -7,10 +7,10 @@ import { createMap } from './map.js';
 
 /**
  * Create a new game (plain-object state).
- * @param {{seed: number|string, mapDef?: object, events?: object}} options
+ * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number}} options
  * @returns {object} game state
  */
-export function createGame({ seed, mapDef = DEFAULT_MAP, events }) {
+export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.walkerSpawnEveryTicks }) {
   return {
     seed,
     rng: createRng(seed),
@@ -18,6 +18,7 @@ export function createGame({ seed, mapDef = DEFAULT_MAP, events }) {
     map: createMap(mapDef),
     tick: 0,
     time: 0,
+    debugSpawnEveryTicks, // TEMPORARY (Phase 1A), stress-test knob for the debug walkers
     walkers: [], // TEMPORARY (Phase 1A), see stepGame
     nextWalkerId: 1,
   };
@@ -44,7 +45,7 @@ export function stepGame(game) {
 
   // TEMPORARY (Phase 1A): proves loop, interpolation, path and RNG; replaced by the real enemy system in Phase 2
   const dbg = config.debug;
-  if (game.tick % dbg.walkerSpawnEveryTicks === 0) {
+  if (game.tick % game.debugSpawnEveryTicks === 0) {
     game.walkers.push({
       id: game.nextWalkerId++,
       distance: 0,
