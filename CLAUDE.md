@@ -24,6 +24,9 @@ Context: game development class project (solo). Goal is a polished, fully playab
 4. Adaptive Director measurably changes wave composition in response to player loadout (visible in the overlay).
 5. Headless experiment harness produces results (CSV/JSON + charts) comparing Static vs Adaptive across multiple bot strategies and 30+ seeds each.
 6. Deployed to a public URL (GitHub Pages or Vercel) with a README, demo script, and report material.
+7. Visual consistency: every entity, effect, and UI element follows the Visual Design Bible (Section 6B); no placeholder shapes remain after Phase 1B.
+8. Performance: stable 60 FPS with 150+ enemies and 40+ towers on a mid-range laptop at default quality; a Low quality mode exists for weak machines.
+9. Engineering quality: tests pass in CI on every push, headless experiments are reproducible from a seed, and the README includes GIFs and an architecture diagram.
 
 ## 3. Tech Stack and Hard Constraints
 
@@ -33,7 +36,7 @@ Context: game development class project (solo). Goal is a polished, fully playab
 - **Node.js 22+** is for dev tooling only: local server, tests (`node --test`), headless simulation.
 - **Runtime dependencies allowed:** Chart.js only. Ask the user before adding anything else.
 - **Target:** latest desktop Chrome/Edge. Logical canvas 1280x720, scaled to fit the window.
-- **Assets:** prefer free CC0 assets (e.g. Kenney.nl) or procedurally drawn shapes. Early phases use simple placeholder shapes. Never use copyrighted assets.
+- **Assets:** All visuals are procedural (canvas, SVG, CSS) per Section 6B. Placeholder shapes are allowed only through Phase 1A. Optional CC0 assets (e.g. Kenney.nl) or fonts only with the user's approval. Never use copyrighted assets.
 
 ## 4. Architecture Rules (non-negotiable; log any change in Section 13)
 
@@ -44,6 +47,7 @@ Context: game development class project (solo). Goal is a polished, fully playab
 5. **Event bus.** The sim emits events (`wave_started`, `enemy_spawned`, `enemy_killed`, `enemy_leaked`, `tower_fired`, `tower_placed`, `wave_ended`, `game_over`). Telemetry, audio, particles, and UI subscribe to events instead of being called directly from sim code.
 6. **Serializable state.** Game state is plain objects/arrays (no class instances holding DOM or closures) so runs can be logged and replayed.
 7. **Small modules.** One responsibility per file, aim for under ~300 lines, ES module imports/exports only, no globals.
+8. **Render performance rules.** No per-frame object allocation in hot paths (pool particles and projectiles), no per-frame shadowBlur (use cached glow sprites), static background cached to an offscreen canvas, canvas is devicePixelRatio-aware (clamp DPR at 2), and rendering interpolates between fixed sim steps so motion is smooth at any refresh rate.
 
 ## 5. Folder Structure (target)
 
@@ -53,7 +57,10 @@ siege-mind/
   README.md
   package.json               <- scripts: start, test, sim
   index.html
+  gallery.html               <- style gallery page (visual QA)
   vendor/                    <- chart.umd.js (vendored)
+  assets/
+    fonts/                   <- vendored woff2 (Rajdhani, Inter)
   src/
     main.js                  <- bootstraps game, wires sim + render + ui
     sim/                     <- PURE logic, runs in Node
@@ -74,8 +81,17 @@ siege-mind/
       waves.js               <- static script + threat-budget curve
       config.js              <- economy, lives, director hyperparameters
     render/                  <- canvas drawing only
+      theme.js               <- palette, tokens, easing
+      layers.js              <- layered renderer, cached background
+      glow.js                <- glow sprite cache, additive helpers
+      particles.js           <- pooled particle system
+      tween.js               <- tween/easing utilities
     ui/                      <- HUD, menus, overlays, analytics panel
+      style.css              <- CSS variables mirroring theme.js
+      hud.js
+      icons.js               <- inline SVG icon set
     audio/
+      synth.js               <- WebAudio procedural SFX
   tests/                     <- node:test unit tests for src/sim/*
   experiments/
     bots.js                  <- bot player strategies
@@ -85,6 +101,10 @@ siege-mind/
   docs/
     DEMO_SCRIPT.md
     REPORT_NOTES.md
+    screens/                 <- screenshots and GIFs for README/report
+  .github/
+    workflows/
+      test.yml               <- CI (Phase 10, or earlier once a GitHub remote exists)
 ```
 
 ## 6. Game Design Spec
@@ -116,6 +136,40 @@ siege-mind/
 Exact numeric stats are decided in Phases 2 and 3, stored in `src/data/`, and recorded in Section 13.
 
 **Waves:** 30 waves. Each wave has a **threat budget** from an escalation curve in `data/waves.js`. Static Mode uses a fixed hand-authored composition per wave. Adaptive Mode spends the SAME budget but chooses composition via the Director. Boss/special waves (e.g. 10, 20, 30) are fixed in both modes.
+
+## 6B. Visual Design Bible
+
+**Concept:** "Holographic war room." The battlefield is a dark holographic tactical table. The player (Defense) is cool cyan/blue light. Enemies and the Director are contrasting hot colors. Mood: sleek, tense, readable. All visuals are procedural (canvas, SVG, CSS) with no raster art required. Optional CC0 assets (e.g. Kenney) only for icons/audio, only with the user's approval.
+
+**Starting palette** (final values live in src/render/theme.js and are tuned in the style gallery for contrast and colorblind safety):
+- Backgrounds: bg0 #070b14, bg1 #0d1424, panel #111a2e, gridLine #17233f
+- Text: #e8f0ff, muted #7f90b0
+- Defense (cool): primary #35e0ff, secondary #5b8cff, tertiary #7af0d0, white-hot #e6fbff
+- Director accent: violet #a56bff
+- Enemies: Armored Grunt orange #ff8a3d (hexagon), Swarmling magenta #ff3d8b (small triangles), Fast Runner yellow #ffd84d (elongated chevron), Regenerator lime #a6ff4d (circle with pulsing ring), Shielded Bruiser coral #ff5252 (large octagon with a pale rotating shield ring #ffe9e9)
+- Rule: every enemy and tower is identifiable by silhouette AND color; never color alone.
+
+**Typography:** Rajdhani (headings and HUD numbers, tabular numerals) and Inter (body), both OFL-licensed, vendored as woff2 in assets/fonts/ with a system-font fallback. If a download is needed, ask the user for approval first.
+
+**Rendering:**
+- Layers: (1) cached static background (grid, vignette, path base), (2) animated path flow and ambient effects, (3) entities, (4) additive-blend effects, (5) overlays (range rings, placement ghost). HUD and menus are DOM/CSS over the canvas for crisp text.
+- Glow via pre-rendered glow sprites drawn with globalCompositeOperation 'lighter'.
+- Particles: pooled, hard caps per quality tier (Low 300 / Medium 800 / High 2000), zero allocation in the frame loop.
+- Quality tiers Low/Medium/High; auto-downgrade if FPS stays under 45 for 3 seconds (user can override).
+- Easing and tween helpers; UI transitions 120-250 ms.
+- Settings: screen-shake toggle, reduced-motion toggle, particle density.
+
+**Juice standard** (every gameplay event gets visible feedback in the same frame):
+- Enemy spawn: scale-in plus brief ring. Hit: ~60 ms white flash plus sparks. Death: burst proportional to enemy size, small shockwave, floating "+gold" text. Leak: base core pulse, brief red vignette flash, subtle shake.
+- Tower place: build-in animation plus ring. Sell: dissolve. Fire: muzzle flash, recoil kick, projectile trails, a distinct impact effect per tower type (Mortar shockwave ring, Frost ice shards and aura, Poison cloud, Sniper laser line, Lance piercing streak).
+- Wave start: banner slide-in with wave number and composition icons. Wave end: summary toast.
+- Director event (Adaptive Mode): when composition shifts, a violet "scan" sweep across the HUD and the changed enemy types highlighted.
+
+**UI:** DOM/CSS overlay HUD driven by CSS variables mirroring theme.js; semi-transparent dark panels with 1px glow borders; consistent hand-built inline SVG icons; tooltips with stats and counter info; keyboard shortcuts shown; responsive to window size.
+
+**Audio** (implemented in Phase 9 via event-bus subscribers): WebAudio procedural synth for SFX (no asset dependency); optional CC0 ambient loop chosen by the user; master/SFX/music volume; audio starts only after the first user gesture.
+
+**Style gallery:** gallery.html renders palette swatches, every enemy and tower at multiple sizes, particle effect demos, and UI components, as a permanent visual QA page and a source of screenshots for the report.
 
 ## 7. Director AI Spec (Phase 6)
 
@@ -167,6 +221,7 @@ Collected via the event bus, never by sim code calling telemetry directly.
 4. Implement in small steps. Run the game/tests as you go (`npm start`, `npm test`).
 5. Respect Section 4 rules. If a rule must change, stop, tell the user why, and log it in Section 13.
 6. Do not add dependencies without asking.
+5b. VISUAL BAR: from Phase 2 onward a feature is not done until it follows Section 6B and has its juice effects. No placeholder rectangles after Phase 1B. At phase end, list 2-3 moments the user should screenshot or record into docs/screens/.
 7. At the end of the phase:
    - Run all tests; fix failures.
    - Update the Phase Tracker (Section 12): tick completed items, set status.
@@ -187,19 +242,30 @@ Status key: [ ] not started, [~] in progress, [x] done
 - [x] Initial commit
 **Done when:** `npm start` opens a blank canvas page with no console errors and `npm test` passes.
 
-### [ ] Phase 1 — Core engine: game loop, map, path, rendering
-- [ ] Fixed-timestep loop with x1/x2/x3 speed, pause
-- [ ] Seeded RNG (`rng.js`) + determinism test
+### [ ] Phase 1A — Core engine (no art yet)
+- [ ] Fixed-timestep loop with x1/x2/x3 speed and pause, render interpolation alpha
+- [ ] Seeded RNG (rng.js) plus determinism test
 - [ ] Event bus
-- [ ] Tile map, path definition, buildable cells; render grid and path
-- [ ] Canvas scaling to window, basic debug HUD (FPS, tick count)
-**Done when:** a styled map renders at 60 FPS, pause/speed work, tests pass.
+- [ ] Tile map, path definition, buildable cells (data only, plain rendering is fine)
+- [ ] DPR-aware canvas scaling to window, debug HUD (FPS, tick count)
+**Done when:** loop, pause, speed, and RNG determinism tests pass and a plain map renders at 60 FPS. Tag: phase-1a-complete.
+
+### [ ] Phase 1B — Visual foundation and UI kit
+- [ ] src/render/theme.js (palette, tokens, easing), fonts vendored (or fallback), src/ui/style.css with matching CSS variables
+- [ ] Layered renderer with cached static background (grid, vignette), glowing path with animated flow, subtle ambient animation
+- [ ] Glow sprite cache and additive-blend helpers
+- [ ] Pooled particle system with quality tiers and caps; tween/easing utilities; floating text
+- [ ] UI kit: HUD top bar skeleton (gold, lives, wave), panels, buttons, tooltips, inline SVG icon set
+- [ ] Quality settings (Low/Med/High, auto-downgrade), reduced-motion and screen-shake toggles
+- [ ] gallery.html style gallery page
+**Done when:** the map looks on-style at 60 FPS, the gallery page shows every component, and the user approves the look. Tag: phase-1b-complete.
 
 ### [ ] Phase 2 — Enemy system
 - [ ] Path-following movement with `pathProgress` tracking
 - [ ] 5 enemy types from `data/enemies.js` (HP, speed, armor, regen, shield, pack spawn)
 - [ ] Damage model (armor, shield, DoT immunity rules), death and leak events
 - [ ] Health bars/placeholder visuals; debug spawner (keys to spawn each type)
+- [ ] Enemies drawn procedurally per Section 6B (distinct silhouette and color per type), spawn-in, hit flash, death burst, leak effect, floating damage/gold numbers (toggle)
 **Done when:** all 5 enemy types walk the path, behave per spec, and leak/die with correct events; unit tests for damage math.
 
 ### [ ] Phase 3 — Tower system
@@ -207,6 +273,7 @@ Status key: [ ] not started, [~] in progress, [x] done
 - [ ] Targeting modes (first, strongest, closest) and range display
 - [ ] 5 towers from `data/towers.js` with projectiles/effects (pierce, splash, slow, poison stacking + regen stop, sniper shield bonus)
 - [ ] Counter relationships verifiably working
+- [ ] Towers drawn procedurally with visible upgrade levels, rotation toward target, muzzle flash and recoil, projectile trails, distinct impact effects per tower, placement ghost with valid/invalid tint, range rings
 **Done when:** each tower type visibly counters/loses to the enemies in Section 6; tests for damage and status effects.
 
 ### [ ] Phase 4 — Economy, static waves, game flow (playable baseline)
@@ -214,6 +281,7 @@ Status key: [ ] not started, [~] in progress, [x] done
 - [ ] 30-wave static script + threat-budget curve in `data/waves.js`
 - [ ] Wave runner (start wave button/auto-start, between-wave timer), HUD
 - [ ] Main menu, game over/victory screens, restart
+- [ ] Styled main menu, animated wave banner, between-wave countdown, base core with damage states, animated game over/victory screens
 **Done when:** a human can play wave 1 to 30 in Static Mode start to finish.
 
 ### [ ] Phase 5 — Telemetry layer
@@ -232,6 +300,7 @@ Status key: [ ] not started, [~] in progress, [x] done
 - [ ] Vendor Chart.js; live panel: effectiveness bars, weight history, per-wave reason text
 - [ ] Menu toggle Static/Adaptive; in-game overlay show/hide hotkey
 - [ ] Wave preview ("incoming composition") bar
+- [ ] Director identity in violet (animated Director panel, animated weight bars, scan-sweep on composition change) and a 'Director's Report' end-of-run screen: weight timeline, what the Director learned about the player's build, and one-line plain-language insights
 **Done when:** a viewer can watch the overlay and understand why each wave changed.
 
 ### [ ] Phase 8 — Headless experiment harness
@@ -240,10 +309,14 @@ Status key: [ ] not started, [~] in progress, [x] done
 - [ ] Stats (mean, 95% CI, significance test) for Static vs Adaptive
 **Done when:** one command reproduces the full comparison and produces report-ready charts.
 
-### [ ] Phase 9 — Balance, juice, and polish
-- [ ] Balance pass using harness data (no tower/enemy dominates)
-- [ ] Particles, hit feedback, screen shake (subtle), tower/enemy art pass, audio SFX/music
-- [ ] Tutorial/tooltips, settings (volume, speed), accessibility basics (colorblind-safe palette)
+### [ ] Phase 9 — Final polish, audio, and balance
+- [ ] Balance pass using harness data
+- [ ] Procedural WebAudio SFX plus optional music
+- [ ] Performance profiling against Section 2 criterion 8
+- [ ] Accessibility pass (colorblind check, reduced motion)
+- [ ] Final visual tuning in the gallery
+- [ ] Tutorial/tooltips
+- [ ] Settings screen
 **Done when:** the game feels good to play for 15+ minutes and balance data supports it.
 
 ### [ ] Phase 10 — Docs, deployment, and demo
@@ -251,6 +324,7 @@ Status key: [ ] not started, [~] in progress, [x] done
 - [ ] `docs/DEMO_SCRIPT.md` (side-by-side Static vs Adaptive demo)
 - [ ] `docs/REPORT_NOTES.md` (method, DDA background, results, limitations, future work)
 - [ ] Deploy (GitHub Pages or Vercel), final regression test, tag `v1.0`
+- [ ] .github/workflows/test.yml running npm test on push, README GIFs and screenshots in docs/screens/, architecture diagram, report figures from Phase 8
 **Done when:** public URL works and all Section 2 success criteria are met.
 
 ## 13. Decisions Log
@@ -263,6 +337,9 @@ Status key: [ ] not started, [~] in progress, [x] done
 - 2026-10-18 | 0 | Dev server binds both 127.0.0.1 and ::1 (never 0.0.0.0); ::1 failure with EADDRNOTAVAIL/EAFNOSUPPORT is ignored | On Windows localhost may resolve to IPv6 first and hit a different server
 - 2026-10-18 | 0 | Node 22+ required (package.json engines) | Glob patterns in node --test need it
 - 2026-10-18 | 0 | serve.js exports createStaticServer(rootDir) and only listens when run directly; covered by tests/serve.test.js (traversal cases) | Testable without opening a fixed port
+- 2026-10-18 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
+- 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
+- 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
 
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
@@ -272,3 +349,4 @@ Status key: [ ] not started, [~] in progress, [x] done
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
 - 2026-10-16 | Phase 0 | Verified Node v24.18.0 / Git 2.54; git init (main), .gitignore, package.json, folder skeleton, placeholder modules, dev server, boot page, trivial tests; checks passed | Phase 1: game loop, RNG, event bus, map rendering
 - 2026-10-18 | Maintenance | Moved dev server to port 8137 (PORT override), dual-stack loopback bind, added dev alias, traversal tests, Node 22+ | Phase 1: game loop, RNG, event bus, map rendering
+- 2026-10-18 | Docs | CLAUDE.md upgraded with Visual Design Bible, quality criteria, and Phase 1A/1B split | Phase 1A
