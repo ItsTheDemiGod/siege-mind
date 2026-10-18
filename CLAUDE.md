@@ -30,7 +30,7 @@ Context: game development class project (solo). Goal is a polished, fully playab
 - **Language:** vanilla JavaScript, ES modules. No TypeScript, no framework, no bundler.
 - **Rendering:** HTML5 Canvas 2D.
 - **Charts:** Chart.js, vendored locally into `vendor/` (NOT loaded from a CDN, so demos work offline).
-- **Node.js 20+** is for dev tooling only: local server, tests (`node --test`), headless simulation.
+- **Node.js 22+** is for dev tooling only: local server, tests (`node --test`), headless simulation.
 - **Runtime dependencies allowed:** Chart.js only. Ask the user before adding anything else.
 - **Target:** latest desktop Chrome/Edge. Logical canvas 1280x720, scaled to fit the window.
 - **Assets:** prefer free CC0 assets (e.g. Kenney.nl) or procedurally drawn shapes. Early phases use simple placeholder shapes. Never use copyrighted assets.
@@ -180,7 +180,7 @@ Collected via the event bus, never by sim code calling telemetry directly.
 Status key: [ ] not started, [~] in progress, [x] done
 
 ### [x] Phase 0 — Environment, repo, and project skeleton
-- [x] Verify Node 20+, Git; init repo, `.gitignore`, `package.json` (scripts: start, test, sim)
+- [x] Verify Node 22+, Git; init repo, `.gitignore`, `package.json` (scripts: start, test, sim)
 - [x] Create folder structure from Section 5 (empty placeholder files where needed)
 - [x] `index.html` + `main.js` that draws a blank canvas and logs "Siege Mind boot OK"
 - [x] `npm start` serves the game locally; `npm test` runs a trivial passing test
@@ -256,9 +256,13 @@ Status key: [ ] not started, [~] in progress, [x] done
 ## 13. Decisions Log
 <!-- Format: YYYY-MM-DD | Phase | Decision | Reason -->
 - Project start | Stack fixed to vanilla JS + Canvas + Chart.js; sim/render separation, fixed timestep, and seeded RNG chosen so headless experiments (Phase 8) reuse the real game code.
-- 2026-10-16 | 0 | Dev server is zero-dependency `scripts/serve.js` (node: built-ins only) on port 5173; 403 on path traversal, 404 on missing files | Keeps "no runtime deps" rule; simple and portable
-- 2026-10-16 | 0 | `npm test` script is `node --test "tests/**/*.test.js"` instead of `node --test tests/` | Node 24 treats a bare directory arg as a module and fails; quoted glob works on Node 20+ and Windows
+- 2026-10-16 | 0 | Dev server is zero-dependency `scripts/serve.js` (node: built-ins only) on port 8137; 403 on path traversal, 404 on missing files | Keeps "no runtime deps" rule; simple and portable
+- 2026-10-16 | 0 | `npm test` script is `node --test "tests/**/*.test.js"` instead of `node --test tests/` | Node 24 treats a bare directory arg as a module and fails; quoted glob works on Node 22+ and Windows
 - 2026-10-16 | 0 | Placeholder modules under src/sim, src/data, experiments/bots.js contain only a comment + `export {};` | Valid ES modules until their phase
+- 2026-10-18 | 0 | Dev server default port 8137, override with PORT env var (integer 0-65535) | Vite default 5173 collides with other local projects
+- 2026-10-18 | 0 | Dev server binds both 127.0.0.1 and ::1 (never 0.0.0.0); ::1 failure with EADDRNOTAVAIL/EAFNOSUPPORT is ignored | On Windows localhost may resolve to IPv6 first and hit a different server
+- 2026-10-18 | 0 | Node 22+ required (package.json engines) | Glob patterns in node --test need it
+- 2026-10-18 | 0 | serve.js exports createStaticServer(rootDir) and only listens when run directly; covered by tests/serve.test.js (traversal cases) | Testable without opening a fixed port
 
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
@@ -267,3 +271,4 @@ Status key: [ ] not started, [~] in progress, [x] done
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
 - 2026-10-16 | Phase 0 | Verified Node v24.18.0 / Git 2.54; git init (main), .gitignore, package.json, folder skeleton, placeholder modules, dev server, boot page, trivial tests; checks passed | Phase 1: game loop, RNG, event bus, map rendering
+- 2026-10-18 | Maintenance | Moved dev server to port 8137 (PORT override), dual-stack loopback bind, added dev alias, traversal tests, Node 22+ | Phase 1: game loop, RNG, event bus, map rendering
