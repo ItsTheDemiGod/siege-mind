@@ -1,0 +1,51 @@
+// Headless full-game playthrough with a bot. CLI: npm run playthrough -- --bot=balanced --seed=1
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
+import { config } from '../src/data/config.js';
+import { STATIC_THREAT } from '../src/data/waves.js';
+import { createGame, stepGame } from '../src/sim/game.js';
+import { EVENT_TYPES } from '../src/sim/events.js';
+import { createBot } from './bots.js';
+
+const ACT_EVERY_TICKS = 120; // while a wave is running
+
+/**
+ * Play one full static-mode game.
+ * @param {{seed?: number, bot: {act: Function}, maxTicks?: number, gameOptions?: object}} o
+ * @returns {{result: 'won'|'lost'|'timeout', wave: number, lives: number, ticks: number, seconds: number, stats: object, perWave: object[]}}
+ */
+export function playGame({ seed = 1, bot, maxTicks = 600000, gameOptions = {} }) {
+  const game = createGame({ seed, debugSpawnEveryTicks: 0, ...gameOptions });
+  const perWave = [];
+  game.events.on(EVENT_TYPES.WAVE_ENDED, (ev) => {
+    perWave.push({
+      wave: ev.wave, threat: STATIC_THREAT[ev.wave - 1], kills: ev.kills, leaks: ev.leaks, livesLost: ev.livesLost,
+      livesAfter: ev.lives, gold: game.gold, towers: game.towers.length,
+    });
+  });
+  while (!game.over && game.tick < maxTicks) {
+    const phase = game.waves.phase;
+    if (phase === 'prep' || phase === 'intermission' || game.tick % ACT_EVERY_TICKS === 0) bot.act(game);
+    stepGame(game);
+  }
+  return {
+    result: game.over ? game.result : 'timeout', wave: game.waves.current, lives: game.lives, ticks: game.tick,
+    seconds: game.tick * config.sim.stepSeconds, stats: { ...game.stats }, perWave,
+  };
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const arg = (name, def) => (process.argv.find((a) => a.startsWith(`--${name}=`)) ?? `--${name}=${def}`).split('=')[1];
+  const botName = arg('bot', 'balanced');
+  const seed = Number(arg('seed', 1));
+  const t0 = performance.now();
+  const r = playGame({ seed, bot: createBot(botName) });
+  const ms = performance.now() - t0;
+  console.log(`bot=${botName} seed=${seed}`);
+  console.log('wave  threat  kills  leaks  livesLost  livesAfter   gold  towers');
+  for (const w of r.perWave) {
+    console.log([w.wave, w.threat, w.kills, w.leaks, w.livesLost, w.livesAfter, Math.round(w.gold), w.towers].map((v, i) => String(v).padStart([4, 7, 7, 7, 11, 11, 7, 8][i])).join(''));
+  }
+  console.log(`result=${r.result} wave=${r.wave} lives=${r.lives} game time=${r.seconds.toFixed(0)}s ticks=${r.ticks} (${(r.ticks / (ms / 1000)).toFixed(0)} steps/s, wall ${ms.toFixed(0)} ms)`);
+  console.log(JSON.stringify(r.stats));
+}

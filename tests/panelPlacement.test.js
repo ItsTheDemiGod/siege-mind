@@ -53,3 +53,14 @@ test('invalid sizes throw', () => {
   }
   assert.throws(() => placeTowerPanel({ ...base, towerX: NaN }), RangeError);
 });
+
+test('the wave control never overlaps the bottom tower panels or the HUD strip', () => {
+  const { waveControlWidth: w, waveControlHeight: h, waveControlBottomMargin: bottom } = config.ui;
+  const wave = { left: (stageW - w) / 2, top: stageH - bottom - h, w, h };
+  const panels = [
+    { left: margin, top: stageH - margin - panelH, w: panelW, h: panelH }, // bottom-left
+    { left: stageW - margin - panelW, top: stageH - margin - panelH, w: panelW, h: panelH }, // bottom-right
+  ];
+  for (const p of panels) assert.equal(intersects(wave, p), false);
+  for (const r of [wave, ...panels]) assert.ok(r.top >= hudH && r.left >= 0 && r.left + r.w <= stageW && r.top + r.h <= stageH);
+});

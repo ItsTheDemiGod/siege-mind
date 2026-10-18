@@ -9,7 +9,7 @@ const RING_DASH = [8, 8];
 const NO_DASH = [];
 const BRACKET = 10;
 const REASON_TEXT = {
-  insufficient_gold: 'Not enough gold', occupied: 'Tile occupied', tower_limit: 'Tower limit reached',
+  insufficient_gold: 'Not enough gold', occupied: 'Tile occupied', tower_limit: 'Tower limit reached', game_over: 'The game is over',
 };
 const DEFAULT_REASON = "Can't build there";
 

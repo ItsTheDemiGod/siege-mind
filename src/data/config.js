@@ -22,6 +22,7 @@ export const config = Object.freeze({
     startGold: 150,
     startLives: 20,
     totalWaves: 30,
+    mode: 'static',
   }),
   quality: Object.freeze({
     low: Object.freeze({ name: 'low', particleCap: 300, floatTextCap: 16, ambientMotes: 0, maxDpr: 1, pathPulseSpacing: 192, glow: false }),
@@ -40,6 +41,10 @@ export const config = Object.freeze({
     durSlow: 0.25,
     tooltipDelay: 0.25,
     towerPanelRefreshSeconds: 0.25,
+    waveControlWidth: 300,
+    waveControlHeight: 64,
+    waveControlBottomMargin: 16,
+    endScreenWidth: 420,
     towerPanelWidth: 300,
     towerPanelHeight: 176,
     towerPanelMargin: 16,
@@ -47,10 +52,28 @@ export const config = Object.freeze({
   }),
   economy: Object.freeze({
     sellRefundFraction: 0.7,
+    waveClearBonusBase: 20,
+    waveClearBonusPerWave: 4,
   }),
   towers: Object.freeze({
     maxLevel: 2,
     maxTowers: 80,
+  }),
+  waves: Object.freeze({
+    intermissionSeconds: 20,
+    autoStartNext: true,
+    autoStartFirst: false,
+    budgetScale: 3.6,
+    budgetBase: 40,
+    budgetLinear: 22,
+    budgetQuad: 1.6,
+    windowBaseSeconds: 14,
+    windowPerWave: 0.9,
+    windowMaxSeconds: 40,
+    startStaggerSeconds: 0.8,
+    minGapSeconds: Object.freeze({ armoredGrunt: 0.4, swarmling: 2.0, fastRunner: 1.0, regenerator: 0.8, shieldedBruiser: 1.0 }),
+    budgetTolerancePct: 0.05,
+    budgetToleranceMin: 12,
   }),
   combat: Object.freeze({
     minArmorDamageFraction: 0.2,
@@ -85,7 +108,7 @@ export const config = Object.freeze({
   debug: Object.freeze({
     clickEffects: true,
     enabledByUrl: true, // documentation only: the switch is the ?debug=1 URL parameter
-    autoSpawnEveryTicks: 90, // TEMPORARY (Phase 2): placeholder spawner, 0 = off; replaced by the wave runner in Phase 4
+    autoSpawnEveryTicks: 0, // debug-only random spawner (off by default; ?debug=1&spawn=N turns it on); waves come from the wave runner
     tools: true,
     showHud: false, // the debug panel is hidden by default; the backquote key toggles it
   }),

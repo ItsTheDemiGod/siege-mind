@@ -122,3 +122,56 @@ test('stepping with towers firing never calls Math.random', () => {
     Math.random = original;
   }
 });
+
+// ---- Phase 4A: waves, lives and scripted commands ----
+import { startNextWave } from '../src/sim/waveRunner.js';
+
+const scripted = (seed, steps) => {
+  const g = createGame({ seed, startGold: 100000 });
+  const plan = { 5: ['lance', 15, 2], 10: ['mortar', 14, 2], 15: ['frost', 16, 2], 20: ['poison', 13, 2], 25: ['sniper', 12, 2] };
+  for (let i = 0; i < steps; i++) {
+    stepGame(g);
+    if (plan[g.tick]) placeTower(g, ...plan[g.tick]);
+    if (g.tick === 30 || g.tick === 3000) startNextWave(g);
+  }
+  return g;
+};
+
+test('same seed + same scripted commands give deep-equal snapshots after 8000 steps; different seeds differ', () => {
+  const a = snapshotGame(scripted(31, 8000));
+  assert.deepEqual(a, snapshotGame(scripted(31, 8000)));
+  assert.notDeepEqual(a, snapshotGame(scripted(32, 8000)));
+  assert.ok(a.stats.enemiesSpawned > 0 && a.waves.current >= 1);
+});
+
+test('snapshot with lives, stats and waves populated survives a JSON round trip', () => {
+  const g = scripted(4, 2500);
+  const snap = snapshotGame(g);
+  assert.equal(snap.lives, g.lives);
+  assert.ok(snap.stats.enemiesSpawned > 0);
+  assert.equal(snap.waves.phase, g.waves.phase);
+  assert.deepEqual(JSON.parse(JSON.stringify(snap)), snap);
+});
+
+test('a whole wave never calls Math.random', () => {
+  const original = Math.random;
+  Math.random = () => { throw new Error('Math.random used in sim'); };
+  try {
+    const g = createGame({ seed: 8, startGold: 100000 });
+    placeTower(g, 'lance', 15, 2);
+    startNextWave(g);
+    for (let i = 0; i < 4000; i++) stepGame(g);
+    assert.ok(g.stats.enemiesSpawned > 0);
+  } finally {
+    Math.random = original;
+  }
+});
+
+test('the debug auto-spawn is off by default and on when debugSpawnEveryTicks > 0', () => {
+  const off = createGame({ seed: 1 });
+  for (let i = 0; i < 600; i++) stepGame(off);
+  assert.equal(off.stats.enemiesSpawned, 0);
+  const on = createGame({ seed: 1, debugSpawnEveryTicks: 30 });
+  for (let i = 0; i < 600; i++) stepGame(on);
+  assert.ok(on.stats.enemiesSpawned > 0);
+});

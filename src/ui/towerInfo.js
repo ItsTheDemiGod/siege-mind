@@ -44,6 +44,9 @@ export function reasonText(reason) {
     case 'occupied': return 'Tile occupied';
     case 'tower_limit': return 'Tower limit reached';
     case 'max_level': return 'Already at max level';
+    case 'game_over': return 'The game is over';
+    case 'wave_in_progress': return 'A wave is already running';
+    case 'no_more_waves': return 'No more waves';
     case 'not_buildable':
     case 'out_of_bounds':
     case 'unknown_type':

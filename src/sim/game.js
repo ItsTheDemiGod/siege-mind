@@ -9,13 +9,26 @@ import { queueEnemy, stepEnemies } from './enemies.js';
 import { stepProjectiles } from './projectiles.js';
 import { stepTowers, getTowerById } from './towers.js';
 import { wireEconomy } from './economy.js';
+import { wireLives } from './lives.js';
+import { createStats, wireStats } from './stats.js';
+import { createWavesState, wireWaves, stepWaves, freezeInterpolation } from './waveRunner.js';
+import { TOTAL_WAVES } from '../data/waves.js';
 
 /**
  * Create a new game (plain-object state).
- * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number, startGold?: number}} options
+ * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number, startGold?: number, startLives?: number,
+ *   mode?: 'static', startWave?: number, wavesConfig?: object}} options - startWave is for the debug URL; wavesConfig overrides config.waves (tests)
  * @returns {object} game state
  */
-export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.autoSpawnEveryTicks, startGold = config.game.startGold }) {
+export function createGame({
+  seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.autoSpawnEveryTicks, startGold = config.game.startGold,
+  startLives = config.game.startLives, mode = config.game.mode, startWave, wavesConfig = {},
+}) {
+  if (mode === 'adaptive') throw new Error('Adaptive mode is implemented in Phase 6');
+  if (mode !== 'static') throw new RangeError(`unknown game mode: ${String(mode)}`);
+  if (startWave !== undefined && (!Number.isInteger(startWave) || startWave < 1 || startWave > TOTAL_WAVES)) {
+    throw new RangeError(`startWave must be an integer 1..${TOTAL_WAVES}, got ${String(startWave)}`);
+  }
   const main = createRng(seed);
   const game = {
     seed,
@@ -25,7 +38,7 @@ export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEvery
     map: createMap(mapDef),
     tick: 0,
     time: 0,
-    debugSpawnEveryTicks, // TEMPORARY (Phase 2): 0 = off
+    debugSpawnEveryTicks, // debug-only random spawner interval, 0 = off
     enemies: [],
     spawnQueue: [],
     nextEnemyId: 1,
@@ -36,9 +49,20 @@ export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEvery
     projectiles: [],
     nextProjectileId: 1,
     occupancy: [],
+    mode,
+    wavesCfg: { ...config.waves, ...wavesConfig },
+    lives: startLives,
+    over: false,
+    result: null,
+    stats: createStats(),
+    waves: createWavesState(),
   };
   game.occupancy = new Array(game.map.cols * game.map.rows).fill(0);
+  if (startWave !== undefined) { game.waves.nextWave = startWave; game.waves.current = startWave - 1; }
   wireEconomy(game);
+  wireStats(game); // stats and wave counters before lives: lives can end the game from inside the leak event
+  wireWaves(game);
+  wireLives(game);
   // Per-tower statistics, driven by attribution on the events.
   game.events.on(EVENT_TYPES.ENEMY_DAMAGED, (ev) => { const t = getTowerById(game, ev.towerId); if (t) t.damageDealt += ev.amount; });
   game.events.on(EVENT_TYPES.ENEMY_KILLED, (ev) => { const t = getTowerById(game, ev.towerId); if (t) t.kills++; });
@@ -60,10 +84,11 @@ export function startGame(game) {
  * @returns {void}
  */
 export function stepGame(game) {
+  if (game.over) return; // the game has ended: nothing advances any more
   game.tick++;
   game.time = game.tick * config.sim.stepSeconds;
 
-  // TEMPORARY (Phase 2): replaced by the wave runner in Phase 4
+  // Debug-only random spawner (stays available behind ?debug=1); real enemies come from the wave runner
   if (game.debugSpawnEveryTicks > 0 && game.tick % game.debugSpawnEveryTicks === 0) {
     queueEnemy(game, game.rngs.debug.pick(ENEMY_ORDER));
   }
@@ -71,6 +96,8 @@ export function stepGame(game) {
   stepEnemies(game);
   stepProjectiles(game); // before towers: a projectile fired this tick starts moving next tick
   stepTowers(game);
+  stepWaves(game);
+  if (game.over) freezeInterpolation(game); // the game ended during this step: settle everything that moved after the event
 }
 
 /**
@@ -85,6 +112,11 @@ export function snapshotGame(game) {
     rngStates: { main: game.rngs.main.getState(), lane: game.rngs.lane.getState(), debug: game.rngs.debug.getState() },
     nextEnemyId: game.nextEnemyId,
     gold: game.gold,
+    lives: game.lives,
+    over: game.over,
+    result: game.result,
+    stats: { ...game.stats },
+    waves: { ...game.waves, plan: game.waves.plan ? JSON.parse(JSON.stringify(game.waves.plan)) : null, waveStats: { ...game.waves.waveStats } },
     nextTowerId: game.nextTowerId,
     nextProjectileId: game.nextProjectileId,
     towers: game.towers.map((t) => ({ ...t })),

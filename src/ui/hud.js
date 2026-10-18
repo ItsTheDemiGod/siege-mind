@@ -70,6 +70,7 @@ export function createHud({ root, handlers }) {
     bar, // the HUD element, so other UI (the build tray) can live inside the strip
     /** @param {{gold?: number, lives?: number, wave?: number, waveTotal?: number}} v */
     set({ gold: g, lives: l, wave: w, waveTotal }) {
+      // lives and gold animate; the wave chip shows "current / total"
       if (g !== undefined && g !== last.gold) {
         countTo('gold', gold.num, g);
         if (last.gold !== null) pulse(gold.root, 'is-pop');

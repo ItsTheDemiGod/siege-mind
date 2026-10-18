@@ -11,9 +11,9 @@ import { createGame, stepGame } from '../src/sim/game.js';
 import { queueEnemy } from '../src/sim/enemies.js';
 import { placeTower, upgradeTower, getTowerStats } from '../src/sim/towers.js';
 import { EVENT_TYPES } from '../src/sim/events.js';
+import { rankBuildableTiles } from './tiles.js';
 
 const HUGE_GOLD = 1e9;
-const SAMPLE_STEP = 8; // world units between path samples when choosing the tile
 const DEFAULT_SPACING = 20;
 
 let cachedTile = null;
@@ -25,23 +25,9 @@ let cachedTile = null;
 export function primaryTile() {
   if (cachedTile) return cachedTile;
   const game = createGame({ seed: 1, debugSpawnEveryTicks: 0 });
-  const range = TOWERS.lance.range;
-  const pos = { x: 0, y: 0, angle: 0 };
-  const samples = [];
-  for (let d = 0; d <= game.map.path.totalLength; d += SAMPLE_STEP) {
-    game.map.path.positionAt(d, pos);
-    samples.push({ x: pos.x, y: pos.y });
-  }
-  let best = null;
-  let bestCount = -1;
-  for (const cell of game.map.buildableCells()) { // row-major order: ties resolve to the first cell
-    const c = game.map.tileToWorld(cell.col, cell.row);
-    let n = 0;
-    for (const s of samples) if (Math.hypot(s.x - c.x, s.y - c.y) <= range) n++;
-    if (n > bestCount) { best = cell; bestCount = n; }
-  }
-  cachedTile = best;
-  return best;
+  const best = rankBuildableTiles(game.map, TOWERS.lance.range)[0];
+  cachedTile = { col: best.col, row: best.row };
+  return cachedTile;
 }
 
 /**

@@ -8,7 +8,8 @@
     "dev": "node scripts/serve.js",
     "test": "node --test \"tests/**/*.test.js\"",
     "sim": "node experiments/run.js",
-    "matchups": "node experiments/matchups.js"
+    "matchups": "node experiments/matchups.js",
+    "playthrough": "node experiments/playthrough.js"
   },
   "engines": {
     "node": ">=22"

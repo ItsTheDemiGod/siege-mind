@@ -1,4 +1,5 @@
-// Monospace debug readout (bottom-left of the stage), toggled with the backquote key.
+// Monospace debug readout (top centre, just below the HUD strip), toggled with the backquote key.
+import { config } from '../data/config.js';
 import { h } from './dom.js';
 
 /**
@@ -8,6 +9,7 @@ import { h } from './dom.js';
 export function createDebugPanel({ root, visible = true }) {
   const pre = h('pre', { class: 'debug-panel', 'aria-hidden': 'true' });
   pre.hidden = !visible;
+  pre.style.top = `${config.view.hudHeight + 8}px`; // top centre, just below the HUD strip
   root.append(pre);
   return {
     update(text) { if (!pre.hidden) pre.textContent = text; },

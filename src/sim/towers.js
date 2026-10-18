@@ -63,6 +63,7 @@ export function getTowerById(game, id) {
  * @returns {{ok: boolean, reason?: string}}
  */
 export function canPlaceTower(game, typeId, col, row) {
+  if (game.over) return { ok: false, reason: 'game_over' };
   const def = TOWERS[typeId];
   if (!def) return { ok: false, reason: 'unknown_type' };
   if (game.map.tileAt(col, row) === null) return { ok: false, reason: 'out_of_bounds' };
@@ -100,6 +101,7 @@ export function placeTower(game, typeId, col, row) {
  * @returns {{ok: boolean, reason?: string}}
  */
 export function upgradeTower(game, towerId) {
+  if (game.over) return { ok: false, reason: 'game_over' };
   const t = getTowerById(game, towerId);
   if (!t) return { ok: false, reason: 'unknown_tower' };
   if (t.level >= config.towers.maxLevel) return { ok: false, reason: 'max_level' };
@@ -118,6 +120,7 @@ export function upgradeTower(game, towerId) {
  * @returns {{ok: boolean, refund: number}}
  */
 export function sellTower(game, towerId) {
+  if (game.over) return { ok: false, refund: 0, reason: 'game_over' };
   const t = getTowerById(game, towerId);
   if (!t) return { ok: false, refund: 0 };
   const refund = Math.floor(t.invested * config.economy.sellRefundFraction);

@@ -34,7 +34,7 @@ Add `?seed=<integer or text>` to the URL to replay a specific seed, e.g. http://
 More dev controls:
 
 - Backquote shows/hides the debug panel (hidden by default; FPS, frame ms avg/p95/max, ticks/s, sim speed, quality, particles).
-- `?spawn=N` sets the placeholder auto-spawner (one random enemy every N ticks, 0 = off; default 90). It stays on by default until Phase 4 adds waves.
+- Enemies now come only from the 30 waves. `?debug=1&spawn=N` turns on the old random spawner (one random enemy every N ticks) for testing.
 - The gear button in the HUD opens Settings (quality, auto-lower quality, screen shake, reduced motion, particle density).
 - Style gallery: http://localhost:8137/gallery.html
 
@@ -52,3 +52,10 @@ More dev controls:
 - Pick a click tool: Z direct 40, X piercing 40, C sniper 60 (x3 vs shields), V poison, B frost, M splash 25 (radius 90). A toast names the tool; the debug panel shows it.
 - Click on an enemy to apply the selected tool (a miss falls back to the plain test effect; splash always draws its ring).
 - Settings has a "Floating damage numbers" switch (gold +N on kills is always shown).
+
+### Waves and the end of the game (Phase 4A)
+
+- A wave control at the bottom centre shows the wave state. **Enter** (or its button) starts the next wave; wave 1 waits for you, later waves start automatically after a 20 s intermission (starting early is allowed and pays no bonus). Clearing a wave pays 20 + 4 x wave gold.
+- Leaks cost lives; at 0 lives, or after clearing wave 30, a results card appears with **Retry same seed** and **New seed** (it reloads the page with `?seed=`). Esc hides it; "Show results" brings it back.
+- `?debug=1&wave=N` starts at wave N, `?debug=1&startlives=N` sets the lives, `?mode=` accepts only `static` (anything else shows a toast; Adaptive arrives in Phase 6).
+- `npm run playthrough -- --bot=balanced --seed=1` plays a full headless game with a bot and prints a per-wave table (bots: `none`, `balanced`).

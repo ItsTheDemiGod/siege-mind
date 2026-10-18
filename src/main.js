@@ -2,6 +2,7 @@
 import { config } from './data/config.js';
 import { createGame, startGame, stepGame } from './sim/game.js';
 import { EVENT_TYPES } from './sim/events.js';
+import { enemiesRemaining, getWaveCountdownSeconds } from './sim/waveRunner.js';
 import { createStepper } from './sim/stepper.js';
 import { computeFit, applyFit } from './render/fit.js';
 import { createRenderer } from './render/renderer.js';
@@ -20,6 +21,9 @@ import { createBuildController } from './ui/buildController.js';
 import { createBuildTray } from './ui/buildTray.js';
 import { createTowerPanel } from './ui/towerPanel.js';
 import { applyStress } from './ui/stress.js';
+import { createWaveControl } from './ui/waveControl.js';
+import { createEndScreen } from './ui/endScreen.js';
+import { TOTAL_WAVES } from './data/waves.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -37,7 +41,12 @@ const debug = params.get('debug') === '1';
 const stress = debug && params.get('stress') === '1'; // ?debug=1&stress=1: 40 towers and a spawn every 3 ticks
 const STRESS_SPAWN_TICKS = 3;
 const STRESS_GOLD = 1e6;
-const debugSpawnEveryTicks = Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : stress ? STRESS_SPAWN_TICKS : undefined;
+const debugSpawnEveryTicks = debug && Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : stress ? STRESS_SPAWN_TICKS : undefined; // debug-only
+const modeParam = params.get('mode'); // static only until Phase 6
+const waveParam = Number.parseInt(params.get('wave') ?? '', 10); // debug only: start at wave N
+const startWave = debug && Number.isInteger(waveParam) && waveParam >= 1 && waveParam <= TOTAL_WAVES ? waveParam : undefined;
+const livesParam = Number.parseInt(params.get('startlives') ?? '', 10); // debug only
+const startLives = debug && Number.isInteger(livesParam) && livesParam >= 1 ? livesParam : undefined;
 const goldParam = Number.parseInt(params.get('gold') ?? '', 10);
 const startGold = stress ? STRESS_GOLD : debug && Number.isInteger(goldParam) && goldParam >= 0 ? goldParam : undefined;
 
@@ -47,7 +56,7 @@ const settings = createSettings({ storage, prefersReducedMotion: window.matchMed
 const applyReduced = () => document.documentElement.classList.toggle('reduced-motion', settings.get('reducedMotion'));
 applyReduced();
 
-const game = createGame({ seed, debugSpawnEveryTicks, startGold });
+const game = createGame({ seed, debugSpawnEveryTicks, startGold, startLives, startWave });
 startGame(game);
 const stressTowers = stress ? applyStress(game) : 0;
 const stepper = createStepper();
@@ -78,12 +87,19 @@ const hud = createHud({
   root: uiRoot,
   handlers: { togglePause: control.togglePause, setSpeed: control.setSpeed, openSettings: () => panel.open() },
 });
-hud.set({ gold: game.gold, lives: config.game.startLives, wave: 0, waveTotal: config.game.totalWaves }); // lives are static until Phase 4
+hud.set({ gold: game.gold, lives: game.lives, wave: game.waves.current, waveTotal: TOTAL_WAVES });
 hud.setSpeed(state.speed);
 hud.setPaused(state.paused);
 game.events.on(EVENT_TYPES.GOLD_CHANGED, (ev) => hud.set({ gold: ev.gold }));
+game.events.on(EVENT_TYPES.LIVES_CHANGED, (ev) => hud.set({ lives: ev.lives }));
+game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => hud.set({ wave: ev.wave, waveTotal: ev.total }));
+if (modeParam !== null && modeParam !== 'static') toaster.show('Adaptive mode arrives in Phase 6'); // falls back to static
 
-const build = createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen: () => panel.isOpen });
+const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
+const endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed });
+const waveControl = createWaveControl({ root: uiRoot, game, toaster });
+const blocked = () => panel.isOpen || endScreen.isOpen || game.over; // build and wave hotkeys are off while a dialog is open or the game ended
+const build = createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen: blocked });
 createBuildTray({ bar: hud.bar, game, buildState, toaster });
 createTowerPanel({ root: uiRoot, game, buildState, actions: build.actions });
 
@@ -115,7 +131,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) { control.setPaused(true); last = null; } // never auto-resume
 });
 
-const extraKeys = { ...build.extraKeys };
+const extraKeys = { ...build.extraKeys, Enter: () => { if (!blocked()) waveControl.start(); } };
 if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) extraKeys[k] = (e) => { if (!panel.isOpen) fn(e); };
 bindKeys({
   togglePause: () => { if (!panel.isOpen) control.togglePause(); },
@@ -141,7 +157,7 @@ function frame(now) {
     tickMeter.tick(now / 1000, state.steps); // every frame, so gaps decay the rate
   }
 
-  renderer.draw(game, stepper.alpha, dt, animTime, state.paused);
+  renderer.draw(game, game.over ? 0 : stepper.alpha, dt, animTime, state.paused); // alpha 0 once the game ended so nothing flickers
 
   panelClock += dt;
   if (panelClock >= 0.25) { // text is rebuilt 4x per second, not per frame
@@ -155,6 +171,7 @@ function frame(now) {
       + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}  debug ${debug}\n`
       + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}${stress ? `  stress mode: towers ${stressTowers}` : ''}\n`
       + `fx: particles ${s.particles}  ghosts ${s.ghosts}  beams ${s.beams}  decals ${s.decals}\n`
+      + `mode ${game.mode}  phase ${game.waves.phase}  wave ${game.waves.current}/${TOTAL_WAVES}  lives ${game.lives}  countdown ${getWaveCountdownSeconds(game).toFixed(1)}s  remaining ${enemiesRemaining(game)}\n`
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);
   }
   requestAnimationFrame(frame);
