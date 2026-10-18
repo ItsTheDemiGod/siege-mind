@@ -22,7 +22,7 @@ export function createTooltip({ root }) {
     node.replaceChildren();
     const title = target.getAttribute('data-tooltip-title');
     if (title) node.append(h('div', { class: 't-title', text: title }));
-    node.append(h('div', { text: target.getAttribute('data-tooltip') }));
+    node.append(h('div', { class: 't-body', text: target.getAttribute('data-tooltip') })); // textContent only: safe for multi-line text
     const rr = root.getBoundingClientRect();
     const scale = rr.width / root.offsetWidth || 1;
     const tr = target.getBoundingClientRect();

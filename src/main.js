@@ -1,6 +1,7 @@
 // Bootstrap: wires sim + render + ui. No game logic here.
 import { config } from './data/config.js';
 import { createGame, startGame, stepGame } from './sim/game.js';
+import { EVENT_TYPES } from './sim/events.js';
 import { createStepper } from './sim/stepper.js';
 import { computeFit, applyFit } from './render/fit.js';
 import { createRenderer } from './render/renderer.js';
@@ -14,6 +15,10 @@ import { createToaster } from './ui/toast.js';
 import { createSettingsPanel } from './ui/settingsPanel.js';
 import { createDebugPanel } from './ui/debugPanel.js';
 import { createDebugTools } from './ui/debugTools.js';
+import { createBuildState } from './ui/buildState.js';
+import { createBuildController } from './ui/buildController.js';
+import { createBuildTray } from './ui/buildTray.js';
+import { createTowerPanel } from './ui/towerPanel.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -21,12 +26,16 @@ const ctx = canvas.getContext('2d');
 const uiRoot = document.getElementById('ui-root');
 const params = new URLSearchParams(location.search);
 
-// ?seed= may be an integer or any string; otherwise a random 32-bit seed. ?spawn=N sets the placeholder auto-spawner interval in ticks (0 = off).
+// ?seed= integer or string (default: random 32-bit). ?spawn=N placeholder auto-spawner interval in ticks (0 = off).
+// ?debug=1 unlocks the debug keys, click tools and the test effect; ?gold=N (debug only) overrides the starting gold.
 const seedParam = params.get('seed');
 const seed = seedParam === null ? crypto.getRandomValues(new Uint32Array(1))[0]
   : /^-?\d+$/.test(seedParam) ? Number(seedParam) : seedParam;
 const spawnParam = Number.parseInt(params.get('spawn') ?? '', 10);
 const debugSpawnEveryTicks = Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : undefined;
+const debug = params.get('debug') === '1';
+const goldParam = Number.parseInt(params.get('gold') ?? '', 10);
+const startGold = debug && Number.isInteger(goldParam) && goldParam >= 0 ? goldParam : undefined;
 
 let storage = null;
 try { storage = window.localStorage; } catch { /* blocked storage: settings stay in memory */ }
@@ -34,11 +43,12 @@ const settings = createSettings({ storage, prefersReducedMotion: window.matchMed
 const applyReduced = () => document.documentElement.classList.toggle('reduced-motion', settings.get('reducedMotion'));
 applyReduced();
 
-const game = createGame({ seed, debugSpawnEveryTicks });
+const game = createGame({ seed, debugSpawnEveryTicks, startGold });
 startGame(game);
 const stepper = createStepper();
 const quality = createQualityController({ tier: settings.get('quality'), auto: settings.get('autoQuality') });
-const renderer = createRenderer({ canvas, ctx, game, settings, quality, seed });
+const buildState = createBuildState();
+const renderer = createRenderer({ canvas, ctx, game, settings, quality, seed, buildState });
 
 const state = { paused: false, speed: 1, steps: 0 };
 const tickMeter = createRateMeter();
@@ -46,10 +56,7 @@ const frameStats = createFrameStats();
 const toaster = createToaster({ root: uiRoot });
 createTooltip({ root: uiRoot });
 const debugPanel = createDebugPanel({ root: uiRoot, visible: config.debug.showHud });
-
-const debugTools = config.debug.tools ? createDebugTools({ game, fx: renderer.fx, toaster }) : null;
-const guardedKeys = {};
-if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) guardedKeys[k] = (e) => { if (!panel.isOpen) fn(e); };
+const debugTools = debug && config.debug.tools ? createDebugTools({ game, fx: renderer.fx, toaster }) : null;
 
 const control = {
   togglePause() { control.setPaused(!state.paused); },
@@ -66,9 +73,14 @@ const hud = createHud({
   root: uiRoot,
   handlers: { togglePause: control.togglePause, setSpeed: control.setSpeed, openSettings: () => panel.open() },
 });
-hud.set({ gold: config.game.startGold, lives: config.game.startLives, wave: 0, waveTotal: config.game.totalWaves });
+hud.set({ gold: game.gold, lives: config.game.startLives, wave: 0, waveTotal: config.game.totalWaves }); // lives are static until Phase 4
 hud.setSpeed(state.speed);
 hud.setPaused(state.paused);
+game.events.on(EVENT_TYPES.GOLD_CHANGED, (ev) => hud.set({ gold: ev.gold }));
+
+const build = createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen: () => panel.isOpen });
+createBuildTray({ bar: hud.bar, game, buildState, toaster });
+createTowerPanel({ root: uiRoot, game, buildState, actions: build.actions });
 
 function fit() {
   const dpr = Math.min(window.devicePixelRatio || 1, quality.params.maxDpr, config.view.maxDpr);
@@ -98,18 +110,14 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) { control.setPaused(true); last = null; } // never auto-resume
 });
 
+const extraKeys = { ...build.extraKeys };
+if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) extraKeys[k] = (e) => { if (!panel.isOpen) fn(e); };
 bindKeys({
   togglePause: () => { if (!panel.isOpen) control.togglePause(); },
   setSpeed: (n) => { if (!panel.isOpen) control.setSpeed(n); },
   singleStep: () => { if (state.paused && !panel.isOpen) stepper.requestSingleStep(); },
   toggleHud: () => debugPanel.toggle(),
-}, guardedKeys);
-const world = { x: 0, y: 0 };
-canvas.addEventListener('pointerdown', (e) => {
-  renderer.clientToWorld(e, world);
-  const handled = debugTools ? debugTools.handleMapClick(world.x, world.y) : false;
-  if (!handled) renderer.handleClick(e.clientX, e.clientY); // plain Phase 1B test effect
-});
+}, extraKeys);
 
 let last = null;
 let animTime = 0;
@@ -139,8 +147,8 @@ function frame(now) {
       `FPS ${frameStats.fps.toFixed(0)}  frame avg ${frameStats.avgMs.toFixed(1)} / p95 ${frameStats.p95Ms.toFixed(1)} / max ${frameStats.maxMs.toFixed(1)} ms\n`
       + `ticks/s ${tps.toFixed(0)}  sim speed ${(tps * config.sim.stepSeconds).toFixed(2)}x  tick ${game.tick}  time ${game.time.toFixed(1)}s\n`
       + `speed x${state.speed}  paused ${state.paused}  quality ${quality.tier}  particles ${s.particles}/${s.particleLimit}\n`
-      + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}
-`
+      + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}  debug ${debug}\n`
+      + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}\n`
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);
   }
   requestAnimationFrame(frame);

@@ -81,6 +81,9 @@ siege-mind/
       stepper.js             <- fixed-timestep accumulator (pure math)
       damage.js              <- armor/shield/DoT damage model + events
       statuses.js            <- slow, poison, regen suppression
+      towers.js              <- placement, upgrades, targeting, firing (no rng)
+      projectiles.js         <- homing bolts, ballistic shells, impacts
+      economy.js             <- gold: earn/spend/events
       director.js            <- adaptive Director AI (Phase 6)
       telemetry.js           <- per-wave stats collection (Phase 5)
     data/
@@ -90,6 +93,7 @@ siege-mind/
       config.js              <- economy, lives, director hyperparameters
       map.js                 <- default map grid + waypoints
       enemies.js
+      towers.js              <- 5 towers, upgrades, target modes
       debugTools.js          <- debug tool/key table (Phase 2)
     render/                  <- canvas drawing only
       theme.js               <- palette, tokens, durations, fonts, cssVariables()
@@ -106,6 +110,8 @@ siege-mind/
       renderer.js            <- owns fx systems, draw order, fx API
       enemyRenderer.js       <- draws enemies: shape, flash, statuses, health bars
       fxEvents.js            <- sim events -> particles, numbers, shake, flash
+      towerRenderer.js       <- TEMPORARY tower/projectile glyphs (final art in 3B)
+      overlays.js            <- placement ghost and selection overlays
       fit.js                 <- canvas fit to window, DPR + backing-pixel budget
     ui/                      <- HUD, menus, overlays, analytics panel
       style.css              <- CSS variables mirroring theme.js (parity tested)
@@ -118,13 +124,19 @@ siege-mind/
       settingsPanel.js       <- settings modal
       debugPanel.js          <- DOM debug readout
       debugTools.js          <- debug spawn keys and click tools (commands only)
+      buildState.js          <- pure placement/selection state machine
+      buildController.js     <- pointer + hotkeys -> sim commands
+      buildTray.js           <- HUD tower buttons
+      towerPanel.js          <- selected-tower panel
+      towerInfo.js           <- tooltip/panel text helpers (pure)
       keys.js                <- dev keyboard controls
     audio/
       synth.js               <- WebAudio procedural SFX
-  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
+  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
   experiments/
     bots.js                  <- bot player strategies
     run.js                   <- headless batch runner
+    matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
     results/                 <- generated CSV/JSON (gitignored if large)
     analysis/                <- charts / stats for the report
   docs/
@@ -140,24 +152,24 @@ siege-mind/
 
 **Map:** one fixed winding path on a tile grid. Logical canvas 1280x720; a HUD strip is reserved at the top (80 px); the map grid is 20 columns x 10 rows of 64 px tiles = 1280x640, drawn below the HUD strip. The sim's world coordinates have their origin at the top-left corner of the MAP (not the canvas); only the renderer adds the 80 px HUD offset. Spawn tile (0,1), exit tile (19,7), path waypoints (in tile coordinates) (0,1) -> (17,1) -> (17,4) -> (2,4) -> (2,7) -> (19,7), an S-shaped path with two hairpin turns (total length 3520 world units). Blocked (non-buildable decor) tiles: (8,2) (9,2) (10,5) (11,5) (5,9) (6,9). Everything else is buildable. Towers are placed only on buildable tiles. Single entry, single base.
 
-**Economy and lives (initial values, tunable in `config.js`):** start gold 150, lives 20, kill reward per enemy type (in data), tower sell refund 70%, 2 upgrade levels per tower.
+**Economy and lives (initial values, tunable in `config.js`):** start gold 150, lives 20, kill reward per enemy type (in data), tower sell refund 70% of everything invested, 2 upgrade levels per tower. Gold, tower costs, upgrades and selling are implemented in Phase 3A; lives, leaks costing lives, waves and win/lose stay in Phase 4.
 
-**Towers**
+**Towers** (initial values from src/data/towers.js; upgrade multipliers are absolute per level; Phase 9 retunes everything)
 
-| Tower | Role | Strong vs | Weak vs |
-|---|---|---|---|
-| Lance (piercing) | Single target, ignores armor | Armored Grunt | Swarmling |
-| Mortar (splash) | AoE, slow shell | Swarmling | Fast Runner (shells miss), single tanky targets |
-| Frost | Low damage, slows | Fast Runner (also supports every other tower) | Low standalone damage |
-| Poison | Stacking damage over time, stops regeneration while poisoned | Regenerator | Fast Runner (leaves range before ticks land), Shielded Bruiser (shield blocks DoT) |
-| Sniper | Long range, high damage, slow fire, bonus damage to shields | Shielded Bruiser | Swarmling, Fast Runner |
+| Tower | Cost | Role and stats (level 0) | Strong vs | Weak vs |
+|---|---|---|---|---|
+| Lance (bolt) | 60 | Homing piercing bolt, damage 24 (ignores armor), range 150, one shot per 54 ticks (0.9 s). Upgrades 45 / 80 gold | Armored Grunt | Swarmling |
+| Mortar (shell) | 100 | Ballistic shell (speed 240, no lead prediction), damage 36, splash radius 60 falling off to 50%, range 170, 90 ticks. Upgrades 75 / 130 | Swarmling | Fast Runner (shells miss), tanky singles |
+| Frost (pulse) | 70 | Pulse every 60 ticks to everything within range 110: slow to 50% for 1.6 s, damage 4. Upgrades 50 / 90 (slow 0.42 / 0.33) | Fast Runner (supports every tower) | Low standalone damage |
+| Poison (bolt) | 80 | Bolt that poisons the target and enemies within a 28 radius cloud: 8 dps per stack for 4 s, stacks to 5, stops regeneration, range 140, 75 ticks. Upgrades 60 / 100 | Regenerator | Fast Runner, Shielded Bruiser (shield blocks DoT) |
+| Sniper (hitscan) | 120 | Instant armor-piercing shot, damage 90 (x3 vs shields), range 320, 210 ticks (3.5 s), default target Strongest. Upgrades 90 / 150 | Shielded Bruiser | Swarmling, Fast Runner |
 
 **Enemies**
 
 | Enemy | Traits | Threat cost (per unit) |
 |---|---|---|
 | Armored Grunt | hp 120, speed 55, flat armor 6 (non-piercing damage), reward 10 | 10 |
-| Swarmling | hp 28, speed 70, packs of 8 spaced 12 ticks, reward 2 | 3 (pick cost 24 per pack) |
+| Swarmling | hp 28, speed 70, packs of 8 spaced 16 ticks, reward 2 | 3 (pick cost 24 per pack) |
 | Fast Runner | hp 45, speed 130 (~2x), reward 6 | 8 |
 | Regenerator | hp 260, speed 45, armor 1, regenerates 2% maxHp/s unless poisoned, reward 16, leaks for 2 lives | 16 |
 | Shielded Bruiser | hp 220, speed 38, armor 3, shield 160 that must break first and blocks DoT, reward 24, leaks for 3 lives | 24 |
@@ -302,16 +314,27 @@ Implemented; awaiting user visual approval, then tag phase-1b-complete. (Not ver
 **Done when:** all 5 enemy types walk the path, behave per spec, and leak/die with correct events; unit tests for damage math.
 Implemented; awaiting user visual check, then tag phase-2-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
 
-### [ ] Phase 3 — Tower system
-- [ ] Tile selection, placement, sell, 2 upgrade levels
-- [ ] Targeting modes (first, strongest, closest) and range display
-- [ ] 5 towers from `data/towers.js` with projectiles/effects (pierce, splash, slow, poison stacking + regen stop, sniper shield bonus)
-- [ ] Counter relationships verifiably working
-- [ ] Towers drawn procedurally with visible upgrade levels, rotation toward target, muzzle flash and recoil, projectile trails, distinct impact effects per tower, placement ghost with valid/invalid tint, range rings
-**Done when:** each tower type visibly counters/loses to the enemies in Section 6; tests for damage and status effects.
+### [~] Phase 3A — Tower logic, economy core, placement UI (temporary tower glyphs)
+- [x] Gold economy core (earn/spend/events), tower costs, 2 upgrade levels, 70% sell refund
+- [x] Pure tower logic: placement rules, targeting (first, strongest, closest), firing, upgrades, selling
+- [x] 5 towers with bolts, shells, pulses, hitscan and poison (pierce, splash, slow, stacking poison + regen stop, sniper shield bonus), deterministic (no rng)
+- [x] Projectiles (homing bolts, ballistic shells) and impact events; kill/damage attribution to towers
+- [x] Headless matchup harness (experiments/matchups.js) and counter-relationship tests R1-R7
+- [x] Placement and selection UI: build tray, hotkeys, placement ghost, range rings, tower panel (targeting, upgrade, sell), tooltips
+- [x] Debug features gated behind ?debug=1
+**Done when:** each tower type counters/loses to the enemies in Section 6 (tested by the matchup harness) and a human can build, upgrade and sell towers.
+Implemented; awaiting user visual/gameplay check, then tag phase-3a-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
+
+### [ ] Phase 3B — Tower art, projectiles and juice
+- [ ] Final procedural tower art with a distinct silhouette per tower (not just color), visible upgrade levels, rotation with recoil, muzzle flash
+- [ ] Projectile trails per type and a distinct impact effect per tower (Mortar shockwave ring, Frost ice shards and aura pulse, Poison cloud, Sniper laser line, Lance piercing streak)
+- [ ] Build-in animation and sell dissolve, bolder slow-ring and poison-dot status overlays
+- [ ] Gallery section showing every tower at all three levels plus the colorblind check
+- [ ] Performance check with 40 towers
+**Done when:** each tower is recognizable by silhouette alone, every shot has feedback, and 40 towers plus 150 enemies hold 60 FPS.
 
 ### [ ] Phase 4 — Economy, static waves, game flow (playable baseline)
-- [ ] Gold, kill rewards, build/upgrade costs, lives, win/lose conditions
+- [ ] Lives, leaks reducing lives, win/lose conditions (gold, kill rewards and build/upgrade costs are done in Phase 3A)
 - [ ] 30-wave static script + threat-budget curve in `data/waves.js`
 - [ ] Wave runner (start wave button/auto-start, between-wave timer), HUD
 - [ ] Main menu, game over/victory screens, restart
@@ -408,6 +431,24 @@ Implemented; awaiting user visual check, then tag phase-2-complete. (Not run in 
 - 2026-10-18 | 2 | queueEnemy delayTicks counts from the NEXT step (atTick = tick + 1 + delay + i * interval) instead of tick + delay | With tick + delay a pack queued between steps spawned its first unit one tick late, giving uneven spacing (11 vs 12 ticks)
 - 2026-10-18 | 2 | Added theme color gold #ffc94a (HUD gold chip and floating +reward, contrast >= 3 on bg0) mirrored in style.css | No gold token existed
 - 2026-10-18 | 2 | enemy.type is already the shapes.js type id, so enemyRenderer needs no mapping table; renderer.draw/handleClick keep Phase 1B signatures; fxEvents handlers use a 256-slot Float32Array for damage-number rate limiting | Fewer moving parts
+- 2026-10-18 | 3A | Phase 3 split into 3A (logic, economy core, placement UI with temporary glyphs) and 3B (art and juice) | Logic and balance can be verified headlessly first; art follows once the rules are stable
+- 2026-10-18 | 3A | Gold economy moved into 3A (earn on kill, spend on build/upgrade, refund on sell, GOLD_CHANGED event) | Towers cannot be built without it; lives/waves/win-lose stay in Phase 4
+- 2026-10-18 | 3A | Upgrade multipliers are absolute per level (not compounding); frost slowFactor is an absolute override; poison scales dps with dpsMult | Easy to read and to tune in data
+- 2026-10-18 | 3A | Sell refunds floor(0.7 * total invested including upgrades) | Section 6 spec
+- 2026-10-18 | 3A | Shells fly to where the target WAS at fire time (no lead prediction) | This is what makes fast enemies a counter to the mortar
+- 2026-10-18 | 3A | Frost is a pulse tower: it hits everything in range, slow first then damage, and only fires when something is in range | No targeting mode; supports all other towers
+- 2026-10-18 | 3A | Poison is a homing bolt that poisons the target plus enemies inside a cloud radius at the impact point | Cheap area flavor without a persistent cloud entity
+- 2026-10-18 | 3A | Tower logic is fully deterministic: no rng at all (ties go to the lowest enemy id) | Keeps replays and the harness exact
+- 2026-10-18 | 3A | Enemies cache their world x/y every step; derived id index (game.enemyIndex Map, not serialized) rebuilt only when something dies or leaks | Targeting and queries avoid path sampling
+- 2026-10-18 | 3A | Attribution: damage packets carry towerId; ENEMY_DAMAGED/KILLED payloads carry towerId and source (tower type); enemy.poisonTowerId credits DoT damage and DoT kills to the latest poisoner | Per-tower damage and kill counters, later telemetry
+- 2026-10-18 | 3A | Step order is enemies, projectiles, towers: a projectile fired this tick starts moving next tick | Deterministic and easy to reason about
+- 2026-10-18 | 3A | Debug spawn/nuke/tool keys, click test effect and ?gold are gated behind ?debug=1; the random auto-spawner stays on by default until Phase 4 waves (?spawn=0 turns it off) | Normal play shows only player features
+- 2026-10-18 | 3A | Swarmling packIntervalTicks 12 -> 16 (bodies visible); tests already read the value from data | Visual readability
+- 2026-10-18 | 3A | Data changes to satisfy matchup relations R1-R7 (initial towers.js values were not satisfiable): Lance damage 28 -> 24 and interval 30 -> 54 (R2: at 28 dmg / 30 ticks the lance one-shots every swarmling in its long exposure window and kills all 8; R4 also needed frost to matter); Mortar projectileSpeed 260 -> 240 and splashRadius 70 -> 60 (R3: runners must out-run the shell); Sniper intervalTicks 150 -> 210 (R7: with 150 it still killed 8 of 8 swarmlings thanks to its 320 range). Lance role text no longer says "fast". Other values unchanged | The assertions were not changed; only data
+- 2026-10-18 | 3A | R3 is asserted on spaced streams (spacingTicks 120) not the default 20: in a dense stream a shell aimed at the leader always catches a follower inside the splash, so any dense stream has ~100% "hit" rate no matter how fast the enemies are. The assertion itself (runner hit rate < half the grunt hit rate) is unchanged | The relation is under-specified about spacing; flagged to the user
+- 2026-10-18 | 3A | Harness primary tile is (15,2): the buildable tile with the most path inside Lance range, computed once; helpers go on the nearest buildable tiles | Same position for every pass
+- 2026-10-18 | 3A | New LINE particle kind (a static additive segment) draws the sniper tracer instead of many streak particles | One particle per beam
+- 2026-10-18 | 3A | Tooltip body rendered with textContent and white-space: pre-line (multi-line, no innerHTML) | Safe multi-line tower info
 - 2026-10-18 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
 - 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
 - 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
@@ -421,6 +462,10 @@ Implemented; awaiting user visual check, then tag phase-2-complete. (Not run in 
 - Whether Rajdhani digits are tabular is unknown until the gallery numerals row is read; HUD numbers use tabular-nums plus min-width regardless.
 - p95 frame stat sorts a preallocated Float32Array 4x per second (typed-array sort may allocate internally); renderer allocates only at event time (fx.burst option spread, HUD count-up closures).
 - Gallery effect-lab/map-preview stages each run a full renderer; both pause when scrolled out of view.
+- Phase 3A temporary glyphs: towers are plain disks with a barrel and pips, projectiles are dots; final art, trails and juice are Phase 3B.
+- Phase 3A was NOT run in a real browser by Claude (extension not connected): the build tray layout, tower panel positions, tooltips, hotkeys and pointer handling are verified only by tests of their pure parts, node --check and a stub-canvas smoke test.
+- Balance is rough: after the R1-R7 tuning each tower lands around 25 dps, mortar is weak against bruisers and regenerators, frost's direct damage triggers a hit flash on every pulse.
+- Gold has no spend limits beyond cost; the 80-tower cap is a safety limit. Sold towers keep their in-flight projectiles (by design).
 - Phase 2 was NOT run in a real browser by Claude (extension not connected): only the stub-canvas smoke tests, node --check and file serving were verified. Visual feel, 60 FPS with ~600 enemies, and click targeting need the user's check.
 - The placeholder auto-spawner (random enemy every 90 ticks) is temporary; the wave runner replaces it in Phase 4. Enemies that reach the base only emit ENEMY_LEAKED (no lives are subtracted until Phase 4).
 - Headless sim cost with 600 enemies: about 26k steps/s (roughly 0.04 ms per step); the render side at 600 enemies is unmeasured.
@@ -433,3 +478,4 @@ Implemented; awaiting user visual check, then tag phase-2-complete. (Not run in 
 - 2026-10-18 | Phase 1A | Built fixed-timestep stepper, seeded RNG with forks, strict event bus, validated 20x10 map and path, game state with temporary debug walkers, DPR-aware fit, debug renderer, dev keys; 96 tests pass; headless sim ~4.2M steps/s | Phase 1B: visual foundation and UI kit
 - 2026-10-18 | Phase 1B | Built perf meters, vendored fonts, color/theme/tween/particles/floatText/shake/quality/settings/icons modules, procedural enemy shapes, layered renderer with cached static background, DOM UI kit (HUD, tooltip, toast, settings modal, debug panel), style gallery; 206 tests pass; no real-browser run | User approves the look (check main page and gallery), then Phase 2
 - 2026-10-18 | Phase 2 | Built enemy data, damage model (armor/shield/DoT), statuses, spawn queue, order-preserving enemy lifecycle, corner-blended path sampling, enemy renderer (flash, spawn-in, statuses, health bars), sim-event fx, debug tools and keys, gallery enemy states; 272 tests pass; no real-browser run | User checks the visuals (main page + gallery), then Phase 3
+- 2026-10-18 | Phase 3A | Built tower data, economy core, placement/upgrade/sell, targeting, firing, projectiles, attribution, matchup harness with R1-R7, build tray, tower panel, placement/selection overlays, ?debug=1 gating; 353 tests pass; no real-browser run | User checks gameplay (build, upgrade, sell, counters), then Phase 3B

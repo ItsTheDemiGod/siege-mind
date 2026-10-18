@@ -1,6 +1,6 @@
 // Pooled particle system: structure-of-arrays in typed arrays, capacity allocated once, additive draw.
 
-export const KIND = Object.freeze({ SPARK: 0, RING: 1, STREAK: 2, CLOUD: 3 });
+export const KIND = Object.freeze({ SPARK: 0, RING: 1, STREAK: 2, CLOUD: 3, LINE: 4 }); // LINE: a static segment (vx, vy hold its vector)
 const TAU = Math.PI * 2;
 
 /**
@@ -68,6 +68,11 @@ export function createParticleSystem({ capacity, rng }) {
       const { life: l = 0.45, size0: s0 = 4, size1: s1 = 48, color: c = 0 } = opts;
       emit(KIND.RING, px, py, 0, 0, l, s0, s1, c, 0);
     },
+    /** Static thin additive line from (px,py) to (px+dx,py+dy). */
+    line(px, py, dx, dy, opts) {
+      const { life: l = 0.15, size: s = 2, color: c = 0 } = opts;
+      emit(KIND.LINE, px, py, dx, dy, l, s, s, c, 0);
+    },
     setLimit(n) { limit = Math.max(0, n); recompute(); },
     setDensity(d) { density = Math.min(1, Math.max(0, d)); recompute(); },
     update(dt) {
@@ -75,6 +80,7 @@ export function createParticleSystem({ capacity, rng }) {
       for (let i = count - 1; i >= 0; i--) {
         life[i] -= dt;
         if (life[i] <= 0) { remove(i); continue; }
+        if (kind[i] === KIND.LINE) continue; // does not move
         const k = Math.max(0, 1 - drag[i] * dt);
         vx[i] *= k;
         vy[i] *= k;
@@ -110,6 +116,14 @@ export function createParticleSystem({ capacity, rng }) {
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(x[i], y[i], s, 0, TAU);
+            ctx.stroke();
+            break;
+          case KIND.LINE:
+            ctx.globalAlpha = a;
+            ctx.lineWidth = Math.max(1, s);
+            ctx.beginPath();
+            ctx.moveTo(x[i], y[i]);
+            ctx.lineTo(x[i] + vx[i], y[i] + vy[i]);
             ctx.stroke();
             break;
           case KIND.STREAK:

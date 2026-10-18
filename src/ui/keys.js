@@ -5,7 +5,7 @@ const SELF_HANDLED = 'button, select, input, textarea, [role="switch"]';
 /**
  * Bind the dev keys.
  * @param {{togglePause: () => void, setSpeed: (n: number) => void, singleStep: () => void, toggleHud: () => void}} handlers
- * @param {Record<string, (e: KeyboardEvent) => void>} [extraKeys] - single-character keys (lowercase); same ignore rules, no auto-repeat
+ * @param {Record<string, (e: KeyboardEvent) => void>} [extraKeys] - single characters (lowercase) or named keys such as Escape/Delete; same ignore rules, no auto-repeat
  * @returns {() => void} unbind function
  */
 export function bindKeys(handlers, extraKeys = {}) {
@@ -26,7 +26,7 @@ export function bindKeys(handlers, extraKeys = {}) {
         if (!e.repeat) handlers.toggleHud();
         break;
       default: {
-        const fn = e.key.length === 1 ? extraKeys[e.key.toLowerCase()] : undefined;
+        const fn = extraKeys[e.key] ?? (e.key.length === 1 ? extraKeys[e.key.toLowerCase()] : undefined); // named keys or single characters
         if (fn && !e.repeat) fn(e);
       }
     }

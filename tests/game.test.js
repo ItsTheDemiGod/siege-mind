@@ -82,3 +82,43 @@ test('nukeAll kills everything through the damage path', () => {
   stepGame(g);
   assert.ok(g.enemies.every((e) => e.alive));
 });
+
+import { placeTower, upgradeTower } from '../src/sim/towers.js';
+
+const withTowers = (seed, steps) => {
+  const g = createGame({ seed, debugSpawnEveryTicks: 25, startGold: 5000 });
+  const plan = { 10: ['lance', 15, 2], 20: ['mortar', 14, 2], 30: ['frost', 16, 2], 40: ['poison', 13, 2], 50: ['sniper', 12, 2] };
+  for (let i = 0; i < steps; i++) {
+    stepGame(g);
+    if (plan[g.tick]) placeTower(g, ...plan[g.tick]);
+    if (g.tick === 400) for (const t of g.towers) upgradeTower(g, t.id);
+  }
+  return g;
+};
+
+test('same seed + same scripted placements give deep-equal snapshots after 6000 steps; different seeds differ', () => {
+  const a = snapshotGame(withTowers(21, 6000));
+  assert.deepEqual(a, snapshotGame(withTowers(21, 6000)));
+  assert.notDeepEqual(a, snapshotGame(withTowers(22, 6000)));
+  assert.equal(a.towers.length, 5);
+  assert.ok(a.towers.some((t) => t.shots > 0));
+  assert.ok(Number.isFinite(a.gold));
+});
+
+test('snapshot with towers and projectiles survives a JSON round trip', () => {
+  const g = withTowers(5, 900);
+  const snap = snapshotGame(g);
+  assert.ok(snap.towers.length > 0);
+  assert.deepEqual(JSON.parse(JSON.stringify(snap)), snap);
+});
+
+test('stepping with towers firing never calls Math.random', () => {
+  const original = Math.random;
+  Math.random = () => { throw new Error('Math.random used in sim'); };
+  try {
+    const g = withTowers(7, 1500);
+    assert.ok(g.towers.reduce((s, t) => s + t.shots, 0) > 0);
+  } finally {
+    Math.random = original;
+  }
+});

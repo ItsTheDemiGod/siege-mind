@@ -11,6 +11,10 @@ export const EVENT_TYPES = Object.freeze({
   TOWER_PLACED: 'tower_placed',
   TOWER_FIRED: 'tower_fired',
   GAME_OVER: 'game_over',
+  GOLD_CHANGED: 'gold_changed',
+  TOWER_UPGRADED: 'tower_upgraded',
+  TOWER_SOLD: 'tower_sold',
+  PROJECTILE_IMPACT: 'projectile_impact',
 });
 
 const KNOWN = new Set(Object.values(EVENT_TYPES));

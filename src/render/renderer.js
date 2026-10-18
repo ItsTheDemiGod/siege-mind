@@ -11,6 +11,8 @@ import { createShake } from './shake.js';
 import { createTweens } from './tween.js';
 import { drawEnemies } from './enemyRenderer.js';
 import { bindFxEvents } from './fxEvents.js';
+import { drawTowers, drawProjectiles } from './towerRenderer.js';
+import { drawPlacementOverlay, drawSelectionOverlay } from './overlays.js';
 import {
   buildStaticLayer, shouldRebuild, drawPathFlow, drawSpawnPortal, drawBaseCore,
   createAmbientMotes, updateAmbientMotes, drawAmbientMotes,
@@ -23,10 +25,10 @@ const SCAN_SLICES = 10;
 const CORE_PULSE_DECAY = 2.5; // per second
 
 /**
- * @param {{canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, game: object, settings: object, quality: object, seed: number|string}} o
+ * @param {{canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, game: object, settings: object, quality: object, seed: number|string, buildState?: object}} o
  * @returns {object} renderer: resize, onQualityChange, draw, handleClick, fx, ready, stats
  */
-export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
+export function createRenderer({ canvas, ctx, game, settings, quality, seed, buildState = null }) {
   const rng = createRng(seed).fork('fx');
   const glow = createGlowCache();
   const particles = createParticleSystem({ capacity: config.quality.high.particleCap, rng });
@@ -83,6 +85,8 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
       particles.ring(x, y, { color: colorIds.primary, ...opts });
     },
     floatText(text, x, y, opts) { floatText.spawn(text, x, y, opts); },
+    /** Thin additive beam (sniper tracer) from (x,y) to (tx,ty). */
+    line(x, y, tx, ty, opts = {}) { particles.line(x, y, tx - x, ty - y, { color: colorIds.primary, ...opts }); },
     shake,
     /** Full-stage translucent flash that decays. */
     flash(color, intensity) {
@@ -187,6 +191,7 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
       drawAmbientMotes(ctx, motes);
       drawSpawnPortal(ctx, g, spawnPos.x, spawnPos.y, time);
       drawBaseCore(ctx, g, corePos.x, corePos.y, time, overlay.corePulse);
+      drawTowers(ctx, g, gameState, time);
 
       // 3. entities
       info.tick = gameState.tick;
@@ -194,10 +199,15 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed }) {
       info.params = p;
       info.reducedMotion = reduced;
       drawEnemies(ctx, g, gameState, alpha, time, info, scratch);
+      drawProjectiles(ctx, g, gameState, alpha);
 
       // 4-5. effects and floating text
       particles.draw(ctx, g);
       floatText.draw(ctx);
+      if (buildState) {
+        drawSelectionOverlay(ctx, gameState, buildState);
+        drawPlacementOverlay(ctx, g, gameState, buildState, time);
+      }
       ctx.restore();
 
       // 6. overlays

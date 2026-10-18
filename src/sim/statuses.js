@@ -8,7 +8,7 @@ const isPos = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
 /**
  * Apply a slow or poison status. Dead enemies are ignored.
  * @param {object} game @param {object} enemy
- * @param {{type: 'slow', factor: number, duration: number}|{type: 'poison', dps: number, duration: number, source?: string}} status
+ * @param {{type: 'slow', factor: number, duration: number}|{type: 'poison', dps: number, duration: number, source?: string, towerId?: number}} status
  * @returns {void}
  */
 export function applyStatus(game, enemy, status) {
@@ -28,6 +28,7 @@ export function applyStatus(game, enemy, status) {
     enemy.poisonDps = Math.max(enemy.poisonDps, status.dps);
     enemy.poisonRemaining = Math.max(enemy.poisonRemaining, status.duration);
     enemy.poisonSource = status.source ?? 'debug';
+    enemy.poisonTowerId = status.towerId ?? -1; // most recent applier gets the credit
   } else {
     throw new TypeError(`unknown status type: ${String(status.type)}`);
   }
@@ -56,7 +57,7 @@ export function updateStatuses(game, enemy, dt) {
   const def = ENEMIES[enemy.type];
   const poisoned = isPoisoned(enemy);
   if (poisoned) {
-    applyDamage(game, enemy, { amount: enemy.poisonStacks * enemy.poisonDps * dt, kind: 'dot', source: enemy.poisonSource });
+    applyDamage(game, enemy, { amount: enemy.poisonStacks * enemy.poisonDps * dt, kind: 'dot', source: enemy.poisonSource, towerId: enemy.poisonTowerId });
     enemy.poisonRemaining -= dt;
     if (enemy.poisonRemaining <= 0) { enemy.poisonRemaining = 0; enemy.poisonStacks = 0; enemy.poisonDps = 0; }
   }

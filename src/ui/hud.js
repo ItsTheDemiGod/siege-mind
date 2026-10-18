@@ -67,6 +67,7 @@ export function createHud({ root, handlers }) {
 
   let last = { gold: null, lives: null };
   return {
+    bar, // the HUD element, so other UI (the build tray) can live inside the strip
     /** @param {{gold?: number, lives?: number, wave?: number, waveTotal?: number}} v */
     set({ gold: g, lives: l, wave: w, waveTotal }) {
       if (g !== undefined && g !== last.gold) {

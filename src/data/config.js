@@ -39,6 +39,14 @@ export const config = Object.freeze({
     durNormal: 0.18,
     durSlow: 0.25,
     tooltipDelay: 0.25,
+    towerPanelRefreshSeconds: 0.25,
+  }),
+  economy: Object.freeze({
+    sellRefundFraction: 0.7,
+  }),
+  towers: Object.freeze({
+    maxLevel: 2,
+    maxTowers: 80,
   }),
   combat: Object.freeze({
     minArmorDamageFraction: 0.2,
@@ -66,6 +74,7 @@ export const config = Object.freeze({
   }),
   debug: Object.freeze({
     clickEffects: true,
+    enabledByUrl: true, // documentation only: the switch is the ?debug=1 URL parameter
     autoSpawnEveryTicks: 90, // TEMPORARY (Phase 2): placeholder spawner, 0 = off; replaced by the wave runner in Phase 4
     tools: true,
     showHud: true,

@@ -9,7 +9,7 @@ export const ENEMIES = Object.freeze({
   }),
   swarmling: def({
     id: 'swarmling', name: 'Swarmling', hp: 28, speed: 70, armor: 0, regenFraction: 0, shield: 0, shieldBlocksDot: false,
-    packSize: 8, packIntervalTicks: 12, threatCost: 3, reward: 2, leakDamage: 1, radius: 9,
+    packSize: 8, packIntervalTicks: 16, threatCost: 3, reward: 2, leakDamage: 1, radius: 9,
   }),
   fastRunner: def({
     id: 'fastRunner', name: 'Fast Runner', hp: 45, speed: 130, armor: 0, regenFraction: 0, shield: 0, shieldBlocksDot: false,

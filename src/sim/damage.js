@@ -49,7 +49,7 @@ export function flushDot(game, enemy) {
   enemy.dotAcc = 0;
   const p = worldPos(game, enemy);
   game.events.emit(EVENT_TYPES.ENEMY_DAMAGED, {
-    id: enemy.id, type: enemy.type, amount, shieldDamage: 0, hpDamage: amount, kind: 'dot', source: enemy.poisonSource, x: p.x, y: p.y, tick: game.tick,
+    id: enemy.id, type: enemy.type, amount, shieldDamage: 0, hpDamage: amount, kind: 'dot', source: enemy.poisonSource, towerId: enemy.poisonTowerId, x: p.x, y: p.y, tick: game.tick,
   });
 }
 
@@ -64,6 +64,7 @@ export function applyDamage(game, enemy, packet) {
   const def = ENEMIES[enemy.type];
   const result = resolveDamage(def, enemy, packet, config.combat);
   const source = packet.source ?? 'debug';
+  const towerId = packet.towerId ?? -1;
   enemy.shield -= result.shieldDamage;
   enemy.hp -= result.hpDamage;
   if (enemy.shield < 0) enemy.shield = 0;
@@ -75,7 +76,7 @@ export function applyDamage(game, enemy, packet) {
       const p = worldPos(game, enemy);
       game.events.emit(EVENT_TYPES.ENEMY_DAMAGED, {
         id: enemy.id, type: enemy.type, amount: total, shieldDamage: result.shieldDamage, hpDamage: result.hpDamage,
-        kind: 'direct', source, x: p.x, y: p.y, tick: game.tick,
+        kind: 'direct', source, towerId, x: p.x, y: p.y, tick: game.tick,
       });
     }
   } else {
@@ -90,7 +91,7 @@ export function applyDamage(game, enemy, packet) {
     flushDot(game, enemy); // DoT damage must be reported before the kill
     const p = worldPos(game, enemy);
     game.events.emit(EVENT_TYPES.ENEMY_KILLED, {
-      id: enemy.id, type: enemy.type, reward: def.reward, progress: game.map.path.progressAt(enemy.distance), x: p.x, y: p.y, tick: game.tick, source,
+      id: enemy.id, type: enemy.type, reward: def.reward, progress: game.map.path.progressAt(enemy.distance), x: p.x, y: p.y, tick: game.tick, source, towerId,
     });
   }
   return { ...result, killed };

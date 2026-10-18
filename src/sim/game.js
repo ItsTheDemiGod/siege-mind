@@ -6,15 +6,18 @@ import { createRng } from './rng.js';
 import { createEventBus, EVENT_TYPES } from './events.js';
 import { createMap } from './map.js';
 import { queueEnemy, stepEnemies } from './enemies.js';
+import { stepProjectiles } from './projectiles.js';
+import { stepTowers, getTowerById } from './towers.js';
+import { wireEconomy } from './economy.js';
 
 /**
  * Create a new game (plain-object state).
- * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number}} options
+ * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number, startGold?: number}} options
  * @returns {object} game state
  */
-export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.autoSpawnEveryTicks }) {
+export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.autoSpawnEveryTicks, startGold = config.game.startGold }) {
   const main = createRng(seed);
-  return {
+  const game = {
     seed,
     rng: main, // kept for compatibility; same object as rngs.main
     rngs: { main, lane: main.fork('lane'), debug: main.fork('debugSpawn') },
@@ -26,7 +29,20 @@ export function createGame({ seed, mapDef = DEFAULT_MAP, events, debugSpawnEvery
     enemies: [],
     spawnQueue: [],
     nextEnemyId: 1,
+    enemyIndex: new Map(), // derived (id -> enemy), rebuilt after compaction; not serialized
+    gold: startGold,
+    towers: [],
+    nextTowerId: 1,
+    projectiles: [],
+    nextProjectileId: 1,
+    occupancy: [],
   };
+  game.occupancy = new Array(game.map.cols * game.map.rows).fill(0);
+  wireEconomy(game);
+  // Per-tower statistics, driven by attribution on the events.
+  game.events.on(EVENT_TYPES.ENEMY_DAMAGED, (ev) => { const t = getTowerById(game, ev.towerId); if (t) t.damageDealt += ev.amount; });
+  game.events.on(EVENT_TYPES.ENEMY_KILLED, (ev) => { const t = getTowerById(game, ev.towerId); if (t) t.kills++; });
+  return game;
 }
 
 /**
@@ -53,6 +69,8 @@ export function stepGame(game) {
   }
 
   stepEnemies(game);
+  stepProjectiles(game); // before towers: a projectile fired this tick starts moving next tick
+  stepTowers(game);
 }
 
 /**
@@ -66,6 +84,11 @@ export function snapshotGame(game) {
     tick: game.tick,
     rngStates: { main: game.rngs.main.getState(), lane: game.rngs.lane.getState(), debug: game.rngs.debug.getState() },
     nextEnemyId: game.nextEnemyId,
+    gold: game.gold,
+    nextTowerId: game.nextTowerId,
+    nextProjectileId: game.nextProjectileId,
+    towers: game.towers.map((t) => ({ ...t })),
+    projectiles: game.projectiles.map((p) => ({ ...p })),
     queue: game.spawnQueue.map((q) => ({ ...q })),
     enemies: game.enemies.map((e) => ({ ...e })),
   };

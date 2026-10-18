@@ -120,6 +120,7 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
   background: var(--panel); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) 50%, transparent); border-radius: var(--radius-md);
   opacity: 0; transition: opacity var(--dur-fast); }
 .tooltip.is-visible { opacity: 1; }
+.tooltip .t-body { white-space: pre-line; } /* multi-line plain text via textContent */
 .tooltip .t-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--defense-primary); }
 .toasts { position: absolute; left: 50%; bottom: var(--space-5); transform: translateX(-50%); z-index: 25; display: flex; flex-direction: column; gap: var(--space-2); align-items: center; pointer-events: none; }
 .toast { pointer-events: auto; padding: var(--space-2) var(--space-4); background: var(--panel); border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) 50%, transparent);
@@ -132,6 +133,33 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .modal h2 { margin: 0 0 var(--space-3); font-family: var(--font-display); font-size: 24px; }
 .modal .actions { display: flex; justify-content: space-between; margin-top: var(--space-4); }
 @keyframes fade-in { from { opacity: 0; } }
+
+/* ---------- 8b. Build tray and tower panel ---------- */
+.build-tray { position: absolute; left: 624px; top: 8px; width: 292px; display: flex; gap: 8px; pointer-events: auto; }
+.tray-btn { position: relative; width: 52px; height: 64px; padding: 4px 0 2px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; cursor: pointer;
+  background: color-mix(in srgb, var(--panel) 85%, transparent); color: var(--defense-primary); border-radius: var(--radius-md);
+  border: var(--border-width) solid color-mix(in srgb, var(--defense-primary) calc(var(--glow-border-alpha) * 100%), transparent);
+  transition: background var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast); }
+.tray-btn:hover { border-color: var(--defense-primary); }
+.tray-btn:active { transform: translateY(1px) scale(0.97); }
+.tray-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--defense-primary) 24%, var(--panel)); border-color: var(--defense-primary); box-shadow: 0 0 10px color-mix(in srgb, var(--defense-primary) 40%, transparent); }
+.tray-cost { display: inline-flex; align-items: center; gap: 2px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--gold); font-variant-numeric: tabular-nums; }
+.tray-key { position: absolute; top: 2px; right: 3px; font: 600 10px var(--font-mono); color: var(--muted); }
+.tray-btn.is-unaffordable { opacity: 0.6; }
+.tray-btn.is-unaffordable .tray-cost { color: var(--danger); text-decoration: line-through; }
+.tower-panel { position: absolute; bottom: var(--tp-margin, 16px); left: var(--tp-margin, 16px); width: 300px; min-height: 170px; box-sizing: border-box; z-index: 15; pointer-events: auto; padding: var(--space-3); }
+.tower-panel.is-right { left: auto; right: var(--tp-margin, 16px); }
+.tp-head { display: flex; align-items: center; gap: var(--space-2); color: var(--defense-primary); }
+.tp-title { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--text); flex: 1; }
+.tp-level { font: 600 12px var(--font-mono); color: var(--muted); }
+.tp-stats { white-space: pre-line; font-size: 12px; line-height: 1.4; margin: var(--space-2) 0; columns: 2; }
+.tp-counters { font-size: 12px; color: var(--muted); margin-bottom: var(--space-2); white-space: pre; }
+.tp-modes { display: flex; gap: 4px; margin-bottom: var(--space-2); }
+.tp-mode { flex: 1; min-height: 28px; padding: 0 4px; font-size: 13px; }
+.tp-actions { display: flex; gap: var(--space-2); }
+.tp-actions .btn { flex: 1; min-height: 32px; padding: 0 var(--space-2); font-size: 14px; }
+.btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.btn[aria-pressed="true"] { background: color-mix(in srgb, var(--defense-primary) 22%, var(--panel)); border-color: var(--defense-primary); color: var(--defense-primary); }
 
 /* ---------- 9. Debug panel ---------- */
 .debug-panel { position: absolute; left: var(--space-2); bottom: var(--space-2); margin: 0; padding: var(--space-2) var(--space-3); z-index: 20;

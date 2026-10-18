@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createGame, stepGame } from '../src/sim/game.js';
 import {
-  spawnEnemyNow, queueEnemy, stepEnemies, enemyPose, enemyPosition, findEnemyAt, forEachEnemyInRadius,
+  spawnEnemyNow, queueEnemy, stepEnemies, enemyPose, enemyPosition, findEnemyAt, forEachEnemyInRadius, refreshEnemyPosition, getEnemyById,
 } from '../src/sim/enemies.js';
 import { applyDamage } from '../src/sim/damage.js';
 import { EVENT_TYPES } from '../src/sim/events.js';
@@ -120,6 +120,7 @@ test('findEnemyAt picks the nearest enemy and ignores dead ones', () => {
   const a = spawnEnemyNow(game, 'armoredGrunt');
   const b = spawnEnemyNow(game, 'armoredGrunt');
   a.distance = 400; b.distance = 410; a.lane = 0; b.lane = 0;
+  refreshEnemyPosition(game, a); refreshEnemyPosition(game, b);
   const out = { x: 0, y: 0, angle: 0 };
   enemyPosition(game, b, out);
   assert.equal(findEnemyAt(game, out.x, out.y).id, b.id);
@@ -130,9 +131,10 @@ test('findEnemyAt picks the nearest enemy and ignores dead ones', () => {
 
 test('forEachEnemyInRadius visits exactly the enemies inside', () => {
   const game = newGame();
-  const near = [100, 120, 140].map((d) => { const e = spawnEnemyNow(game, 'swarmling'); e.distance = d; e.lane = 0; return e; });
+  const near = [100, 120, 140].map((d) => { const e = spawnEnemyNow(game, 'swarmling'); e.distance = d; e.lane = 0; refreshEnemyPosition(game, e); return e; });
   const far = spawnEnemyNow(game, 'swarmling');
   far.distance = 1000; far.lane = 0;
+  refreshEnemyPosition(game, far);
   const c = enemyPosition(game, near[1], { x: 0, y: 0, angle: 0 });
   const seen = [];
   forEachEnemyInRadius(game, c.x, c.y, 30, (e) => seen.push(e.id));
@@ -154,4 +156,42 @@ test('enemyPose at alpha 0 and 1 matches previous and current positions', () => 
 test('stepEnemies on an empty game is a no-op', () => {
   const game = newGame();
   assert.doesNotThrow(() => stepEnemies(game));
+});
+
+import { snapshotGame } from '../src/sim/game.js';
+import { getEnemyById as byId } from '../src/sim/enemies.js';
+
+test('cached x/y equals the sampled position after every step', () => {
+  const game = newGame();
+  const e = spawnEnemyNow(game, 'fastRunner');
+  const out = { x: 0, y: 0, angle: 0 };
+  for (let i = 0; i < 300; i++) {
+    stepGame(game);
+    enemyPosition(game, e, out);
+    assert.equal(e.x, out.x);
+    assert.equal(e.y, out.y);
+  }
+});
+
+test('getEnemyById finds alive enemies, null for dead or unknown; the index is rebuilt after compaction', () => {
+  const game = newGame();
+  const a = spawnEnemyNow(game, 'swarmling');
+  const b = spawnEnemyNow(game, 'swarmling');
+  assert.equal(byId(game, a.id), a);
+  assert.equal(byId(game, 9999), null);
+  applyDamage(game, a, { amount: 1e4, kind: 'direct' });
+  assert.equal(byId(game, a.id), null); // dead, not yet compacted
+  stepEnemies(game);
+  assert.equal(game.enemyIndex.size, 1);
+  assert.equal(byId(game, b.id), b);
+  assert.equal(byId(game, a.id), null);
+});
+
+test('snapshot has x/y per enemy and not the index', () => {
+  const game = newGame();
+  spawnEnemyNow(game, 'armoredGrunt');
+  const snap = snapshotGame(game);
+  assert.ok(Number.isFinite(snap.enemies[0].x) && Number.isFinite(snap.enemies[0].y));
+  assert.equal('enemyIndex' in snap, false);
+  assert.equal(snap.enemies[0].poisonTowerId, -1);
 });

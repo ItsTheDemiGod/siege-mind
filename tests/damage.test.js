@@ -110,7 +110,7 @@ test('ENEMY_DAMAGED payload fields', () => {
   applyDamage(game, enemy, { amount: 40, kind: 'direct', source: 's1' });
   const [type, p] = events[0];
   assert.equal(type, EVENT_TYPES.ENEMY_DAMAGED);
-  assert.deepEqual(Object.keys(p).sort(), ['amount', 'hpDamage', 'id', 'kind', 'shieldDamage', 'source', 'tick', 'type', 'x', 'y']);
+  assert.deepEqual(Object.keys(p).sort(), ['amount', 'hpDamage', 'id', 'kind', 'shieldDamage', 'source', 'tick', 'towerId', 'type', 'x', 'y']);
   assert.equal(p.amount, 40);
   assert.equal(p.shieldDamage, 40);
   assert.equal(p.kind, 'direct');

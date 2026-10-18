@@ -25,10 +25,13 @@ export function spawnEnemyNow(game, typeId) {
   const enemy = {
     id: game.nextEnemyId++, type: typeId, hp: d.hp, maxHp: d.hp, shield: d.shield, maxShield: d.shield,
     distance: 0, prevDistance: 0, lane, spawnTick: game.tick, lastHitTick: -1, alive: true,
-    slowFactor: 1, slowRemaining: 0, poisonStacks: 0, poisonDps: 0, poisonRemaining: 0, poisonSource: 'debug', dotAcc: 0,
+    slowFactor: 1, slowRemaining: 0, poisonStacks: 0, poisonDps: 0, poisonRemaining: 0, poisonSource: 'debug', poisonTowerId: -1, dotAcc: 0, x: 0, y: 0,
   };
   game.enemies.push(enemy);
+  game.enemyIndex.set(enemy.id, enemy);
   const p = game.map.path.sampleAt(0, lane, scratch);
+  enemy.x = p.x;
+  enemy.y = p.y;
   game.events.emit(EVENT_TYPES.ENEMY_SPAWNED, { id: enemy.id, type: typeId, tick: game.tick, x: p.x, y: p.y });
   return enemy;
 }
@@ -73,8 +76,11 @@ export function stepEnemies(game) {
     if (!e.alive) continue;
     e.prevDistance = e.distance;
     e.distance += effectiveSpeed(ENEMIES[e.type], e) * stepSeconds;
+    if (e.distance > total) e.distance = total;
+    game.map.path.sampleAt(e.distance, e.lane, scratch);
+    e.x = scratch.x;
+    e.y = scratch.y;
     if (e.distance >= total) {
-      e.distance = total;
       e.alive = false;
       flushDot(game, e);
       const p = game.map.path.sampleAt(total, e.lane, scratch);
@@ -85,7 +91,11 @@ export function stepEnemies(game) {
   // (3) stable compaction: draw order must not change when enemies die
   let k = 0;
   for (let i = 0; i < list.length; i++) if (list[i].alive) list[k++] = list[i];
-  list.length = k;
+  if (k !== list.length) { // something died or leaked: rebuild the id index
+    list.length = k;
+    game.enemyIndex.clear();
+    for (let i = 0; i < k; i++) game.enemyIndex.set(list[i].id, list[i]);
+  }
 }
 
 /**
@@ -104,6 +114,27 @@ export function enemyPosition(game, enemy, out) {
 }
 
 /**
+ * Recompute an enemy's cached x/y from its distance and lane (tests / tools that edit distance directly).
+ * @param {object} game @param {object} enemy
+ * @returns {void}
+ */
+export function refreshEnemyPosition(game, enemy) {
+  const p = game.map.path.sampleAt(enemy.distance, enemy.lane, scratch);
+  enemy.x = p.x;
+  enemy.y = p.y;
+}
+
+/**
+ * Alive enemy by id, or null.
+ * @param {object} game @param {number} id
+ * @returns {object|null}
+ */
+export function getEnemyById(game, id) {
+  const e = game.enemyIndex.get(id);
+  return e !== undefined && e.alive ? e : null;
+}
+
+/**
  * Nearest alive enemy whose body (radius + pad) contains the point.
  * @param {object} game @param {number} x @param {number} y @param {number} [pad]
  * @returns {object|null}
@@ -113,8 +144,7 @@ export function findEnemyAt(game, x, y, pad = 8) {
   let bestD = Infinity;
   for (const e of game.enemies) {
     if (!e.alive) continue;
-    const p = enemyPosition(game, e, scratch);
-    const d = Math.hypot(p.x - x, p.y - y);
+    const d = Math.hypot(e.x - x, e.y - y);
     if (d <= ENEMIES[e.type].radius + pad && d < bestD) { best = e; bestD = d; }
   }
   return best;
@@ -129,8 +159,7 @@ export function findEnemyAt(game, x, y, pad = 8) {
 export function forEachEnemyInRadius(game, x, y, radius, callback) {
   for (const e of game.enemies) {
     if (!e.alive) continue;
-    const p = enemyPosition(game, e, scratch);
-    if (Math.hypot(p.x - x, p.y - y) <= radius) callback(e);
+    if (Math.hypot(e.x - x, e.y - y) <= radius) callback(e);
   }
 }
 
