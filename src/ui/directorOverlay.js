@@ -12,7 +12,7 @@ import { renderTiltChart } from './directorChartView.js';
 const REFRESH_MS = 250; // the wave phase flips after WAVE_ENDED fires, so a slow poll with key de-duplication keeps the panel honest
 const STATIC_TOAST = 'The Director overlay is available in Adaptive mode';
 const REASON_TEXT = Object.freeze({
-  adapted: 'adapted', 'cold-start': 'no evidence yet', random: 'random weights', 'static-early': 'too early to adapt', 'static-intro': 'new enemy type', 'static-fixed': 'set piece',
+  adapted: 'adapted', 'cold-start': 'no evidence yet', random: 'random weights', prior: 'fixed prior weights', 'static-early': 'too early to adapt', 'static-intro': 'new enemy type', 'static-fixed': 'set piece',
 });
 const pct = (x) => `${Math.round(100 * x)}%`;
 const signed = (x) => `${x >= 0 ? '+' : '-'}${Math.abs(x).toFixed(2)}`;

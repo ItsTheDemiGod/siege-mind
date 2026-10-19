@@ -30,7 +30,7 @@ export function directionOf(tilt, ratio = config.report.directionRatio) {
  */
 export function directionByType(decision, ratio = config.report.directionRatio) {
   const out = {};
-  for (const t of ENEMY_ORDER) out[t] = decision && decision.reason === 'adapted' ? directionOf(decision.tilt[t], ratio) : 'flat';
+  for (const t of ENEMY_ORDER) out[t] = decision && decision && (decision.reason === 'adapted' || decision.reason === 'prior') ? directionOf(decision.tilt[t], ratio) : 'flat';
   return out;
 }
 
@@ -45,9 +45,9 @@ export function chartTilt(decision, cfg = config.director, cfgV2 = config.direct
   return { ...decision.tilt };
 }
 
-const VIEW_TITLES = Object.freeze({ random: 'Random control', adaptive2: 'Director v2', counter: 'Counter arm' });
+const VIEW_TITLES = Object.freeze({ random: 'Random control', adaptive2: 'Director v2', counter: 'Counter arm', prior: 'Prior control' });
 /** @param {string} mode @returns {number} the tilt limit of the mode's arm (for the overlay bars) */
-export const tiltMaxOf = (mode) => (mode === 'adaptive2' ? config.directorV2.tiltMax : mode === 'counter' ? config.counter.tiltMax : config.director.tiltMax);
+export const tiltMaxOf = (mode) => (mode === 'adaptive2' ? config.directorV2.tiltMax : mode === 'counter' ? config.counter.tiltMax : mode === 'prior' ? config.prior.tiltMax : config.director.tiltMax);
 
 const ZERO_EVIDENCE = Object.freeze({ units: 0, leaked: 0, meanProgress: 0, reward: 0, advantage: 0 });
 

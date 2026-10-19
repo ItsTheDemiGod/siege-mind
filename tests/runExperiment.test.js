@@ -154,14 +154,14 @@ test('unitsFor takes an explicit seed list (a split) and keeps the stable order'
 test('9A-2a: the research arms are allowed for the tuning set only; defaults stay the protocol modes', async () => {
   const { ALL_MODES, EXTRA_MODES, PROTOCOL_MODES, modesAllowedFor } = await import('../experiments/modes.js');
   assert.deepEqual([...PROTOCOL_MODES], [...PROTOCOL.modes]);
-  assert.deepEqual([...EXTRA_MODES], ['adaptive2', 'counter']);
-  assert.deepEqual([...ALL_MODES], ['static', 'adaptive', 'random', 'adaptive2', 'counter']);
+  assert.deepEqual([...EXTRA_MODES], ['adaptive2', 'counter', 'prior']); // approved reversal (9A-2b-1)
+  assert.deepEqual([...ALL_MODES], ['static', 'adaptive', 'random', 'adaptive2', 'counter', 'prior']);
   assert.deepEqual([...modesAllowedFor('heldout')], [...PROTOCOL.modes]);
   assert.deepEqual(parseExperimentArgs(['--set=tuning', '--modes=static,adaptive2,counter']).modes, ['static', 'adaptive2', 'counter']);
   assert.deepEqual(parseExperimentArgs(['--set=tuning']).modes, [...PROTOCOL.modes]);
   assert.throws(() => parseExperimentArgs(['--modes=adaptive2', '--set=calibration']), /unknown mode: adaptive2/);
   assert.throws(() => parseExperimentArgs(['--set=heldout', '--modes=counter']), /not allowed|unknown mode/);
-  assert.equal(unitsFor({ set: 'tuning', seeds: [1001], styles: ['balancedR'], modes: ALL_MODES }).length, 5);
+  assert.equal(unitsFor({ set: 'tuning', seeds: [1001], styles: ['balancedR'], modes: ALL_MODES }).length, 6);
   assert.throws(() => unitsFor({ set: 'heldout', modes: ['adaptive2'] }), RangeError);
   assert.throws(() => unitsFor({ set: 'calibration', modes: ['counter'] }), RangeError);
 });

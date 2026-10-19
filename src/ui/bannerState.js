@@ -5,7 +5,7 @@ import { compositionItems } from './compositionItems.js';
 export const DIRECTOR_LINE = 'Director adapted this wave';
 const hpLine = (hpMult) => `Enemy HP ×${hpMult.toFixed(1)}`;
 /** Only an actual adaptation is announced: 'random' and 'cold-start' show nothing, so the random control stays hidden. */
-const directorLineOf = (director) => (director && director.reason === 'adapted' ? DIRECTOR_LINE : null);
+const directorLineOf = (director) => (director && (director.reason === 'adapted' || director.reason === 'prior') ? DIRECTOR_LINE : null);
 
 /**
  * @param {{wave: number, name: string|null, fixed: boolean, composition: Record<string, number>, hpMult: number}} started WAVE_STARTED payload

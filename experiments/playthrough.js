@@ -39,7 +39,7 @@ export function playGame({ seed = 1, bot, maxTicks = 600000, totalWaves = config
   }
   const directorCfg = game.directorCfg ?? config.director;
   return {
-    director: game.director ? { scores: { ...game.director.scores }, tilt: tiltFromScores(game.director.scores, directorCfg) } : null,
+    director: game.director && game.director.scores ? { scores: { ...game.director.scores }, tilt: tiltFromScores(game.director.scores, directorCfg) } : null,
     ...(collector ? { run: collector.getRun() } : {}),
     result: game.over ? game.result : 'timeout', wave: game.waves.current, lives: game.lives, ticks: game.tick,
     seconds: game.tick * config.sim.stepSeconds, minutes: (game.tick * config.sim.stepSeconds) / 60, stats: { ...game.stats }, perWave,
@@ -52,7 +52,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const seed = Number(arg('seed', 1));
   const waves = Number(arg('waves', config.game.totalWaves));
   const mode = arg('mode', 'static');
-  if (!['static', 'adaptive', 'random', 'adaptive2', 'counter'].includes(mode)) { console.error('--mode must be static, adaptive, random, adaptive2 or counter'); process.exit(2); }
+  if (!['static', 'adaptive', 'random', 'adaptive2', 'counter', 'prior'].includes(mode)) { console.error('--mode must be static, adaptive, random, adaptive2, counter or prior'); process.exit(2); }
   const telemetry = arg('telemetry', '');
   if (telemetry && !config.telemetry.allowedDetails.includes(telemetry)) { console.error('--telemetry must be full or summary'); process.exit(2); }
   const outDir = arg('out', 'experiments/results');

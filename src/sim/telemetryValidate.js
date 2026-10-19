@@ -5,8 +5,8 @@ import { ENEMY_ORDER } from '../data/enemies.js';
 const REQUIRED = ['schemaVersion', 'meta', 'config', 'definitions', 'result', 'totals', 'offWave', 'waves', 'towers'];
 const OUTCOMES = new Set(['killed', 'leaked', 'alive']);
 const SUM_TOLERANCE = 1e-6;
-const DIRECTOR_REASONS = new Set(['static-early', 'static-intro', 'static-fixed', 'cold-start', 'adapted', 'random']);
-const DIRECTOR_MODES = new Set(['adaptive', 'random', 'adaptive2', 'counter']);
+const DIRECTOR_REASONS = new Set(['static-early', 'static-intro', 'static-fixed', 'cold-start', 'adapted', 'random', 'prior']);
+const DIRECTOR_MODES = new Set(['adaptive', 'random', 'adaptive2', 'counter', 'prior']);
 
 const isNum = (v) => typeof v === 'number';
 

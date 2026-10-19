@@ -11,6 +11,7 @@ export const RANDOM_CONTROL = Object.freeze({ label: 'Random control', blurb: 'A
 /** Research arms (Phase 9A-2a): reachable only through ?mode=adaptive2 or ?mode=counter, not listed in the menu. */
 export const RESEARCH_ARMS = Object.freeze({
   adaptive2: Object.freeze({ label: 'Adaptive v2 (research)', blurb: 'Research arm: Director v2 with baseline-normalized rewards' }),
+  prior: Object.freeze({ label: 'Prior control (research)', blurb: 'Research control: fixed enemy weights from static baselines' }),
   counter: Object.freeze({ label: 'Counter arm (research)', blurb: 'Research arm: enemy mixes are set from your tower loadout' }),
 });
 

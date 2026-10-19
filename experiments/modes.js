@@ -3,7 +3,7 @@
 import { PROTOCOL } from './protocol.js';
 
 export const PROTOCOL_MODES = Object.freeze([...PROTOCOL.modes]);
-export const EXTRA_MODES = Object.freeze(['adaptive2', 'counter']);
+export const EXTRA_MODES = Object.freeze(['adaptive2', 'counter', 'prior']);
 export const ALL_MODES = Object.freeze([...PROTOCOL_MODES, ...EXTRA_MODES]);
 
 /** @param {string} set 'calibration'|'tuning'|'heldout' @returns {readonly string[]} the modes the runner accepts for that set */

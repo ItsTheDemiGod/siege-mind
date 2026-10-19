@@ -5,6 +5,7 @@ import { ENEMIES, ENEMY_ORDER } from '../data/enemies.js';
 import { planFor } from './director.js';
 import { planForV2 } from './directorV2.js';
 import { planForCounter } from './directorCounter.js';
+import { planForPrior } from './directorPrior.js';
 
 const toTicks = (seconds) => Math.round(seconds / config.sim.stepSeconds);
 
@@ -15,7 +16,7 @@ const toTicks = (seconds) => Math.round(seconds / config.sim.stepSeconds);
  */
 export function planWaveWithDecision(game, wave) {
   const planned = game.mode === 'static' ? { plan: STATIC_WAVES[wave - 1], decision: null }
-    : game.mode === 'adaptive2' ? planForV2(game, wave) : game.mode === 'counter' ? planForCounter(game, wave) : planFor(game, wave);
+    : game.mode === 'adaptive2' ? planForV2(game, wave) : game.mode === 'counter' ? planForCounter(game, wave) : game.mode === 'prior' ? planForPrior(game, wave) : planFor(game, wave);
   const { plan } = planned;
   return {
     plan: {

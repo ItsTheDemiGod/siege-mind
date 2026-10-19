@@ -43,8 +43,8 @@ function play({ mode, botName = 'balanced', seed = 1, checkpoints = [], telemetr
   return { game, started, spawned, snaps };
 }
 
-test('createGame accepts the two new modes, rejects anything else; the mode list is the five modes', () => {
-  assert.deepEqual([...GAME_MODES], ['static', 'adaptive', 'random', 'adaptive2', 'counter']);
+test('createGame accepts the two new modes, rejects anything else; the mode list is the six modes', () => {
+  assert.deepEqual([...GAME_MODES], ['static', 'adaptive', 'random', 'adaptive2', 'counter', 'prior']); // approved reversal (9A-2b-1): the prior control joined
   for (const mode of ARMS) {
     const g = createGame({ seed: 1, mode });
     assert.equal(g.mode, mode);

@@ -1,0 +1,1648 @@
+{
+ "prior": {
+  "director": [
+   {
+    "version": 2,
+    "wave": 1,
+    "mode": "prior",
+    "eligible": false,
+    "reason": "static-early",
+    "templateShares": {
+     "armoredGrunt": 1,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "tilt": {
+     "armoredGrunt": 1,
+     "swarmling": 1,
+     "fastRunner": 1,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 1,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "picks": {
+     "armoredGrunt": 4,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "threatTarget": 40,
+    "threatRealized": 40,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Wave 1 is too early to adapt: the Director only starts adapting later, so this wave is the static script."
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 2,
+    "mode": "prior",
+    "eligible": false,
+    "reason": "static-early",
+    "templateShares": {
+     "armoredGrunt": 1,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "tilt": {
+     "armoredGrunt": 1,
+     "swarmling": 1,
+     "fastRunner": 1,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 1,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "picks": {
+     "armoredGrunt": 6,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "threatTarget": 60,
+    "threatRealized": 60,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Wave 2 is too early to adapt: the Director only starts adapting later, so this wave is the static script."
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 3,
+    "mode": "prior",
+    "eligible": false,
+    "reason": "static-early",
+    "templateShares": {
+     "armoredGrunt": 0.6,
+     "swarmling": 0.4,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "tilt": {
+     "armoredGrunt": 1,
+     "swarmling": 1,
+     "fastRunner": 1,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 0.6,
+     "swarmling": 0.4,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "picks": {
+     "armoredGrunt": 5,
+     "swarmling": 2,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "threatTarget": 98,
+    "threatRealized": 98,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Wave 3 is too early to adapt: the Director only starts adapting later, so this wave is the static script."
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 4,
+    "mode": "prior",
+    "eligible": false,
+    "reason": "static-early",
+    "templateShares": {
+     "armoredGrunt": 0.4,
+     "swarmling": 0.3,
+     "fastRunner": 0.3,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "tilt": {
+     "armoredGrunt": 1,
+     "swarmling": 1,
+     "fastRunner": 1,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 0.4,
+     "swarmling": 0.3,
+     "fastRunner": 0.3,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "picks": {
+     "armoredGrunt": 5,
+     "swarmling": 2,
+     "fastRunner": 4,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "threatTarget": 130,
+    "threatRealized": 130,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Wave 4 is too early to adapt: the Director only starts adapting later, so this wave is the static script."
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 5,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.25,
+     "swarmling": 0.6,
+     "fastRunner": 0.15,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "tilt": {
+     "armoredGrunt": 0.6269046234834884,
+     "swarmling": 1.2857526177592362,
+     "fastRunner": 0.4788151564905734,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 0.15672615587087213,
+     "swarmling": 0.7714515706555418,
+     "fastRunner": 0.07182227347358602,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "picks": {
+     "armoredGrunt": 3,
+     "swarmling": 5,
+     "fastRunner": 1,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "threatTarget": 160,
+    "threatRealized": 158,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Fast Runner: weight x0.48, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Armored Grunt: weight x0.63, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Swarmling: weight x1.29, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.3730953765165116,
+     "swarmling": 0.2857526177592363,
+     "fastRunner": -0.5211848435094266,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 6,
+    "mode": "prior",
+    "eligible": false,
+    "reason": "static-intro",
+    "templateShares": {
+     "armoredGrunt": 0.35,
+     "swarmling": 0.25,
+     "fastRunner": 0.2,
+     "regenerator": 0.2,
+     "shieldedBruiser": 0
+    },
+    "tilt": {
+     "armoredGrunt": 1,
+     "swarmling": 1,
+     "fastRunner": 1,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 0.35,
+     "swarmling": 0.25,
+     "fastRunner": 0.2,
+     "regenerator": 0.2,
+     "shieldedBruiser": 0
+    },
+    "picks": {
+     "armoredGrunt": 7,
+     "swarmling": 2,
+     "fastRunner": 5,
+     "regenerator": 2,
+     "shieldedBruiser": 0
+    },
+    "threatTarget": 190,
+    "threatRealized": 190,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Wave 6 introduces a new enemy type, so it is the static script."
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 7,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.25,
+     "swarmling": 0.15,
+     "fastRunner": 0.45,
+     "regenerator": 0.15,
+     "shieldedBruiser": 0
+    },
+    "tilt": {
+     "armoredGrunt": 0.8739029462825895,
+     "swarmling": 1.488556273517319,
+     "fastRunner": 0.7609440031941858,
+     "regenerator": 1.438773473095808,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 0.21847573657064737,
+     "swarmling": 0.22328344102759784,
+     "fastRunner": 0.3424248014373836,
+     "regenerator": 0.2158160209643712,
+     "shieldedBruiser": 0
+    },
+    "picks": {
+     "armoredGrunt": 5,
+     "swarmling": 2,
+     "fastRunner": 10,
+     "regenerator": 4,
+     "shieldedBruiser": 0
+    },
+    "threatTarget": 236,
+    "threatRealized": 242,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Swarmling: weight x1.49, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Regenerator: weight x1.44, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Fast Runner: weight x0.76, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.12609705371741056,
+     "swarmling": 0.48855627351731906,
+     "fastRunner": -0.23905599680581424,
+     "regenerator": 0.4387734730958079,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 8,
+    "mode": "prior",
+    "eligible": false,
+    "reason": "static-intro",
+    "templateShares": {
+     "armoredGrunt": 0.3,
+     "swarmling": 0.2,
+     "fastRunner": 0.15,
+     "regenerator": 0.1,
+     "shieldedBruiser": 0.25
+    },
+    "tilt": {
+     "armoredGrunt": 1,
+     "swarmling": 1,
+     "fastRunner": 1,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 0.3,
+     "swarmling": 0.2,
+     "fastRunner": 0.15,
+     "regenerator": 0.1,
+     "shieldedBruiser": 0.25
+    },
+    "picks": {
+     "armoredGrunt": 8,
+     "swarmling": 2,
+     "fastRunner": 5,
+     "regenerator": 2,
+     "shieldedBruiser": 3
+    },
+    "threatTarget": 272,
+    "threatRealized": 272,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Wave 8 introduces a new enemy type, so it is the static script."
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 9,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.3,
+     "swarmling": 0.25,
+     "fastRunner": 0.2,
+     "regenerator": 0.15,
+     "shieldedBruiser": 0.1
+    },
+    "tilt": {
+     "armoredGrunt": 0.7935493609031572,
+     "swarmling": 1.140880614932338,
+     "fastRunner": 0.5237758696329902,
+     "regenerator": 1.516481377249817,
+     "shieldedBruiser": 1.444876574818978
+    },
+    "finalShares": {
+     "armoredGrunt": 0.23806480827094714,
+     "swarmling": 0.2852201537330845,
+     "fastRunner": 0.10475517392659804,
+     "regenerator": 0.22747220658747253,
+     "shieldedBruiser": 0.14448765748189782
+    },
+    "picks": {
+     "armoredGrunt": 8,
+     "swarmling": 4,
+     "fastRunner": 4,
+     "regenerator": 4,
+     "shieldedBruiser": 2
+    },
+    "threatTarget": 324,
+    "threatRealized": 320,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Regenerator: weight x1.52, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Fast Runner: weight x0.52, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Shielded Bruiser: weight x1.44, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.2064506390968428,
+     "swarmling": 0.14088061493233808,
+     "fastRunner": -0.47622413036700983,
+     "regenerator": 0.516481377249817,
+     "shieldedBruiser": 0.4448765748189779
+    }
+   },
+   {
+    "version": 2,
+    "wave": 10,
+    "mode": "prior",
+    "eligible": false,
+    "reason": "static-fixed",
+    "templateShares": {
+     "armoredGrunt": 0.5,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0.15,
+     "shieldedBruiser": 0.35
+    },
+    "tilt": {
+     "armoredGrunt": 1,
+     "swarmling": 1,
+     "fastRunner": 1,
+     "regenerator": 1,
+     "shieldedBruiser": 1
+    },
+    "finalShares": {
+     "armoredGrunt": 0.5,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0.15,
+     "shieldedBruiser": 0.35
+    },
+    "picks": {
+     "armoredGrunt": 18,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 4,
+     "shieldedBruiser": 5
+    },
+    "threatTarget": 364,
+    "threatRealized": 364,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Wave 10 is a fixed set piece, so it is the static script."
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    }
+   },
+   {
+    "version": 2,
+    "wave": 11,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.5,
+     "swarmling": 0.15,
+     "fastRunner": 0.1,
+     "regenerator": 0.1,
+     "shieldedBruiser": 0.15
+    },
+    "tilt": {
+     "armoredGrunt": 0.8851654268093054,
+     "swarmling": 0.8267650225861576,
+     "fastRunner": 0.3851852973292128,
+     "regenerator": 1.5760160932286946,
+     "shieldedBruiser": 1.5818826276775524
+    },
+    "finalShares": {
+     "armoredGrunt": 0.4425827134046527,
+     "swarmling": 0.12401475338792363,
+     "fastRunner": 0.03851852973292128,
+     "regenerator": 0.15760160932286948,
+     "shieldedBruiser": 0.23728239415163285
+    },
+    "picks": {
+     "armoredGrunt": 19,
+     "swarmling": 2,
+     "fastRunner": 2,
+     "regenerator": 4,
+     "shieldedBruiser": 4
+    },
+    "threatTarget": 418,
+    "threatRealized": 414,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Fast Runner: weight x0.39, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Shielded Bruiser: weight x1.58, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Regenerator: weight x1.58, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.11483457319069454,
+     "swarmling": -0.17323497741384247,
+     "fastRunner": -0.6148147026707872,
+     "regenerator": 0.5760160932286946,
+     "shieldedBruiser": 0.5818826276775524
+    }
+   },
+   {
+    "version": 2,
+    "wave": 12,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.15,
+     "swarmling": 0.5,
+     "fastRunner": 0.15,
+     "regenerator": 0.1,
+     "shieldedBruiser": 0.1
+    },
+    "tilt": {
+     "armoredGrunt": 0.9791684978465324,
+     "swarmling": 0.9880531845900571,
+     "fastRunner": 0.6269643115911903,
+     "regenerator": 1.386391225540386,
+     "shieldedBruiser": 1.2641436373527433
+    },
+    "finalShares": {
+     "armoredGrunt": 0.1468752746769799,
+     "swarmling": 0.4940265922950286,
+     "fastRunner": 0.09404464673867854,
+     "regenerator": 0.13863912255403865,
+     "shieldedBruiser": 0.12641436373527437
+    },
+    "picks": {
+     "armoredGrunt": 8,
+     "swarmling": 10,
+     "fastRunner": 6,
+     "regenerator": 4,
+     "shieldedBruiser": 2
+    },
+    "threatTarget": 478,
+    "threatRealized": 480,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Regenerator: weight x1.39, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Fast Runner: weight x0.63, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Shielded Bruiser: weight x1.26, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.02083150215346768,
+     "swarmling": -0.011946815409942949,
+     "fastRunner": -0.37303568840880974,
+     "regenerator": 0.386391225540386,
+     "shieldedBruiser": 0.26414363735274327
+    }
+   },
+   {
+    "version": 2,
+    "wave": 13,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.15,
+     "swarmling": 0.15,
+     "fastRunner": 0.5,
+     "regenerator": 0.1,
+     "shieldedBruiser": 0.1
+    },
+    "tilt": {
+     "armoredGrunt": 0.799708346900212,
+     "swarmling": 1.063364975468301,
+     "fastRunner": 0.7012475962274338,
+     "regenerator": 1.9384912517984811,
+     "shieldedBruiser": 1.7606607835115815
+    },
+    "finalShares": {
+     "armoredGrunt": 0.1199562520350318,
+     "swarmling": 0.15950474632024514,
+     "fastRunner": 0.3506237981137169,
+     "regenerator": 0.19384912517984812,
+     "shieldedBruiser": 0.17606607835115817
+    },
+    "picks": {
+     "armoredGrunt": 6,
+     "swarmling": 4,
+     "fastRunner": 23,
+     "regenerator": 6,
+     "shieldedBruiser": 4
+    },
+    "threatTarget": 536,
+    "threatRealized": 532,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Regenerator: weight x1.94, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Shielded Bruiser: weight x1.76, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Fast Runner: weight x0.70, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.20029165309978808,
+     "swarmling": 0.06336497546830097,
+     "fastRunner": -0.2987524037725661,
+     "regenerator": 0.9384912517984811,
+     "shieldedBruiser": 0.7606607835115815
+    }
+   },
+   {
+    "version": 2,
+    "wave": 14,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.15,
+     "swarmling": 0.1,
+     "fastRunner": 0.1,
+     "regenerator": 0.5,
+     "shieldedBruiser": 0.15
+    },
+    "tilt": {
+     "armoredGrunt": 0.47644075271978836,
+     "swarmling": 0.4447588944428109,
+     "fastRunner": 0.44641281975889446,
+     "regenerator": 1.2727506615701265,
+     "shieldedBruiser": 1.3536092325786533
+    },
+    "finalShares": {
+     "armoredGrunt": 0.07146611290796825,
+     "swarmling": 0.044475889444281096,
+     "fastRunner": 0.04464128197588945,
+     "regenerator": 0.6363753307850633,
+     "shieldedBruiser": 0.203041384886798
+    },
+    "picks": {
+     "armoredGrunt": 4,
+     "swarmling": 1,
+     "fastRunner": 3,
+     "regenerator": 24,
+     "shieldedBruiser": 5
+    },
+    "threatTarget": 594,
+    "threatRealized": 592,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Swarmling: weight x0.44, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Fast Runner: weight x0.45, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Armored Grunt: weight x0.48, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.5235592472802116,
+     "swarmling": -0.5552411055571891,
+     "fastRunner": -0.5535871802411055,
+     "regenerator": 0.27275066157012645,
+     "shieldedBruiser": 0.3536092325786534
+    }
+   },
+   {
+    "version": 2,
+    "wave": 15,
+    "mode": "prior",
+    "eligible": true,
+    "reason": "prior",
+    "templateShares": {
+     "armoredGrunt": 0.15,
+     "swarmling": 0.1,
+     "fastRunner": 0.1,
+     "regenerator": 0.15,
+     "shieldedBruiser": 0.5
+    },
+    "tilt": {
+     "armoredGrunt": 0.4120204323666774,
+     "swarmling": 0.341328893282689,
+     "fastRunner": 0.3333333333333333,
+     "regenerator": 1.2921480359773285,
+     "shieldedBruiser": 1.3720976547992199
+    },
+    "finalShares": {
+     "armoredGrunt": 0.06124328164376973,
+     "swarmling": 0.033823729605500646,
+     "fastRunner": 0.03303141561423358,
+     "regenerator": 0.19206665465167255,
+     "shieldedBruiser": 0.6798349184848235
+    },
+    "picks": {
+     "armoredGrunt": 4,
+     "swarmling": 1,
+     "fastRunner": 2,
+     "regenerator": 8,
+     "shieldedBruiser": 19
+    },
+    "threatTarget": 668,
+    "threatRealized": 664,
+    "basedOnWave": 0,
+    "observed": {
+     "armoredGrunt": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "swarmling": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "fastRunner": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "regenerator": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     },
+     "shieldedBruiser": {
+      "units": 0,
+      "leaked": 0,
+      "meanProgress": 0,
+      "threatSpent": 0,
+      "threatShare": 0,
+      "reward": 0,
+      "advantage": 0,
+      "updated": false
+     }
+    },
+    "scores": {
+     "armoredGrunt": 0,
+     "swarmling": 0,
+     "fastRunner": 0,
+     "regenerator": 0,
+     "shieldedBruiser": 0
+    },
+    "lines": [
+     "Fast Runner: weight x0.33, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Swarmling: weight x0.34, a fixed weight from static baseline rewards (enemy durability), not learned from your defense",
+     "Armored Grunt: weight x0.41, a fixed weight from static baseline rewards (enemy durability), not learned from your defense"
+    ],
+    "arm": "prior",
+    "baselineAdvantage": {
+     "armoredGrunt": -0.5879795676333226,
+     "swarmling": -0.658671106717311,
+     "fastRunner": -0.7580698697947972,
+     "regenerator": 0.2921480359773285,
+     "shieldedBruiser": 0.37209765479921997
+    }
+   }
+  ],
+  "result": {
+   "result": "won",
+   "wave": 15,
+   "lives": 9,
+   "ticks": 70675
+  }
+ }
+}

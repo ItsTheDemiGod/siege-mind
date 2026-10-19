@@ -16,6 +16,7 @@ const TANK_CAVEAT = ' Tanky enemy types tend to score higher against most defens
 export const reportFootnote = (mode) => (mode === 'adaptive' || mode === 'adaptive2' ? FOOT + TANK_CAVEAT : FOOT);
 const NO_EVIDENCE = (first) => `The Director had no evidence to act on yet (it starts adapting at wave ${first}).`;
 const COUNTER_LINE = 'This run used the informed counter arm: enemy weights were set from your tower loadout, not learned.';
+const PRIOR_LINE = 'This run used the prior control: enemy weights came from static baselines (enemy durability), not from your defense.';
 const RANDOM_LINE = 'This run used the random control: enemy weights were random and ignored how your defense performed.';
 
 /** @param {{finalShares: Record<string, number>, templateShares: Record<string, number>}} d @returns {number} half the L1 distance between final and template shares */
@@ -72,7 +73,7 @@ export function buildDirectorReport(run, { cfg = config } = {}) {
   const mode = run.meta.mode;
   const empty = { eligible: 0, adapted: 0, meanShift: 0 };
   const learns = mode === 'adaptive' || mode === 'adaptive2'; // the arms whose weights come from scores
-  if (!learns && mode !== 'random' && mode !== 'counter') {
+  if (!learns && mode !== 'random' && mode !== 'counter' && mode !== 'prior') {
     return { available: false, reason: 'static', mode, totalWaves: run.meta.totalWaves, title: TITLE, headline: '', insights: [], entries: [], stats: empty, rows: [], damage: [], toughest: null };
   }
   const entries = run.waves.map((w) => w.director).filter(Boolean).map((d) => copyPlain(d));
@@ -81,7 +82,7 @@ export function buildDirectorReport(run, { cfg = config } = {}) {
   const meanShift = eligible.length ? eligible.reduce((n, d) => n + decisionShift(d), 0) / eligible.length : 0;
   const last = entries.at(-1);
   const firstWave = mode === 'adaptive2' ? cfg.directorV2.firstAdaptiveWave : cfg.director.firstAdaptiveWave;
-  const finalTilt = (learns || mode === 'counter') && last ? chartTilt(last, cfg.director, cfg.directorV2) : Object.fromEntries(ENEMY_ORDER.map((t) => [t, 1]));
+  const finalTilt = (learns || mode === 'counter' || mode === 'prior') && last ? chartTilt(last, cfg.director, cfg.directorV2) : Object.fromEntries(ENEMY_ORDER.map((t) => [t, 1]));
   const rows = typeRows(run, finalTilt);
   const damage = damageRows(run);
   const toughest = toughestWave(run);
@@ -91,6 +92,8 @@ export function buildDirectorReport(run, { cfg = config } = {}) {
   const leaned = [];
   if (mode === 'random') {
     insights.push(RANDOM_LINE);
+  } else if (mode === 'prior') {
+    insights.push(PRIOR_LINE); // replaces insights 1, 2 and 5: nothing was learned
   } else if (mode === 'counter') {
     insights.push(COUNTER_LINE); // replaces insights 1, 2 and 5: nothing was learned
   } else if (adapted.length === 0) {

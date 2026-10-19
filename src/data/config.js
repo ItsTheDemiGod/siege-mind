@@ -52,6 +52,8 @@ export const config = Object.freeze({
     firstAdaptiveWave: 5, gain: 1.5, tiltMax: 3, absentFloorShare: 0.05,
     levelWeight: 0.5, // a tower weighs 1 + levelWeight * level
   }),
+  // 'prior' = fixed control arm: weights from the static baseline only (enemy durability), no learning, no reading of the defense.
+  prior: Object.freeze({ firstAdaptiveWave: 5, beta: 1, tiltMax: 3, advClipHigh: 2, absentFloorShare: 0.05, baselineFloorFraction: 0.1 }),
   report: Object.freeze({
     directionRatio: 1.1, // a tilt at or above this (or at or below its inverse) shows a direction mark
     pushRatio: 1.15, // final tilt at or beyond this counts as "leaned on" / "backed off" in the report

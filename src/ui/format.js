@@ -33,6 +33,7 @@ export function modeLabel(mode) {
  */
 export function formatDirectorLine(game) {
   if (!game.director) return 'director: off (static mode)';
+  if (!game.director.scores) return `director: mode ${game.director.mode} (fixed weights, nothing learned)`;
   const cfg = game.mode === 'adaptive2' ? (game.directorV2Cfg ?? config.directorV2) : (game.directorCfg ?? config.director);
   const tilt = tiltFromScores(game.director.scores, cfg);
   const parts = ENEMY_ORDER.map((t) => `${SHORT_NAMES[t]} ${game.director.scores[t].toFixed(2)}/${tilt[t].toFixed(2)}`);
