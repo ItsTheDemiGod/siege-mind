@@ -1,0 +1,2889 @@
+{
+ "modes": [
+  "static",
+  "adaptive",
+  "random",
+  "adaptive2",
+  "counter"
+ ],
+ "population": {
+  "units": 71,
+  "excluded": 29,
+  "totalUnits": 100,
+  "seeds": 20,
+  "allSeeds": 20,
+  "minWave": 5
+ },
+ "descriptive": {
+  "livesLost": {
+   "byMode": {
+    "static": {
+     "n": 71,
+     "mean": 10.605634,
+     "sd": 8.101991
+    },
+    "adaptive": {
+     "n": 71,
+     "mean": 12.422535,
+     "sd": 8.47629
+    },
+    "random": {
+     "n": 71,
+     "mean": 12.014085,
+     "sd": 7.938141
+    },
+    "adaptive2": {
+     "n": 71,
+     "mean": 10.859155,
+     "sd": 8.274394
+    },
+    "counter": {
+     "n": 71,
+     "mean": 11.253521,
+     "sd": 8.179623
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 13,
+      "mean": 6.769231,
+      "sd": 6.273673
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 9.076923,
+      "sd": 7.783118
+     },
+     "random": {
+      "n": 13,
+      "mean": 9.076923,
+      "sd": 6.957748
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 7.076923,
+      "sd": 6.304252
+     },
+     "counter": {
+      "n": 13,
+      "mean": 7.153846,
+      "sd": 6.631317
+     }
+    },
+    "noLance": {
+     "static": {
+      "n": 11,
+      "mean": 13.181818,
+      "sd": 6.925578
+     },
+     "adaptive": {
+      "n": 11,
+      "mean": 14,
+      "sd": 7.589466
+     },
+     "random": {
+      "n": 11,
+      "mean": 13.363636,
+      "sd": 6.888726
+     },
+     "adaptive2": {
+      "n": 11,
+      "mean": 13.545455,
+      "sd": 7.78927
+     },
+     "counter": {
+      "n": 11,
+      "mean": 14,
+      "sd": 7.509993
+     }
+    },
+    "noMortar": {
+     "static": {
+      "n": 16,
+      "mean": 7.4375,
+      "sd": 7.580402
+     },
+     "adaptive": {
+      "n": 16,
+      "mean": 7.9375,
+      "sd": 9.044105
+     },
+     "random": {
+      "n": 16,
+      "mean": 9.25,
+      "sd": 8.282512
+     },
+     "adaptive2": {
+      "n": 16,
+      "mean": 7.3125,
+      "sd": 7.743546
+     },
+     "counter": {
+      "n": 16,
+      "mean": 8.0625,
+      "sd": 7.67219
+     }
+    },
+    "noPoison": {
+     "static": {
+      "n": 13,
+      "mean": 11.384615,
+      "sd": 8.539501
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 17,
+      "sd": 5.700877
+     },
+     "random": {
+      "n": 13,
+      "mean": 13.538462,
+      "sd": 7.869936
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 11.461538,
+      "sd": 8.222078
+     },
+     "counter": {
+      "n": 13,
+      "mean": 12.461538,
+      "sd": 8.037572
+     }
+    },
+    "noSniper": {
+     "static": {
+      "n": 18,
+      "mean": 14.055556,
+      "sd": 8.605554
+     },
+     "adaptive": {
+      "n": 18,
+      "mean": 14.555556,
+      "sd": 8.610679
+     },
+     "random": {
+      "n": 18,
+      "mean": 14.666667,
+      "sd": 8.303082
+     },
+     "adaptive2": {
+      "n": 18,
+      "mean": 14.666667,
+      "sd": 8.629634
+     },
+     "counter": {
+      "n": 18,
+      "mean": 14.5,
+      "sd": 8.610869
+     }
+    }
+   }
+  },
+  "won": {
+   "byMode": {
+    "static": {
+     "n": 71,
+     "mean": 0.71831,
+     "sd": 0.453025,
+     "wilson": [
+      0.60458,
+      0.809629
+     ]
+    },
+    "adaptive": {
+     "n": 71,
+     "mean": 0.535211,
+     "sd": 0.502309,
+     "wilson": [
+      0.420392,
+      0.646416
+     ]
+    },
+    "random": {
+     "n": 71,
+     "mean": 0.619718,
+     "sd": 0.488911,
+     "wilson": [
+      0.503419,
+      0.723728
+     ]
+    },
+    "adaptive2": {
+     "n": 71,
+     "mean": 0.647887,
+     "sd": 0.481028,
+     "wilson": [
+      0.531821,
+      0.748773
+     ]
+    },
+    "counter": {
+     "n": 71,
+     "mean": 0.633803,
+     "sd": 0.485193,
+     "wilson": [
+      0.517572,
+      0.736298
+     ]
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 13,
+      "mean": 1,
+      "sd": 0,
+      "wilson": [
+       0.771905,
+       1
+      ]
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 0.769231,
+      "sd": 0.438529,
+      "wilson": [
+       0.497436,
+       0.918205
+      ]
+     },
+     "random": {
+      "n": 13,
+      "mean": 0.923077,
+      "sd": 0.27735,
+      "wilson": [
+       0.66686,
+       0.98629
+      ]
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 0.923077,
+      "sd": 0.27735,
+      "wilson": [
+       0.66686,
+       0.98629
+      ]
+     },
+     "counter": {
+      "n": 13,
+      "mean": 0.923077,
+      "sd": 0.27735,
+      "wilson": [
+       0.66686,
+       0.98629
+      ]
+     }
+    },
+    "noLance": {
+     "static": {
+      "n": 11,
+      "mean": 0.727273,
+      "sd": 0.467099,
+      "wilson": [
+       0.434355,
+       0.902539
+      ]
+     },
+     "adaptive": {
+      "n": 11,
+      "mean": 0.545455,
+      "sd": 0.522233,
+      "wilson": [
+       0.280092,
+       0.787287
+      ]
+     },
+     "random": {
+      "n": 11,
+      "mean": 0.727273,
+      "sd": 0.467099,
+      "wilson": [
+       0.434355,
+       0.902539
+      ]
+     },
+     "adaptive2": {
+      "n": 11,
+      "mean": 0.636364,
+      "sd": 0.504525,
+      "wilson": [
+       0.353801,
+       0.848335
+      ]
+     },
+     "counter": {
+      "n": 11,
+      "mean": 0.636364,
+      "sd": 0.504525,
+      "wilson": [
+       0.353801,
+       0.848335
+      ]
+     }
+    },
+    "noMortar": {
+     "static": {
+      "n": 16,
+      "mean": 0.875,
+      "sd": 0.341565,
+      "wilson": [
+       0.639772,
+       0.965023
+      ]
+     },
+     "adaptive": {
+      "n": 16,
+      "mean": 0.6875,
+      "sd": 0.478714,
+      "wilson": [
+       0.444044,
+       0.858354
+      ]
+     },
+     "random": {
+      "n": 16,
+      "mean": 0.6875,
+      "sd": 0.478714,
+      "wilson": [
+       0.444044,
+       0.858354
+      ]
+     },
+     "adaptive2": {
+      "n": 16,
+      "mean": 0.8125,
+      "sd": 0.403113,
+      "wilson": [
+       0.569911,
+       0.934084
+      ]
+     },
+     "counter": {
+      "n": 16,
+      "mean": 0.8125,
+      "sd": 0.403113,
+      "wilson": [
+       0.569911,
+       0.934084
+      ]
+     }
+    },
+    "noPoison": {
+     "static": {
+      "n": 13,
+      "mean": 0.615385,
+      "sd": 0.50637,
+      "wilson": [
+       0.355229,
+       0.822903
+      ]
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 0.384615,
+      "sd": 0.50637,
+      "wilson": [
+       0.177097,
+       0.644771
+      ]
+     },
+     "random": {
+      "n": 13,
+      "mean": 0.461538,
+      "sd": 0.518875,
+      "wilson": [
+       0.232061,
+       0.708562
+      ]
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 0.615385,
+      "sd": 0.50637,
+      "wilson": [
+       0.355229,
+       0.822903
+      ]
+     },
+     "counter": {
+      "n": 13,
+      "mean": 0.538462,
+      "sd": 0.518875,
+      "wilson": [
+       0.291438,
+       0.767939
+      ]
+     }
+    },
+    "noSniper": {
+     "static": {
+      "n": 18,
+      "mean": 0.444444,
+      "sd": 0.51131,
+      "wilson": [
+       0.245595,
+       0.662836
+      ]
+     },
+     "adaptive": {
+      "n": 18,
+      "mean": 0.333333,
+      "sd": 0.485071,
+      "wilson": [
+       0.162788,
+       0.562505
+      ]
+     },
+     "random": {
+      "n": 18,
+      "mean": 0.388889,
+      "sd": 0.501631,
+      "wilson": [
+       0.203052,
+       0.61381
+      ]
+     },
+     "adaptive2": {
+      "n": 18,
+      "mean": 0.333333,
+      "sd": 0.485071,
+      "wilson": [
+       0.162788,
+       0.562505
+      ]
+     },
+     "counter": {
+      "n": 18,
+      "mean": 0.333333,
+      "sd": 0.485071,
+      "wilson": [
+       0.162788,
+       0.562505
+      ]
+     }
+    }
+   }
+  },
+  "finalWave": {
+   "byMode": {
+    "static": {
+     "n": 71,
+     "mean": 12.859155,
+     "sd": 3.765618
+    },
+    "adaptive": {
+     "n": 71,
+     "mean": 12.084507,
+     "sd": 3.955995
+    },
+    "random": {
+     "n": 71,
+     "mean": 12.478873,
+     "sd": 3.916482
+    },
+    "adaptive2": {
+     "n": 71,
+     "mean": 12.549296,
+     "sd": 3.838857
+    },
+    "counter": {
+     "n": 71,
+     "mean": 12.478873,
+     "sd": 3.905524
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 13,
+      "mean": 15,
+      "sd": 0
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 13.769231,
+      "sd": 2.803386
+     },
+     "random": {
+      "n": 13,
+      "mean": 14.384615,
+      "sd": 2.218801
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 14.538462,
+      "sd": 1.664101
+     },
+     "counter": {
+      "n": 13,
+      "mean": 14.615385,
+      "sd": 1.38675
+     }
+    },
+    "noLance": {
+     "static": {
+      "n": 11,
+      "mean": 13.272727,
+      "sd": 3.133398
+     },
+     "adaptive": {
+      "n": 11,
+      "mean": 11.818182,
+      "sd": 3.868286
+     },
+     "random": {
+      "n": 11,
+      "mean": 13.090909,
+      "sd": 3.389824
+     },
+     "adaptive2": {
+      "n": 11,
+      "mean": 12.818182,
+      "sd": 3.21926
+     },
+     "counter": {
+      "n": 11,
+      "mean": 12.545455,
+      "sd": 3.643175
+     }
+    },
+    "noMortar": {
+     "static": {
+      "n": 16,
+      "mean": 14.3125,
+      "sd": 2.49583
+     },
+     "adaptive": {
+      "n": 16,
+      "mean": 14,
+      "sd": 2.607681
+     },
+     "random": {
+      "n": 16,
+      "mean": 14.1875,
+      "sd": 2.482438
+     },
+     "adaptive2": {
+      "n": 16,
+      "mean": 14.0625,
+      "sd": 2.619637
+     },
+     "counter": {
+      "n": 16,
+      "mean": 14.3125,
+      "sd": 2.49583
+     }
+    },
+    "noPoison": {
+     "static": {
+      "n": 13,
+      "mean": 12,
+      "sd": 4.527693
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 11.230769,
+      "sd": 4.512092
+     },
+     "random": {
+      "n": 13,
+      "mean": 11,
+      "sd": 4.50925
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 11.923077,
+      "sd": 4.645097
+     },
+     "counter": {
+      "n": 13,
+      "mean": 11.384615,
+      "sd": 4.628507
+     }
+    },
+    "noSniper": {
+     "static": {
+      "n": 18,
+      "mean": 10.388889,
+      "sd": 4.473962
+     },
+     "adaptive": {
+      "n": 18,
+      "mean": 9.944444,
+      "sd": 4.317846
+     },
+     "random": {
+      "n": 18,
+      "mean": 10.277778,
+      "sd": 4.534905
+     },
+     "adaptive2": {
+      "n": 18,
+      "mean": 10.055556,
+      "sd": 4.385433
+     },
+     "counter": {
+      "n": 18,
+      "mean": 10.055556,
+      "sd": 4.385433
+     }
+    }
+   }
+  },
+  "leakFraction": {
+   "byMode": {
+    "static": {
+     "n": 71,
+     "mean": 0.078124,
+     "sd": 0.127329
+    },
+    "adaptive": {
+     "n": 71,
+     "mean": 0.092813,
+     "sd": 0.124642
+    },
+    "random": {
+     "n": 71,
+     "mean": 0.088864,
+     "sd": 0.129712
+    },
+    "adaptive2": {
+     "n": 71,
+     "mean": 0.085298,
+     "sd": 0.132891
+    },
+    "counter": {
+     "n": 71,
+     "mean": 0.085983,
+     "sd": 0.130848
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 13,
+      "mean": 0.012697,
+      "sd": 0.012434
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 0.03822,
+      "sd": 0.063446
+     },
+     "random": {
+      "n": 13,
+      "mean": 0.029569,
+      "sd": 0.0539
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 0.0198,
+      "sd": 0.032944
+     },
+     "counter": {
+      "n": 13,
+      "mean": 0.017846,
+      "sd": 0.024786
+     }
+    },
+    "noLance": {
+     "static": {
+      "n": 11,
+      "mean": 0.053224,
+      "sd": 0.082692
+     },
+     "adaptive": {
+      "n": 11,
+      "mean": 0.080363,
+      "sd": 0.095255
+     },
+     "random": {
+      "n": 11,
+      "mean": 0.061165,
+      "sd": 0.08867
+     },
+     "adaptive2": {
+      "n": 11,
+      "mean": 0.060995,
+      "sd": 0.087595
+     },
+     "counter": {
+      "n": 11,
+      "mean": 0.073758,
+      "sd": 0.116845
+     }
+    },
+    "noMortar": {
+     "static": {
+      "n": 16,
+      "mean": 0.029935,
+      "sd": 0.073637
+     },
+     "adaptive": {
+      "n": 16,
+      "mean": 0.033233,
+      "sd": 0.07281
+     },
+     "random": {
+      "n": 16,
+      "mean": 0.034211,
+      "sd": 0.073355
+     },
+     "adaptive2": {
+      "n": 16,
+      "mean": 0.032794,
+      "sd": 0.075061
+     },
+     "counter": {
+      "n": 16,
+      "mean": 0.030113,
+      "sd": 0.07049
+     }
+    },
+    "noPoison": {
+     "static": {
+      "n": 13,
+      "mean": 0.116307,
+      "sd": 0.165149
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 0.137404,
+      "sd": 0.156466
+     },
+     "random": {
+      "n": 13,
+      "mean": 0.135826,
+      "sd": 0.158997
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 0.124535,
+      "sd": 0.176953
+     },
+     "counter": {
+      "n": 13,
+      "mean": 0.127977,
+      "sd": 0.162369
+     }
+    },
+    "noSniper": {
+     "static": {
+      "n": 18,
+      "mean": 0.155852,
+      "sd": 0.158802
+     },
+     "adaptive": {
+      "n": 18,
+      "mean": 0.160605,
+      "sd": 0.147398
+     },
+     "random": {
+      "n": 18,
+      "mean": 0.163277,
+      "sd": 0.162685
+     },
+     "adaptive2": {
+      "n": 18,
+      "mean": 0.165789,
+      "sd": 0.16146
+     },
+     "counter": {
+      "n": 18,
+      "mean": 0.161998,
+      "sd": 0.158078
+     }
+    }
+   }
+  },
+  "penetration": {
+   "byMode": {
+    "static": {
+     "n": 71,
+     "mean": 0.50584,
+     "sd": 0.107192
+    },
+    "adaptive": {
+     "n": 71,
+     "mean": 0.534902,
+     "sd": 0.094463
+    },
+    "random": {
+     "n": 71,
+     "mean": 0.517685,
+     "sd": 0.109239
+    },
+    "adaptive2": {
+     "n": 71,
+     "mean": 0.515733,
+     "sd": 0.105792
+    },
+    "counter": {
+     "n": 71,
+     "mean": 0.505961,
+     "sd": 0.117945
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 13,
+      "mean": 0.450484,
+      "sd": 0.032643
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 0.49026,
+      "sd": 0.053903
+     },
+     "random": {
+      "n": 13,
+      "mean": 0.466627,
+      "sd": 0.048262
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 0.464791,
+      "sd": 0.043384
+     },
+     "counter": {
+      "n": 13,
+      "mean": 0.444615,
+      "sd": 0.055084
+     }
+    },
+    "noLance": {
+     "static": {
+      "n": 11,
+      "mean": 0.523253,
+      "sd": 0.085741
+     },
+     "adaptive": {
+      "n": 11,
+      "mean": 0.556717,
+      "sd": 0.07502
+     },
+     "random": {
+      "n": 11,
+      "mean": 0.524912,
+      "sd": 0.066367
+     },
+     "adaptive2": {
+      "n": 11,
+      "mean": 0.528628,
+      "sd": 0.083747
+     },
+     "counter": {
+      "n": 11,
+      "mean": 0.533644,
+      "sd": 0.099087
+     }
+    },
+    "noMortar": {
+     "static": {
+      "n": 16,
+      "mean": 0.473304,
+      "sd": 0.081789
+     },
+     "adaptive": {
+      "n": 16,
+      "mean": 0.496632,
+      "sd": 0.071333
+     },
+     "random": {
+      "n": 16,
+      "mean": 0.481896,
+      "sd": 0.084509
+     },
+     "adaptive2": {
+      "n": 16,
+      "mean": 0.479382,
+      "sd": 0.082053
+     },
+     "counter": {
+      "n": 16,
+      "mean": 0.455309,
+      "sd": 0.081552
+     }
+    },
+    "noPoison": {
+     "static": {
+      "n": 13,
+      "mean": 0.527042,
+      "sd": 0.111908
+     },
+     "adaptive": {
+      "n": 13,
+      "mean": 0.554544,
+      "sd": 0.097995
+     },
+     "random": {
+      "n": 13,
+      "mean": 0.546076,
+      "sd": 0.116386
+     },
+     "adaptive2": {
+      "n": 13,
+      "mean": 0.53237,
+      "sd": 0.115267
+     },
+     "counter": {
+      "n": 13,
+      "mean": 0.530915,
+      "sd": 0.118007
+     }
+    },
+    "noSniper": {
+     "static": {
+      "n": 18,
+      "mean": 0.548787,
+      "sd": 0.147177
+     },
+     "adaptive": {
+      "n": 18,
+      "mean": 0.573644,
+      "sd": 0.122551
+     },
+     "random": {
+      "n": 18,
+      "mean": 0.561453,
+      "sd": 0.152185
+     },
+     "adaptive2": {
+      "n": 18,
+      "mean": 0.564941,
+      "sd": 0.138564
+     },
+     "counter": {
+      "n": 18,
+      "mean": 0.560349,
+      "sd": 0.155784
+     }
+    }
+   }
+  }
+ },
+ "pairs": [
+  {
+   "a": "adaptive",
+   "b": "static",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": 1.8675,
+   "ci95": [
+    0.7325,
+    3.158333
+   ],
+   "pRaw": 0.00503,
+   "dz": 0.652764
+  },
+  {
+   "a": "adaptive",
+   "b": "static",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": -0.19,
+   "ci95": [
+    -0.280833,
+    -0.105
+   ],
+   "pRaw": 0.00104,
+   "dz": -0.912607
+  },
+  {
+   "a": "adaptive",
+   "b": "static",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": -0.798333,
+   "ci95": [
+    -1.3,
+    -0.346667
+   ],
+   "pRaw": 0.00418,
+   "dz": -0.706766
+  },
+  {
+   "a": "adaptive",
+   "b": "random",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": 0.3975,
+   "ci95": [
+    -0.663333,
+    1.5975
+   ],
+   "pRaw": 0.532675,
+   "dz": 0.150316
+  },
+  {
+   "a": "adaptive",
+   "b": "random",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": -0.091667,
+   "ci95": [
+    -0.174167,
+    -0.0175
+   ],
+   "pRaw": 0.04792,
+   "dz": -0.496343
+  },
+  {
+   "a": "adaptive",
+   "b": "random",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": -0.386667,
+   "ci95": [
+    -0.825833,
+    0.0075
+   ],
+   "pRaw": 0.100439,
+   "dz": -0.392875
+  },
+  {
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": 0.390833,
+   "ci95": [
+    -0.0475,
+    0.858333
+   ],
+   "pRaw": 0.112099,
+   "dz": 0.376792
+  },
+  {
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": -0.080833,
+   "ci95": [
+    -0.155833,
+    -0.01
+   ],
+   "pRaw": 0.077969,
+   "dz": -0.467084
+  },
+  {
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": -0.343333,
+   "ci95": [
+    -0.678333,
+    -0.075
+   ],
+   "pRaw": 0.03964,
+   "dz": -0.478908
+  },
+  {
+   "a": "adaptive2",
+   "b": "random",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": -1.079167,
+   "ci95": [
+    -2.1275,
+    0.015833
+   ],
+   "pRaw": 0.073249,
+   "dz": -0.422543
+  },
+  {
+   "a": "adaptive2",
+   "b": "random",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": 0.0175,
+   "ci95": [
+    -0.066667,
+    0.099167
+   ],
+   "pRaw": 0.718993,
+   "dz": 0.089366
+  },
+  {
+   "a": "adaptive2",
+   "b": "random",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": 0.068333,
+   "ci95": [
+    -0.3675,
+    0.494167
+   ],
+   "pRaw": 0.792722,
+   "dz": 0.066932
+  },
+  {
+   "a": "adaptive2",
+   "b": "adaptive",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": -1.476667,
+   "ci95": [
+    -2.873333,
+    -0.236667
+   ],
+   "pRaw": 0.03989,
+   "dz": -0.476421
+  },
+  {
+   "a": "adaptive2",
+   "b": "adaptive",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": 0.109167,
+   "ci95": [
+    0.028333,
+    0.190833
+   ],
+   "pRaw": 0.0313,
+   "dz": 0.55599
+  },
+  {
+   "a": "adaptive2",
+   "b": "adaptive",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": 0.455,
+   "ci95": [
+    0.036667,
+    0.8975
+   ],
+   "pRaw": 0.064939,
+   "dz": 0.440123
+  },
+  {
+   "a": "counter",
+   "b": "static",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": 0.711667,
+   "ci95": [
+    0.135833,
+    1.448333
+   ],
+   "pRaw": 0.03477,
+   "dz": 0.461804
+  },
+  {
+   "a": "counter",
+   "b": "static",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": -0.099167,
+   "ci95": [
+    -0.21,
+    -0.0075
+   ],
+   "pRaw": 0.124379,
+   "dz": -0.415036
+  },
+  {
+   "a": "counter",
+   "b": "static",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": -0.435,
+   "ci95": [
+    -0.913333,
+    -0.04
+   ],
+   "pRaw": 0.070359,
+   "dz": -0.416359
+  },
+  {
+   "a": "counter",
+   "b": "random",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": -0.758333,
+   "ci95": [
+    -1.841667,
+    0.351667
+   ],
+   "pRaw": 0.212278,
+   "dz": -0.290064
+  },
+  {
+   "a": "counter",
+   "b": "random",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": -0.000833,
+   "ci95": [
+    -0.096667,
+    0.079167
+   ],
+   "pRaw": 1,
+   "dz": -0.004038
+  },
+  {
+   "a": "counter",
+   "b": "random",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": -0.023333,
+   "ci95": [
+    -0.529167,
+    0.449167
+   ],
+   "pRaw": 0.937691,
+   "dz": -0.020453
+  },
+  {
+   "a": "counter",
+   "b": "adaptive2",
+   "metric": "livesLost",
+   "n": 20,
+   "meanDiff": 0.320833,
+   "ci95": [
+    -0.135833,
+    0.7925
+   ],
+   "pRaw": 0.211718,
+   "dz": 0.293546
+  },
+  {
+   "a": "counter",
+   "b": "adaptive2",
+   "metric": "won",
+   "n": 20,
+   "meanDiff": -0.018333,
+   "ci95": [
+    -0.093333,
+    0.0625
+   ],
+   "pRaw": 0.656573,
+   "dz": -0.100641
+  },
+  {
+   "a": "counter",
+   "b": "adaptive2",
+   "metric": "finalWave",
+   "n": 20,
+   "meanDiff": -0.091667,
+   "ci95": [
+    -0.4375,
+    0.24
+   ],
+   "pRaw": 0.617594,
+   "dz": -0.115237
+  }
+ ],
+ "fixedWave": [
+  {
+   "mode": "adaptive",
+   "wave": 5,
+   "observedUnits": 71,
+   "popUnits": 71,
+   "coverage": 1,
+   "seeds": 19,
+   "mean": 0.000179,
+   "ci95": [
+    -0.058008,
+    0.054801
+   ],
+   "pRaw": 0.99537,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": -0.120591
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0.131093
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 5,
+   "observedUnits": 71,
+   "popUnits": 71,
+   "coverage": 1,
+   "seeds": 19,
+   "mean": 0.001714,
+   "ci95": [
+    -0.035596,
+    0.037243
+   ],
+   "pRaw": 0.927461,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": -0.075955
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0.090705
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 5,
+   "observedUnits": 71,
+   "popUnits": 71,
+   "coverage": 1,
+   "seeds": 19,
+   "mean": 0.287895,
+   "ci95": [
+    0.160121,
+    0.399721
+   ],
+   "pRaw": 0.00081,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": 0.436639
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0.376223
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0.32197
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0.189171
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 5,
+   "observedUnits": 71,
+   "popUnits": 71,
+   "coverage": 1,
+   "seeds": 19,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive",
+   "wave": 7,
+   "observedUnits": 57,
+   "popUnits": 71,
+   "coverage": 0.802817,
+   "seeds": 15,
+   "mean": -0.024327,
+   "ci95": [
+    -0.12176,
+    0.058738
+   ],
+   "pRaw": 0.645508,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 9,
+     "mean": -0.026858
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 13,
+     "mean": 0.040575
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": -0.061785
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 9,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 7,
+   "observedUnits": 58,
+   "popUnits": 71,
+   "coverage": 0.816901,
+   "seeds": 15,
+   "mean": -0.020475,
+   "ci95": [
+    -0.071643,
+    0.025948
+   ],
+   "pRaw": 0.458313,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 10,
+     "mean": -0.039725
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 13,
+     "mean": 0.014103
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": -0.01363
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 9,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 7,
+   "observedUnits": 58,
+   "popUnits": 71,
+   "coverage": 0.816901,
+   "seeds": 15,
+   "mean": 0.353215,
+   "ci95": [
+    0.22062,
+    0.487298
+   ],
+   "pRaw": 0.000488,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 10,
+     "mean": 0.445752
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 13,
+     "mean": 0.402532
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": 0.386485
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 9,
+     "mean": 0.186233
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 7,
+   "observedUnits": 59,
+   "popUnits": 71,
+   "coverage": 0.830986,
+   "seeds": 15,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 10,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 10,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive",
+   "wave": 9,
+   "observedUnits": 50,
+   "popUnits": 71,
+   "coverage": 0.704225,
+   "seeds": 13,
+   "mean": 0.117848,
+   "ci95": [
+    -0.024508,
+    0.248367
+   ],
+   "pRaw": 0.129639,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 7,
+     "mean": 0.089451
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.142972
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.011168
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 6,
+     "mean": 0.30121
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 9,
+   "observedUnits": 57,
+   "popUnits": 71,
+   "coverage": 0.802817,
+   "seeds": 15,
+   "mean": 0.033445,
+   "ci95": [
+    -0.049245,
+    0.106525
+   ],
+   "pRaw": 0.42865,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 10,
+     "mean": 0.015979
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 13,
+     "mean": 0.078773
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": -0.001257
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 8,
+     "mean": 0.09407
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 9,
+   "observedUnits": 55,
+   "popUnits": 71,
+   "coverage": 0.774648,
+   "seeds": 15,
+   "mean": 0.341446,
+   "ci95": [
+    0.228552,
+    0.465429
+   ],
+   "pRaw": 0.000061,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 9,
+     "mean": 0.427673
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 13,
+     "mean": 0.381498
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.381337
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 8,
+     "mean": 0.121667
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 9,
+   "observedUnits": 54,
+   "popUnits": 71,
+   "coverage": 0.760563,
+   "seeds": 15,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 9,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 8,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive",
+   "wave": 11,
+   "observedUnits": 47,
+   "popUnits": 71,
+   "coverage": 0.661972,
+   "seeds": 13,
+   "mean": 0.194627,
+   "ci95": [
+    0.039191,
+    0.341286
+   ],
+   "pRaw": 0.031982,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.099369
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.140654
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.121663
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.535413
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 11,
+   "observedUnits": 50,
+   "popUnits": 71,
+   "coverage": 0.704225,
+   "seeds": 12,
+   "mean": 0.065859,
+   "ci95": [
+    -0.019115,
+    0.136846
+   ],
+   "pRaw": 0.144043,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 6,
+     "mean": 0.003126
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.111901
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": 0.032792
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 4,
+     "mean": 0.198611
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 11,
+   "observedUnits": 49,
+   "popUnits": 71,
+   "coverage": 0.690141,
+   "seeds": 12,
+   "mean": 0.415758,
+   "ci95": [
+    0.310285,
+    0.545235
+   ],
+   "pRaw": 0.000488,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 6,
+     "mean": 0.461803
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.490612
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.399798
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.171216
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 11,
+   "observedUnits": 50,
+   "popUnits": 71,
+   "coverage": 0.704225,
+   "seeds": 12,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 6,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive",
+   "wave": 12,
+   "observedUnits": 46,
+   "popUnits": 71,
+   "coverage": 0.647887,
+   "seeds": 12,
+   "mean": 0.25947,
+   "ci95": [
+    0.122613,
+    0.393954
+   ],
+   "pRaw": 0.004883,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.127156
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.25381
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0.1277
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.533461
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 12,
+   "observedUnits": 49,
+   "popUnits": 71,
+   "coverage": 0.690141,
+   "seeds": 11,
+   "mean": 0.09887,
+   "ci95": [
+    0.003177,
+    0.186213
+   ],
+   "pRaw": 0.073242,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": -0.003368
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.170742
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": 0.038908
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 4,
+     "mean": 0.244884
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 12,
+   "observedUnits": 49,
+   "popUnits": 71,
+   "coverage": 0.690141,
+   "seeds": 12,
+   "mean": 0.426845,
+   "ci95": [
+    0.317571,
+    0.553078
+   ],
+   "pRaw": 0.000488,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 6,
+     "mean": 0.466586
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.508335
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.408334
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.178942
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 12,
+   "observedUnits": 50,
+   "popUnits": 71,
+   "coverage": 0.704225,
+   "seeds": 12,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 6,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive",
+   "wave": 13,
+   "observedUnits": 46,
+   "popUnits": 71,
+   "coverage": 0.647887,
+   "seeds": 12,
+   "mean": 0.293727,
+   "ci95": [
+    0.149817,
+    0.430041
+   ],
+   "pRaw": 0.003906,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.101003
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.244207
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0.241573
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.623245
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 13,
+   "observedUnits": 49,
+   "popUnits": 71,
+   "coverage": 0.690141,
+   "seeds": 11,
+   "mean": 0.0999,
+   "ci95": [
+    -0.016402,
+    0.201012
+   ],
+   "pRaw": 0.118164,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.013918
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.153993
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": 0.039575
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 4,
+     "mean": 0.293192
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 13,
+   "observedUnits": 49,
+   "popUnits": 71,
+   "coverage": 0.690141,
+   "seeds": 12,
+   "mean": 0.4298,
+   "ci95": [
+    0.320903,
+    0.561399
+   ],
+   "pRaw": 0.000488,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 6,
+     "mean": 0.481894
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.518489
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.415904
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.151637
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 13,
+   "observedUnits": 50,
+   "popUnits": 71,
+   "coverage": 0.704225,
+   "seeds": 12,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 6,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive",
+   "wave": 14,
+   "observedUnits": 46,
+   "popUnits": 71,
+   "coverage": 0.647887,
+   "seeds": 12,
+   "mean": 0.309481,
+   "ci95": [
+    0.157524,
+    0.445998
+   ],
+   "pRaw": 0.003418,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.124963
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.308036
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0.220236
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.55999
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 14,
+   "observedUnits": 49,
+   "popUnits": 71,
+   "coverage": 0.690141,
+   "seeds": 11,
+   "mean": 0.09707,
+   "ci95": [
+    -0.013889,
+    0.193929
+   ],
+   "pRaw": 0.109375,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.004431
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.184853
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": 0.00906
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 4,
+     "mean": 0.270073
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 14,
+   "observedUnits": 49,
+   "popUnits": 71,
+   "coverage": 0.690141,
+   "seeds": 12,
+   "mean": 0.424897,
+   "ci95": [
+    0.308978,
+    0.561042
+   ],
+   "pRaw": 0.000488,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 6,
+     "mean": 0.460819
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.516508
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.411348
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.15752
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 14,
+   "observedUnits": 50,
+   "popUnits": 71,
+   "coverage": 0.704225,
+   "seeds": 12,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 6,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive",
+   "wave": 15,
+   "observedUnits": 40,
+   "popUnits": 71,
+   "coverage": 0.56338,
+   "seeds": 8,
+   "mean": 0.250829,
+   "ci95": [
+    0.193005,
+    0.309453
+   ],
+   "pRaw": 0.007813,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 4,
+     "mean": 0.091648
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 7,
+     "mean": 0.240785
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 3,
+     "mean": 0.140812
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.417519
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 15,
+   "observedUnits": 47,
+   "popUnits": 71,
+   "coverage": 0.661972,
+   "seeds": 10,
+   "mean": 0.108218,
+   "ci95": [
+    0.012482,
+    0.204724
+   ],
+   "pRaw": 0.0625,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.014264
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 10,
+     "mean": 0.167684
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0.014402
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 4,
+     "mean": 0.27002
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 15,
+   "observedUnits": 47,
+   "popUnits": 71,
+   "coverage": 0.661972,
+   "seeds": 10,
+   "mean": 0.419368,
+   "ci95": [
+    0.327549,
+    0.536552
+   ],
+   "pRaw": 0.001953,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.409939
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 10,
+     "mean": 0.524256
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0.434434
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.192017
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 15,
+   "observedUnits": 46,
+   "popUnits": 71,
+   "coverage": 0.647887,
+   "seeds": 9,
+   "mean": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "pRaw": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 5,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 6,
+     "mean": 0
+    }
+   ]
+  }
+ ],
+ "bestWave": 5,
+ "perPairAtBest": [
+  {
+   "mode": "adaptive",
+   "wave": 5,
+   "coverage": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": -0.120591
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0.131093
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "adaptive2",
+   "wave": 5,
+   "coverage": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": -0.075955
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0.090705
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0
+    }
+   ]
+  },
+  {
+   "mode": "counter",
+   "wave": 5,
+   "coverage": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": 0.436639
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0.376223
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0.32197
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0.189171
+    }
+   ]
+  },
+  {
+   "mode": "random",
+   "wave": 5,
+   "coverage": 1,
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 11,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 16,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 13,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 17,
+     "mean": 0
+    }
+   ]
+  }
+ ],
+ "types": [
+  "armoredGrunt",
+  "swarmling",
+  "fastRunner",
+  "regenerator",
+  "shieldedBruiser"
+ ],
+ "earlyEnds": {
+  "threshold": 5,
+  "byMode": {
+   "adaptive": {
+    "units": 100,
+    "endedEarly": 29,
+    "won": 38
+   },
+   "adaptive2": {
+    "units": 100,
+    "endedEarly": 29,
+    "won": 46
+   },
+   "counter": {
+    "units": 100,
+    "endedEarly": 29,
+    "won": 45
+   },
+   "random": {
+    "units": 100,
+    "endedEarly": 29,
+    "won": 44
+   },
+   "static": {
+    "units": 100,
+    "endedEarly": 29,
+    "won": 51
+   }
+  },
+  "byStyleMode": [
+   {
+    "style": "balancedR",
+    "mode": "adaptive",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "balancedR",
+    "mode": "adaptive2",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "balancedR",
+    "mode": "counter",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "balancedR",
+    "mode": "random",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "balancedR",
+    "mode": "static",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "noLance",
+    "mode": "adaptive",
+    "units": 20,
+    "endedEarly": 9
+   },
+   {
+    "style": "noLance",
+    "mode": "adaptive2",
+    "units": 20,
+    "endedEarly": 9
+   },
+   {
+    "style": "noLance",
+    "mode": "counter",
+    "units": 20,
+    "endedEarly": 9
+   },
+   {
+    "style": "noLance",
+    "mode": "random",
+    "units": 20,
+    "endedEarly": 9
+   },
+   {
+    "style": "noLance",
+    "mode": "static",
+    "units": 20,
+    "endedEarly": 9
+   },
+   {
+    "style": "noMortar",
+    "mode": "adaptive",
+    "units": 20,
+    "endedEarly": 4
+   },
+   {
+    "style": "noMortar",
+    "mode": "adaptive2",
+    "units": 20,
+    "endedEarly": 4
+   },
+   {
+    "style": "noMortar",
+    "mode": "counter",
+    "units": 20,
+    "endedEarly": 4
+   },
+   {
+    "style": "noMortar",
+    "mode": "random",
+    "units": 20,
+    "endedEarly": 4
+   },
+   {
+    "style": "noMortar",
+    "mode": "static",
+    "units": 20,
+    "endedEarly": 4
+   },
+   {
+    "style": "noPoison",
+    "mode": "adaptive",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "noPoison",
+    "mode": "adaptive2",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "noPoison",
+    "mode": "counter",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "noPoison",
+    "mode": "random",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "noPoison",
+    "mode": "static",
+    "units": 20,
+    "endedEarly": 7
+   },
+   {
+    "style": "noSniper",
+    "mode": "adaptive",
+    "units": 20,
+    "endedEarly": 2
+   },
+   {
+    "style": "noSniper",
+    "mode": "adaptive2",
+    "units": 20,
+    "endedEarly": 2
+   },
+   {
+    "style": "noSniper",
+    "mode": "counter",
+    "units": 20,
+    "endedEarly": 2
+   },
+   {
+    "style": "noSniper",
+    "mode": "random",
+    "units": 20,
+    "endedEarly": 2
+   },
+   {
+    "style": "noSniper",
+    "mode": "static",
+    "units": 20,
+    "endedEarly": 2
+   }
+  ],
+  "identical": true,
+  "mismatches": []
+ },
+ "notes": [
+  "These results are exploratory and on the TRAIN seeds (1001-1020); nothing was tuned and nothing is adjusted for multiple comparisons.",
+  "The random control draws its tilts from the seed and the wave only, so its tilts are identical across styles for a seed and wave and its fixed-wave contrast is exactly 0 by construction.",
+  "The counter arm has information about the player's defense (the tower loadout) and is a ceiling, not a fair comparison.",
+  "Director v1 and v2 use the same eligibility and fairness rules (same threat per wave, same enemy HP, composition only)."
+ ]
+}
