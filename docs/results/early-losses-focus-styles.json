@@ -1,0 +1,114 @@
+{
+ "threshold": 5,
+ "byMode": {
+  "adaptive": {
+   "units": 150,
+   "endedEarly": 15,
+   "won": 74
+  },
+  "random": {
+   "units": 150,
+   "endedEarly": 15,
+   "won": 81
+  },
+  "static": {
+   "units": 150,
+   "endedEarly": 15,
+   "won": 91
+  }
+ },
+ "byStyleMode": [
+  {
+   "style": "balancedR",
+   "mode": "adaptive",
+   "units": 30,
+   "endedEarly": 6
+  },
+  {
+   "style": "balancedR",
+   "mode": "random",
+   "units": 30,
+   "endedEarly": 6
+  },
+  {
+   "style": "balancedR",
+   "mode": "static",
+   "units": 30,
+   "endedEarly": 6
+  },
+  {
+   "style": "lanceHeavy",
+   "mode": "adaptive",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "lanceHeavy",
+   "mode": "random",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "lanceHeavy",
+   "mode": "static",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "mortarHeavy",
+   "mode": "adaptive",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "mortarHeavy",
+   "mode": "random",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "mortarHeavy",
+   "mode": "static",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "poisonHeavy",
+   "mode": "adaptive",
+   "units": 30,
+   "endedEarly": 0
+  },
+  {
+   "style": "poisonHeavy",
+   "mode": "random",
+   "units": 30,
+   "endedEarly": 0
+  },
+  {
+   "style": "poisonHeavy",
+   "mode": "static",
+   "units": 30,
+   "endedEarly": 0
+  },
+  {
+   "style": "sniperHeavy",
+   "mode": "adaptive",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "sniperHeavy",
+   "mode": "random",
+   "units": 30,
+   "endedEarly": 3
+  },
+  {
+   "style": "sniperHeavy",
+   "mode": "static",
+   "units": 30,
+   "endedEarly": 3
+  }
+ ],
+ "identical": true,
+ "mismatches": []
+}

@@ -1,0 +1,138 @@
+{
+ "styles": [
+  "balancedR",
+  "lanceHeavy",
+  "mortarHeavy",
+  "poisonHeavy",
+  "sniperHeavy"
+ ],
+ "predictions": {
+  "balancedR": null,
+  "lanceHeavy": [
+   "swarmling"
+  ],
+  "mortarHeavy": [
+   "fastRunner"
+  ],
+  "poisonHeavy": [
+   "fastRunner",
+   "shieldedBruiser"
+  ],
+  "sniperHeavy": [
+   "swarmling",
+   "fastRunner"
+  ]
+ },
+ "modes": {
+  "adaptive": {
+   "n": 30,
+   "mean": 0.028312,
+   "ci95": [
+    -0.006406,
+    0.064813
+   ],
+   "pRaw": 0.136569,
+   "used": 135,
+   "excluded": 15,
+   "droppedSeeds": [],
+   "perPair": [
+    {
+     "style": "lanceHeavy",
+     "type": "swarmling",
+     "mean": -0.005875,
+     "n": 27
+    },
+    {
+     "style": "mortarHeavy",
+     "type": "fastRunner",
+     "mean": 0.00243,
+     "n": 27
+    },
+    {
+     "style": "poisonHeavy",
+     "type": "fastRunner",
+     "mean": 0.029404,
+     "n": 30
+    },
+    {
+     "style": "poisonHeavy",
+     "type": "shieldedBruiser",
+     "mean": 0.070356,
+     "n": 30
+    },
+    {
+     "style": "sniperHeavy",
+     "type": "fastRunner",
+     "mean": -0.025415,
+     "n": 27
+    },
+    {
+     "style": "sniperHeavy",
+     "type": "swarmling",
+     "mean": 0.100649,
+     "n": 27
+    }
+   ]
+  },
+  "random": {
+   "n": 30,
+   "mean": 0.004995,
+   "ci95": [
+    -0.074234,
+    0.080295
+   ],
+   "pRaw": 0.905291,
+   "used": 135,
+   "excluded": 15,
+   "droppedSeeds": [],
+   "perPair": [
+    {
+     "style": "lanceHeavy",
+     "type": "swarmling",
+     "mean": 0.071504,
+     "n": 27
+    },
+    {
+     "style": "mortarHeavy",
+     "type": "fastRunner",
+     "mean": 0.158123,
+     "n": 27
+    },
+    {
+     "style": "poisonHeavy",
+     "type": "fastRunner",
+     "mean": 0.011618,
+     "n": 30
+    },
+    {
+     "style": "poisonHeavy",
+     "type": "shieldedBruiser",
+     "mean": -0.029237,
+     "n": 30
+    },
+    {
+     "style": "sniperHeavy",
+     "type": "fastRunner",
+     "mean": -0.036361,
+     "n": 27
+    },
+    {
+     "style": "sniperHeavy",
+     "type": "swarmling",
+     "mean": -0.094766,
+     "n": 27
+    }
+   ]
+  }
+ },
+ "difference": {
+  "n": 30,
+  "mean": 0.023316,
+  "ci95": [
+   -0.051378,
+   0.109252
+  ],
+  "pRaw": 0.611364,
+  "seeds": 30
+ }
+}
