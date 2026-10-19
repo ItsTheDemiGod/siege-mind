@@ -15,17 +15,25 @@ function tables(d) {
   const styles = Object.keys(d.baseline5.perStyle);
   const baseRows = (b) => ENEMY_ORDER.map((t) => [t, b.overall[t].cells, b.overall[t].units, f(b.overall[t].pooledReward, 4), f(b.overall[t].ratio, 2), ...styles.map((s) => f(b.perStyle[s][t].ratio, 2))]);
   const baseHeaders = ['enemy', 'cells', 'units', 'pooled reward', 'ratio', ...styles.map((s) => `${s} ratio`)];
+  const rc = d.rewardContrast;
+  const ci = (c) => `[${f(c[0])}, ${f(c[1])}]`;
+  const contrastTables = rc ? [
+    { title: `Reward contrast (waves ${rc.minWave}+; relative reward of a style's predicted type minus the other styles'; ${rc.groups.used} groups used, ${rc.groups.skipped} skipped)`, headers: ['seeds', 'mean contrast', '95% CI', 'sign-flip p'], rows: [[rc.n, f(rc.mean), ci(rc.ci95), f(rc.pRaw, 4)]] },
+    { title: 'Reward contrast per (style, predicted type), mean over seeds', headers: ['style', 'type', 'n', 'mean contrast', '95% CI'], rows: rc.perPair.map((p) => [p.style, p.type, p.n, f(p.mean), ci(p.ci95)]) },
+    { title: 'Mean relative reward (1 = the threat-weighted average of the wave) per style and enemy type, waves 5 and later; n = seeds with the type', headers: ['style', ...ENEMY_ORDER], rows: Object.entries(rc.styleType).map(([s, t]) => [s, ...ENEMY_ORDER.map((x) => (t[x].n ? `${f(t[x].mean, 2)} (${t[x].n})` : '-'))]) },
+  ] : [];
   return [
     { title: 'Static baseline reward per enemy type, all waves (ratio to the all-type pooled reward)', headers: baseHeaders, rows: baseRows(d.baseline1) },
     { title: 'Static baseline reward per enemy type, waves 5 and later (the Director\'s eligible region)', headers: baseHeaders, rows: baseRows(d.baseline5) },
     { title: 'Share of reward variance explained (eta squared)', headers: ['enemy', 'cells', 'etaStyle', 'etaWave'], rows: ENEMY_ORDER.map((t) => [t, d.variance[t].cells, f(d.variance[t].etaStyle), f(d.variance[t].etaWave)]) },
     { title: `Noise floor: median sd of the cell reward over (style, wave) groups with 2+ seeds, against the spread of the per-type pooled rewards (${f(d.noise.spread.value, 4)}, waves ${d.noise.spread.minWave}+)`, headers: ['enemy', 'groups', 'median sd', 'sd / spread'], rows: ENEMY_ORDER.map((t) => [t, d.noise.perType[t].groups, f(d.noise.perType[t].medianSd, 4), f(d.noise.ratio[t], 2)]) },
+    ...contrastTables,
   ];
 }
 
 /** @param {object} d diagnose() result @returns {string} aligned plain text */
 export function formatDiagnostics(d) {
-  return [...tables(d).map((t) => textTable(t.title, t.headers, t.rows)), `Notes:\n${d.notes.map((n) => `- ${n}`).join('\n')}`, ''].join('\n\n');
+  return [...tables(d).map((t) => textTable(t.title, t.headers, t.rows)), `Notes:\n${[...d.notes, ...(d.rewardContrast?.notes ?? [])].map((n) => `- ${n}`).join('\n')}`, ''].join('\n\n');
 }
 
 /** @param {object} d diagnose() result @returns {string} GitHub-flavored markdown */
@@ -35,6 +43,6 @@ export function diagnosticsToMarkdown(d) {
     '- eta squared is the share of the variance of the per-wave rewards explained by the player style (etaStyle) or by the wave (etaWave); a low etaStyle means the reward says little about the defense.',
     '- The noise floor compares the wave-to-wave sd of the reward (for the same style, wave and type, across seeds) with the spread between types.', ''];
   for (const t of tables(d)) L.push(`## ${t.title}`, '', mdTable(t.headers, t.rows), '');
-  L.push('## Notes', '', ...d.notes.map((n) => `- ${n}`), '');
+  L.push('## Notes', '', ...[...d.notes, ...(d.rewardContrast?.notes ?? [])].map((n) => `- ${n}`), '');
   return L.join('\n');
 }

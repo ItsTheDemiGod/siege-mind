@@ -6,7 +6,7 @@ import { PROTOCOL } from '../experiments/protocol.js';
 import { playGame } from '../experiments/playthrough.js';
 import { createStyleBot } from '../experiments/styleBots.js';
 import {
-  collectBaselineObservations, baselineTable, varianceDecomposition, noiseFloor, diagnose, formatDiagnostics, diagnosticsToMarkdown, cellReward, NOTES,
+  collectBaselineObservations, baselineTable, varianceDecomposition, noiseFloor, diagnose, rewardContrast, CONTRAST_NOTES, formatDiagnostics, diagnosticsToMarkdown, cellReward, NOTES,
 } from '../experiments/diagnose.js';
 
 const k = config.director.rewardExponent;
@@ -76,7 +76,7 @@ test('noiseFloor: groups with one seed are skipped; the spread is the max minus 
 test('diagnose, the formatters and determinism', () => {
   const obs = grid(({ style, wave, seed }) => 0.2 + 0.1 * (style === 'A' ? 0 : 1) + 0.01 * wave + 0.005 * seed).concat([o(1, 'A', 5, 'swarmling', 8, 2)]);
   const d = diagnose(obs);
-  assert.deepEqual(Object.keys(d), ['baseline1', 'baseline5', 'variance', 'noise', 'notes']);
+  assert.deepEqual(Object.keys(d), ['baseline1', 'baseline5', 'variance', 'noise', 'rewardContrast', 'notes']);
   assert.deepEqual(d.notes, [...NOTES]);
   assert.deepEqual(diagnose(obs), d);
   const text = formatDiagnostics(d);
@@ -106,4 +106,54 @@ test('a real collection: counts match the telemetry, no NaN, deterministic', () 
   assert.ok(!/NaN|undefined|Infinity/.test(JSON.stringify(d)));
   assert.equal(d.baseline1.overall.armoredGrunt.cells > 0, true);
   assert.equal(rewardOfCell('armoredGrunt', 10, 5), 0.025);
+});
+
+// reward contrast: styles A (predicted armoredGrunt) and B (predicted swarmling); one wave, two seeds
+const RC = { styles: ['A', 'B'], predictions: { A: ['armoredGrunt'], B: ['swarmling'] }, stats: { ...PROTOCOL.stats, bootstrapResamples: 200, signFlipResamples: 500 } };
+const pair = (seed, style, gruntProgress, swarmProgress, wave = 5) => [o(seed, style, wave, 'armoredGrunt', 10, 10 * gruntProgress), o(seed, style, wave, 'swarmling', 8, 8 * swarmProgress)];
+const relOf = (gp, sp) => { // hand formula: relative reward of each type inside one group
+  const rg = rewardOfCell('armoredGrunt', 10, 10 * gp);
+  const rs = rewardOfCell('swarmling', 8, 8 * sp);
+  const R = (100 * rg + 24 * rs) / 124;
+  return { g: rg / R, s: rs / R };
+};
+
+test('rewardContrast: exact value for a known positive contrast; no style effect gives exactly 0', () => {
+  const obs = [1, 2].flatMap((seed) => [...pair(seed, 'A', 1, 0.5), ...pair(seed, 'B', 0.5, 0.5)]);
+  const a = relOf(1, 0.5);
+  const b = relOf(0.5, 0.5);
+  const expected = ((a.g - b.g) + (b.s - a.s)) / 2; // A's grunt pair and B's swarmling pair
+  const r = rewardContrast(obs, RC);
+  near(r.mean, expected, 1e-5);
+  assert.ok(r.mean > 0);
+  assert.equal(r.n, 2);
+  assert.deepEqual(r.perPair.map((p) => [p.style, p.type, p.n]), [['A', 'armoredGrunt', 2], ['B', 'swarmling', 2]]);
+  near(r.perPair[0].mean, a.g - b.g, 1e-5);
+  near(r.styleType.A.armoredGrunt.mean, a.g, 1e-5);
+  assert.deepEqual([r.groups.used, r.groups.skipped], [4, 0]);
+  const flat = rewardContrast([1, 2].flatMap((seed) => [...pair(seed, 'A', 0.7, 0.4), ...pair(seed, 'B', 0.7, 0.4)]), RC);
+  assert.deepEqual([flat.mean, flat.pRaw, flat.n], [0, 1, 2]);
+  assert.deepEqual(rewardContrast(obs, RC), r);
+  assert.deepEqual(r.notes, [...CONTRAST_NOTES]);
+});
+
+test('rewardContrast: skips groups with zero reward, cells below the threat share and waves before minWave', () => {
+  const obs = [...pair(1, 'A', 1, 0.5), ...pair(1, 'B', 0.5, 0.5), ...pair(1, 'A', 0, 0, 6), ...pair(1, 'A', 1, 0.5, 4)];
+  const r = rewardContrast(obs, RC);
+  assert.deepEqual([r.groups.used, r.groups.skipped], [2, 1]); // wave 6 of A has R = 0; wave 4 is before minWave
+  const strict = rewardContrast(obs, { ...RC, cfg: { ...config, director: { ...config.director, minThreatShare: 0.5 } } });
+  assert.equal(strict.styleType.A.swarmling.n, 0, 'the swarmling cell (19% of the threat) is below the share');
+  near(strict.styleType.A.armoredGrunt.mean, 1, 1e-9); // the only kept cell defines R, so rel = 1
+  assert.deepEqual(strict.perPair.map((p) => [p.style, p.type, p.n, p.mean]), [['A', 'armoredGrunt', 1, 0]], 'B has no swarmling cell left: only the grunt pair of A (1 - 1) is usable');
+  assert.deepEqual([strict.n, strict.mean, strict.pRaw], [1, 0, 1]);
+});
+
+test('rewardContrast: a real small collection with two ablation styles gives finite numbers', () => {
+  const args = { seeds: [1001, 1002], styles: ['noLance', 'noSniper'], waves: 15, knobs: PROTOCOL.botKnobs };
+  const obs = collectBaselineObservations(args);
+  const d = diagnose(obs, { styles: args.styles, predictions: { noLance: ['armoredGrunt'], noSniper: ['shieldedBruiser'] }, stats: RC.stats });
+  assert.ok(!/NaN|undefined|Infinity/.test(JSON.stringify(d.rewardContrast)));
+  assert.ok(d.rewardContrast.groups.used > 0);
+  assert.ok(formatDiagnostics(d).includes('Reward contrast') && diagnosticsToMarkdown(d).includes('Reward contrast'));
+  assert.deepEqual(diagnose(obs, { styles: args.styles, predictions: { noLance: ['armoredGrunt'], noSniper: ['shieldedBruiser'] }, stats: RC.stats }), d);
 });

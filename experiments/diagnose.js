@@ -7,7 +7,7 @@ import { roundTo } from '../src/sim/telemetrySchema.js';
 import { playGame } from './playthrough.js';
 import { createStyleBot } from './styleBots.js';
 import { PROTOCOL, seedsOf } from './protocol.js';
-import { mean, sd, median } from './stats.js';
+import { mean, sd, median, bootstrapCI, signFlipTest } from './stats.js';
 
 export { formatDiagnostics, diagnosticsToMarkdown } from './diagnoseFormat.js';
 
@@ -114,7 +114,86 @@ export function noiseFloor(obs) {
   return { perType, spread: { minWave: 5, value: r6(spread) }, ratio };
 }
 
-/** @param {object[]} obs @returns {object} { baseline1, baseline5, variance, noise, notes } */
-export function diagnose(obs) {
-  return { baseline1: baselineTable(obs, { minWave: 1 }), baseline5: baselineTable(obs, { minWave: 5 }), variance: varianceDecomposition(obs), noise: noiseFloor(obs), notes: [...NOTES] };
+export const CONTRAST_NOTES = Object.freeze([
+  'The reward contrast is measured in static games: it asks whether the quantity the Director learns from differs between defenses in the predicted direction, independently of the Director.',
+  'A contrast near zero means no learning rule based on this reward can follow the defense.',
+]);
+
+/**
+ * Does the reward signal ITSELF differ between defenses in the predicted direction (static games, no Director)?
+ * Per (seed, style, wave >= minWave) group: the cells with units > 0 whose threat share is at least cfg.director.minThreatShare; R = threat-weighted mean
+ * reward of those cells; rel = reward / R (groups with R = 0 are skipped). Per (seed, style, type): relMean = threat-weighted mean of rel over the waves.
+ * Contrast = like contrastPerSeed: relMean(s, g, t) minus the mean of relMean(s', g, t) over the other styles s' that have predictions (at least one needed).
+ * @param {object[]} obs baseline observations @param {{styles: string[], predictions: Record<string, string[]|null>, minWave?: number, cfg?: object, stats?: object}} o
+ * @returns {object} { n, mean, ci95, pRaw, perPair, styleType, groups: {used, skipped}, seeds, values }
+ */
+export function rewardContrast(obs, { styles, predictions, minWave = 5, cfg = config, stats = PROTOCOL.stats }) {
+  const groups = new Map();
+  for (const o of obs) {
+    if (o.wave < minWave || o.units <= 0 || !styles.includes(o.style)) continue;
+    const key = `${o.seed}|${o.style}|${o.wave}`;
+    (groups.get(key) ?? groups.set(key, []).get(key)).push({ ...o, spent: o.units * o.threatCost, reward: cellReward(o) });
+  }
+  const acc = new Map(); // "seed|style|type" -> { w, wr }
+  let used = 0;
+  let skipped = 0;
+  for (const [key, cells] of groups) {
+    const total = cells.reduce((a, c) => a + c.spent, 0);
+    const kept = cells.filter((c) => c.spent / total >= cfg.director.minThreatShare);
+    const spent = kept.reduce((a, c) => a + c.spent, 0);
+    const R = spent > 0 ? kept.reduce((a, c) => a + c.spent * c.reward, 0) / spent : 0;
+    if (!(R > 0)) { skipped++; continue; }
+    used++;
+    const [seed, style] = key.split('|');
+    for (const c of kept) {
+      const k = `${seed}|${style}|${c.type}`;
+      const a = acc.get(k) ?? acc.set(k, { w: 0, wr: 0 }).get(k);
+      a.w += c.spent;
+      a.wr += c.spent * (c.reward / R);
+    }
+  }
+  const rel = (seed, style, type) => { const a = acc.get(`${seed}|${style}|${type}`); return a ? a.wr / a.w : null; };
+  const S = styles.filter((s) => Array.isArray(predictions[s]) && predictions[s].length > 0);
+  const seeds = [...new Set(obs.map((o) => o.seed))].sort((a, b) => a - b);
+  const keptSeeds = [];
+  const values = [];
+  const pairAcc = new Map();
+  for (const seed of seeds) {
+    const pairs = [];
+    for (const s of S) for (const t of predictions[s]) {
+      const own = rel(seed, s, t);
+      const refs = S.filter((x) => x !== s).map((x) => rel(seed, x, t)).filter((v) => v !== null);
+      if (own === null || refs.length < 1) continue;
+      const v = own - mean(refs);
+      pairs.push(v);
+      (pairAcc.get(`${s}|${t}`) ?? pairAcc.set(`${s}|${t}`, []).get(`${s}|${t}`)).push(v);
+    }
+    if (pairs.length) { keptSeeds.push(seed); values.push(mean(pairs)); }
+  }
+  const ci = (v) => (v.length ? bootstrapCI(v, { resamples: stats.bootstrapResamples, alpha: stats.alpha, seed: stats.seed }) : [0, 0]);
+  const summary = values.length
+    ? { n: values.length, mean: r6(mean(values)), ci95: ci(values).map(r6), pRaw: r6(signFlipTest(values, { resamples: stats.signFlipResamples, exactMaxN: stats.exactMaxN, seed: stats.seed }).p) }
+    : { n: 0, mean: 0, ci95: [0, 0], pRaw: 1 };
+  const perPair = [...pairAcc.entries()].map(([k, v]) => { const [style, type] = k.split('|'); return { style, type, n: v.length, mean: r6(mean(v)), ci95: ci(v).map(r6) }; })
+    .sort((a, b) => (a.style < b.style ? -1 : a.style > b.style ? 1 : a.type < b.type ? -1 : a.type > b.type ? 1 : 0));
+  const styleType = {};
+  for (const style of styles) {
+    styleType[style] = {};
+    for (const t of ENEMY_ORDER) {
+      const v = seeds.map((seed) => rel(seed, style, t)).filter((x) => x !== null);
+      styleType[style][t] = { mean: r6(mean(v)), n: v.length };
+    }
+  }
+  return { ...summary, perPair, styleType, minWave, groups: { used, skipped }, seeds: keptSeeds, notes: [...CONTRAST_NOTES] };
+}
+
+/**
+ * @param {object[]} obs @param {{styles?: string[], predictions?: object, cfg?: object, stats?: object}} [o] defaults to the protocol styles and predictions
+ * @returns {object} { baseline1, baseline5, variance, noise, rewardContrast, notes }
+ */
+export function diagnose(obs, { styles = PROTOCOL.styles, predictions = PROTOCOL.tiltPredictions, cfg = config, stats = PROTOCOL.stats } = {}) {
+  return {
+    baseline1: baselineTable(obs, { minWave: 1 }), baseline5: baselineTable(obs, { minWave: 5 }), variance: varianceDecomposition(obs), noise: noiseFloor(obs),
+    rewardContrast: rewardContrast(obs, { styles: [...styles], predictions, cfg, stats }), notes: [...NOTES],
+  };
 }
