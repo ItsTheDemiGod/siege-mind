@@ -1,0 +1,1594 @@
+{
+ "label": "CONFIRMATORY",
+ "banner": "CONFIRMATORY ANALYSIS OF THE HELD-OUT RUN (amendment A3)",
+ "protocolVersion": 4,
+ "protocolHash": "6ff1e583210a9e00106cd123d502a660f2e79cc6cedb046f20de32a3ad0fe178",
+ "completeness": {
+  "complete": true,
+  "expected": 4500,
+  "actual": 4500,
+  "missing": [],
+  "duplicates": [],
+  "unknownRows": 0,
+  "seeds": [
+   2001,
+   2002,
+   2003,
+   2004,
+   2005,
+   2006,
+   2007,
+   2008,
+   2009,
+   2010,
+   2011,
+   2012,
+   2013,
+   2014,
+   2015,
+   2016,
+   2017,
+   2018,
+   2019,
+   2020,
+   2021,
+   2022,
+   2023,
+   2024,
+   2025,
+   2026,
+   2027,
+   2028,
+   2029,
+   2030,
+   2031,
+   2032,
+   2033,
+   2034,
+   2035,
+   2036,
+   2037,
+   2038,
+   2039,
+   2040,
+   2041,
+   2042,
+   2043,
+   2044,
+   2045,
+   2046,
+   2047,
+   2048,
+   2049,
+   2050,
+   2051,
+   2052,
+   2053,
+   2054,
+   2055,
+   2056,
+   2057,
+   2058,
+   2059,
+   2060,
+   2061,
+   2062,
+   2063,
+   2064,
+   2065,
+   2066,
+   2067,
+   2068,
+   2069,
+   2070,
+   2071,
+   2072,
+   2073,
+   2074,
+   2075,
+   2076,
+   2077,
+   2078,
+   2079,
+   2080,
+   2081,
+   2082,
+   2083,
+   2084,
+   2085,
+   2086,
+   2087,
+   2088,
+   2089,
+   2090,
+   2091,
+   2092,
+   2093,
+   2094,
+   2095,
+   2096,
+   2097,
+   2098,
+   2099,
+   2100,
+   2101,
+   2102,
+   2103,
+   2104,
+   2105,
+   2106,
+   2107,
+   2108,
+   2109,
+   2110,
+   2111,
+   2112,
+   2113,
+   2114,
+   2115,
+   2116,
+   2117,
+   2118,
+   2119,
+   2120,
+   2121,
+   2122,
+   2123,
+   2124,
+   2125,
+   2126,
+   2127,
+   2128,
+   2129,
+   2130,
+   2131,
+   2132,
+   2133,
+   2134,
+   2135,
+   2136,
+   2137,
+   2138,
+   2139,
+   2140,
+   2141,
+   2142,
+   2143,
+   2144,
+   2145,
+   2146,
+   2147,
+   2148,
+   2149,
+   2150
+  ]
+ },
+ "notes": [
+  "The confirmatory family is exactly K1-K3; everything else in this report is estimation (point estimates and confidence intervals, no p-values).",
+  "The bots are scripted players on one map with fixed tower mixes, not humans.",
+  "The validation seeds were not used for confirmation because they are not pristine (they were part of the tuning set that was read earlier).",
+  "The counter arm reads the tower loadout and is a reference, not a fair competitor.",
+  "The random and prior contrasts are zero by construction: their tilts cannot depend on the defense.",
+  "The attribution pairs are estimates, not tests: they split a Director's total effect into composition variability, enemy-durability bias and learning."
+ ],
+ "n": {
+  "seeds": 150,
+  "styles": 5,
+  "modes": 6,
+  "rows": 4500,
+  "populationUnits": 614,
+  "excludedUnits": 136
+ },
+ "population": {
+  "rule": "static-reached",
+  "units": 614,
+  "excluded": 136
+ },
+ "confirmatory": [
+  {
+   "id": "K1",
+   "label": "Composition variability alone (random versus static) costs the player lives",
+   "direction": "greater",
+   "n": 150,
+   "droppedSeeds": [],
+   "estimate": 0.066889,
+   "ci95": [
+    -0.222556,
+    0.350778
+   ],
+   "pRaw": 0.652173,
+   "pHolm": 0.652173,
+   "supported": false
+  },
+  {
+   "id": "K2",
+   "label": "Director v1 final weights separate defenses in the predicted direction at wave 9",
+   "direction": "greater",
+   "n": 124,
+   "droppedSeeds": [
+    2009,
+    2017,
+    2018,
+    2027,
+    2029,
+    2031,
+    2034,
+    2045,
+    2050,
+    2052,
+    2065,
+    2066,
+    2070,
+    2080,
+    2081,
+    2082,
+    2086,
+    2099,
+    2105,
+    2118,
+    2130,
+    2131,
+    2135,
+    2137,
+    2142,
+    2146
+   ],
+   "estimate": 0.186036,
+   "ci95": [
+    0.153361,
+    0.218321
+   ],
+   "pRaw": 0.00001,
+   "pHolm": 0.00003,
+   "supported": true
+  },
+  {
+   "id": "K3",
+   "label": "Director v2 weights separate defenses in the predicted direction at wave 9",
+   "direction": "greater",
+   "n": 127,
+   "droppedSeeds": [
+    2009,
+    2017,
+    2018,
+    2027,
+    2029,
+    2031,
+    2034,
+    2045,
+    2050,
+    2052,
+    2065,
+    2070,
+    2080,
+    2081,
+    2082,
+    2086,
+    2105,
+    2118,
+    2130,
+    2131,
+    2135,
+    2137,
+    2142
+   ],
+   "estimate": 0.097347,
+   "ci95": [
+    0.080345,
+    0.114668
+   ],
+   "pRaw": 0.00001,
+   "pHolm": 0.00003,
+   "supported": true
+  }
+ ],
+ "estimands": [
+  {
+   "pair": "random-static",
+   "a": "random",
+   "b": "static",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": 0.066889,
+   "ci95": [
+    -0.222556,
+    0.350778
+   ]
+  },
+  {
+   "pair": "random-static",
+   "a": "random",
+   "b": "static",
+   "metric": "won",
+   "n": 150,
+   "estimate": -0.017778,
+   "ci95": [
+    -0.04,
+    0.003667
+   ]
+  },
+  {
+   "pair": "random-static",
+   "a": "random",
+   "b": "static",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": -0.206444,
+   "ci95": [
+    -0.326222,
+    -0.089667
+   ]
+  },
+  {
+   "pair": "random-static",
+   "a": "random",
+   "b": "static",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": 0.004889,
+   "ci95": [
+    0.002046,
+    0.007864
+   ]
+  },
+  {
+   "pair": "random-static",
+   "a": "random",
+   "b": "static",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": 0.003913,
+   "ci95": [
+    0.001078,
+    0.006853
+   ]
+  },
+  {
+   "pair": "prior-random",
+   "a": "prior",
+   "b": "random",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": 1.631222,
+   "ci95": [
+    1.235667,
+    2.053556
+   ]
+  },
+  {
+   "pair": "prior-random",
+   "a": "prior",
+   "b": "random",
+   "metric": "won",
+   "n": 150,
+   "estimate": -0.110111,
+   "ci95": [
+    -0.14,
+    -0.081889
+   ]
+  },
+  {
+   "pair": "prior-random",
+   "a": "prior",
+   "b": "random",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": -0.156667,
+   "ci95": [
+    -0.317333,
+    -0.008778
+   ]
+  },
+  {
+   "pair": "prior-random",
+   "a": "prior",
+   "b": "random",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": 0.002074,
+   "ci95": [
+    -0.001333,
+    0.00551
+   ]
+  },
+  {
+   "pair": "prior-random",
+   "a": "prior",
+   "b": "random",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": 0.011721,
+   "ci95": [
+    0.008104,
+    0.015352
+   ]
+  },
+  {
+   "pair": "adaptive-prior",
+   "a": "adaptive",
+   "b": "prior",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": -0.257,
+   "ci95": [
+    -0.508556,
+    -0.016444
+   ]
+  },
+  {
+   "pair": "adaptive-prior",
+   "a": "adaptive",
+   "b": "prior",
+   "metric": "won",
+   "n": 150,
+   "estimate": 0.020222,
+   "ci95": [
+    -0.004111,
+    0.046111
+   ]
+  },
+  {
+   "pair": "adaptive-prior",
+   "a": "adaptive",
+   "b": "prior",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": -0.082889,
+   "ci95": [
+    -0.195778,
+    0.045222
+   ]
+  },
+  {
+   "pair": "adaptive-prior",
+   "a": "adaptive",
+   "b": "prior",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": 0.003141,
+   "ci95": [
+    0.00063,
+    0.00553
+   ]
+  },
+  {
+   "pair": "adaptive-prior",
+   "a": "adaptive",
+   "b": "prior",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": 0.003335,
+   "ci95": [
+    0.000913,
+    0.005649
+   ]
+  },
+  {
+   "pair": "adaptive2-prior",
+   "a": "adaptive2",
+   "b": "prior",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": -1.730444,
+   "ci95": [
+    -2.064889,
+    -1.412444
+   ]
+  },
+  {
+   "pair": "adaptive2-prior",
+   "a": "adaptive2",
+   "b": "prior",
+   "metric": "won",
+   "n": 150,
+   "estimate": 0.127556,
+   "ci95": [
+    0.101,
+    0.156111
+   ]
+  },
+  {
+   "pair": "adaptive2-prior",
+   "a": "adaptive2",
+   "b": "prior",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": 0.375667,
+   "ci95": [
+    0.239111,
+    0.528889
+   ]
+  },
+  {
+   "pair": "adaptive2-prior",
+   "a": "adaptive2",
+   "b": "prior",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": -0.005059,
+   "ci95": [
+    -0.008246,
+    -0.002013
+   ]
+  },
+  {
+   "pair": "adaptive2-prior",
+   "a": "adaptive2",
+   "b": "prior",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": -0.012892,
+   "ci95": [
+    -0.015812,
+    -0.010026
+   ]
+  },
+  {
+   "pair": "adaptive-static",
+   "a": "adaptive",
+   "b": "static",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": 1.441111,
+   "ci95": [
+    1.155889,
+    1.757667
+   ]
+  },
+  {
+   "pair": "adaptive-static",
+   "a": "adaptive",
+   "b": "static",
+   "metric": "won",
+   "n": 150,
+   "estimate": -0.107667,
+   "ci95": [
+    -0.131444,
+    -0.085
+   ]
+  },
+  {
+   "pair": "adaptive-static",
+   "a": "adaptive",
+   "b": "static",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": -0.446,
+   "ci95": [
+    -0.577111,
+    -0.322
+   ]
+  },
+  {
+   "pair": "adaptive-static",
+   "a": "adaptive",
+   "b": "static",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": 0.010104,
+   "ci95": [
+    0.007777,
+    0.012528
+   ]
+  },
+  {
+   "pair": "adaptive-static",
+   "a": "adaptive",
+   "b": "static",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": 0.01897,
+   "ci95": [
+    0.016173,
+    0.021798
+   ]
+  },
+  {
+   "pair": "adaptive2-static",
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": -0.032333,
+   "ci95": [
+    -0.196444,
+    0.132667
+   ]
+  },
+  {
+   "pair": "adaptive2-static",
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "won",
+   "n": 150,
+   "estimate": -0.000333,
+   "ci95": [
+    -0.018,
+    0.017556
+   ]
+  },
+  {
+   "pair": "adaptive2-static",
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": 0.012556,
+   "ci95": [
+    -0.091667,
+    0.122889
+   ]
+  },
+  {
+   "pair": "adaptive2-static",
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": 0.001904,
+   "ci95": [
+    -0.000399,
+    0.004213
+   ]
+  },
+  {
+   "pair": "adaptive2-static",
+   "a": "adaptive2",
+   "b": "static",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": 0.002743,
+   "ci95": [
+    0.000414,
+    0.004919
+   ]
+  },
+  {
+   "pair": "counter-static",
+   "a": "counter",
+   "b": "static",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": 0.473667,
+   "ci95": [
+    0.225111,
+    0.721556
+   ]
+  },
+  {
+   "pair": "counter-static",
+   "a": "counter",
+   "b": "static",
+   "metric": "won",
+   "n": 150,
+   "estimate": -0.030778,
+   "ci95": [
+    -0.053556,
+    -0.008778
+   ]
+  },
+  {
+   "pair": "counter-static",
+   "a": "counter",
+   "b": "static",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": -0.129,
+   "ci95": [
+    -0.265778,
+    0.006556
+   ]
+  },
+  {
+   "pair": "counter-static",
+   "a": "counter",
+   "b": "static",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": 0.006691,
+   "ci95": [
+    0.00349,
+    0.009904
+   ]
+  },
+  {
+   "pair": "counter-static",
+   "a": "counter",
+   "b": "static",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": -0.001883,
+   "ci95": [
+    -0.005575,
+    0.001773
+   ]
+  },
+  {
+   "pair": "counter-prior",
+   "a": "counter",
+   "b": "prior",
+   "metric": "livesLost",
+   "n": 150,
+   "estimate": -1.224444,
+   "ci95": [
+    -1.582889,
+    -0.880667
+   ]
+  },
+  {
+   "pair": "counter-prior",
+   "a": "counter",
+   "b": "prior",
+   "metric": "won",
+   "n": 150,
+   "estimate": 0.097111,
+   "ci95": [
+    0.068556,
+    0.127889
+   ]
+  },
+  {
+   "pair": "counter-prior",
+   "a": "counter",
+   "b": "prior",
+   "metric": "finalWave",
+   "n": 150,
+   "estimate": 0.234111,
+   "ci95": [
+    0.071778,
+    0.406333
+   ]
+  },
+  {
+   "pair": "counter-prior",
+   "a": "counter",
+   "b": "prior",
+   "metric": "leakFraction",
+   "n": 150,
+   "estimate": -0.000271,
+   "ci95": [
+    -0.00398,
+    0.003316
+   ]
+  },
+  {
+   "pair": "counter-prior",
+   "a": "counter",
+   "b": "prior",
+   "metric": "penetration",
+   "n": 150,
+   "estimate": -0.017518,
+   "ci95": [
+    -0.021988,
+    -0.013059
+   ]
+  }
+ ],
+ "contrasts": [
+  {
+   "wave": 5,
+   "mode": "adaptive",
+   "n": 141,
+   "unitsObserved": 614,
+   "populationUnits": 614,
+   "coverage": 1,
+   "estimate": 0.126115,
+   "ci95": [
+    0.090361,
+    0.161386
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 108,
+     "mean": 0.052446
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 127,
+     "mean": 0.181636
+    }
+   ],
+   "matched": {
+    "units": 614,
+    "n": 141,
+    "estimate": 0.126115,
+    "ci95": [
+     0.090361,
+     0.161386
+    ]
+   }
+  },
+  {
+   "wave": 5,
+   "mode": "adaptive2",
+   "n": 141,
+   "unitsObserved": 614,
+   "populationUnits": 614,
+   "coverage": 1,
+   "estimate": 0.086409,
+   "ci95": [
+    0.062144,
+    0.111038
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 108,
+     "mean": 0.019132
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 127,
+     "mean": 0.137468
+    }
+   ],
+   "matched": {
+    "units": 614,
+    "n": 141,
+    "estimate": 0.086409,
+    "ci95": [
+     0.062144,
+     0.111038
+    ]
+   }
+  },
+  {
+   "wave": 5,
+   "mode": "counter",
+   "n": 141,
+   "unitsObserved": 614,
+   "populationUnits": 614,
+   "coverage": 1,
+   "estimate": 0.477696,
+   "ci95": [
+    0.417991,
+    0.536956
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 108,
+     "mean": 0.418763
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 127,
+     "mean": 0.528809
+    }
+   ],
+   "matched": {
+    "units": 614,
+    "n": 141,
+    "estimate": 0.477696,
+    "ci95": [
+     0.417991,
+     0.536956
+    ]
+   }
+  },
+  {
+   "wave": 5,
+   "mode": "prior",
+   "n": 141,
+   "unitsObserved": 614,
+   "populationUnits": 614,
+   "coverage": 1,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 108,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 127,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  },
+  {
+   "wave": 5,
+   "mode": "random",
+   "n": 141,
+   "unitsObserved": 614,
+   "populationUnits": 614,
+   "coverage": 1,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 108,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 127,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  },
+  {
+   "wave": 9,
+   "mode": "adaptive",
+   "n": 124,
+   "unitsObserved": 453,
+   "populationUnits": 614,
+   "coverage": 0.737785,
+   "estimate": 0.186036,
+   "ci95": [
+    0.153361,
+    0.218321
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 67,
+     "mean": 0.03833
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 105,
+     "mean": 0.253557
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 80,
+     "mean": 0.071133
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 97,
+     "mean": 0.310325
+    }
+   ],
+   "matched": {
+    "units": 435,
+    "n": 121,
+    "estimate": 0.186036,
+    "ci95": [
+     0.152494,
+     0.220197
+    ]
+   }
+  },
+  {
+   "wave": 9,
+   "mode": "adaptive2",
+   "n": 127,
+   "unitsObserved": 469,
+   "populationUnits": 614,
+   "coverage": 0.763844,
+   "estimate": 0.097347,
+   "ci95": [
+    0.080345,
+    0.114668
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 71,
+     "mean": 0.012601
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 109,
+     "mean": 0.1861
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 81,
+     "mean": 0.009576
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 102,
+     "mean": 0.126633
+    }
+   ],
+   "matched": {
+    "units": 435,
+    "n": 121,
+    "estimate": 0.097353,
+    "ci95": [
+     0.079863,
+     0.115027
+    ]
+   }
+  },
+  {
+   "wave": 9,
+   "mode": "counter",
+   "n": 124,
+   "unitsObserved": 460,
+   "populationUnits": 614,
+   "coverage": 0.749186,
+   "estimate": 0.437295,
+   "ci95": [
+    0.407292,
+    0.467632
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 67,
+     "mean": 0.446545
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 106,
+     "mean": 0.499862
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 83,
+     "mean": 0.424073
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 98,
+     "mean": 0.366133
+    }
+   ],
+   "matched": {
+    "units": 435,
+    "n": 121,
+    "estimate": 0.434899,
+    "ci95": [
+     0.401237,
+     0.46807
+    ]
+   }
+  },
+  {
+   "wave": 9,
+   "mode": "prior",
+   "n": 123,
+   "unitsObserved": 446,
+   "populationUnits": 614,
+   "coverage": 0.726384,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 62,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 104,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 78,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 97,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  },
+  {
+   "wave": 9,
+   "mode": "random",
+   "n": 124,
+   "unitsObserved": 454,
+   "populationUnits": 614,
+   "coverage": 0.739414,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 65,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 105,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 76,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 102,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  },
+  {
+   "wave": 13,
+   "mode": "adaptive",
+   "n": 103,
+   "unitsObserved": 370,
+   "populationUnits": 614,
+   "coverage": 0.602606,
+   "estimate": 0.263492,
+   "ci95": [
+    0.207827,
+    0.31858
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 55,
+     "mean": 0.083823
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 90,
+     "mean": 0.241448
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 59,
+     "mean": 0.154793
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 52,
+     "mean": 0.675316
+    }
+   ],
+   "matched": {
+    "units": 351,
+    "n": 98,
+    "estimate": 0.266638,
+    "ci95": [
+     0.209895,
+     0.325463
+    ]
+   }
+  },
+  {
+   "wave": 13,
+   "mode": "adaptive2",
+   "n": 114,
+   "unitsObserved": 409,
+   "populationUnits": 614,
+   "coverage": 0.666124,
+   "estimate": 0.183847,
+   "ci95": [
+    0.152188,
+    0.215509
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 63,
+     "mean": 0.051572
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 97,
+     "mean": 0.23039
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 69,
+     "mean": 0.065104
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 76,
+     "mean": 0.353894
+    }
+   ],
+   "matched": {
+    "units": 351,
+    "n": 98,
+    "estimate": 0.163381,
+    "ci95": [
+     0.127526,
+     0.199514
+    ]
+   }
+  },
+  {
+   "wave": 13,
+   "mode": "counter",
+   "n": 114,
+   "unitsObserved": 402,
+   "populationUnits": 614,
+   "coverage": 0.654723,
+   "estimate": 0.488693,
+   "ci95": [
+    0.461413,
+    0.517598
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 60,
+     "mean": 0.454934
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 96,
+     "mean": 0.607391
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 68,
+     "mean": 0.408857
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 74,
+     "mean": 0.402
+    }
+   ],
+   "matched": {
+    "units": 351,
+    "n": 98,
+    "estimate": 0.489369,
+    "ci95": [
+     0.458347,
+     0.520843
+    ]
+   }
+  },
+  {
+   "wave": 13,
+   "mode": "prior",
+   "n": 110,
+   "unitsObserved": 386,
+   "populationUnits": 614,
+   "coverage": 0.628664,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 56,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 94,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 64,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 71,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  },
+  {
+   "wave": 13,
+   "mode": "random",
+   "n": 106,
+   "unitsObserved": 391,
+   "populationUnits": 614,
+   "coverage": 0.636808,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 56,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 91,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 61,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 72,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  }
+ ],
+ "coverageAtPrimary": {
+  "wave": 9,
+  "perMode": {
+   "adaptive": {
+    "observed": 453,
+    "populationUnits": 614,
+    "coverage": 0.737785
+   },
+   "adaptive2": {
+    "observed": 469,
+    "populationUnits": 614,
+    "coverage": 0.763844
+   },
+   "counter": {
+    "observed": 460,
+    "populationUnits": 614,
+    "coverage": 0.749186
+   },
+   "prior": {
+    "observed": 446,
+    "populationUnits": 614,
+    "coverage": 0.726384
+   },
+   "random": {
+    "observed": 454,
+    "populationUnits": 614,
+    "coverage": 0.739414
+   }
+  },
+  "minCoverage": 0.726384,
+  "metRule": false,
+  "rule": "smallest eligible wave >= 9 whose minimum coverage over adaptive, adaptive2, counter, prior and random is at least 0.75; otherwise the wave with the largest minimum coverage",
+  "ruleChoice": {
+   "chosen": 9,
+   "metRule": false
+  },
+  "registered": {
+   "coverageRuleMet": false,
+   "trainingCoverageAtPrimary": 0.7
+  }
+ },
+ "sensitivity": {
+  "k1AllUnits": {
+   "n": 150,
+   "estimate": 0.086667,
+   "ci95": [
+    -0.146667,
+    0.325333
+   ],
+   "units": 750
+  },
+  "matchedSet": {
+   "units": 435,
+   "K2": {
+    "n": 121,
+    "estimate": 0.186036,
+    "ci95": [
+     0.152494,
+     0.220197
+    ]
+   },
+   "K3": {
+    "n": 121,
+    "estimate": 0.097353,
+    "ci95": [
+     0.079863,
+     0.115027
+    ]
+   }
+  },
+  "leaveOneStyleOut": [
+   {
+    "id": "K1",
+    "byStyleRemoved": {
+     "balancedR": 0.045556,
+     "noLance": 0.123333,
+     "noMortar": 0.105705,
+     "noPoison": 0.116667,
+     "noSniper": -0.036111
+    },
+    "min": -0.036111,
+    "max": 0.123333,
+    "signStable": false
+   },
+   {
+    "id": "K2",
+    "byStyleRemoved": {
+     "balancedR": 0.186036,
+     "noLance": 0.245188,
+     "noMortar": 0.158557,
+     "noPoison": 0.251679,
+     "noSniper": 0.094361
+    },
+    "min": 0.094361,
+    "max": 0.251679,
+    "signStable": true
+   },
+   {
+    "id": "K3",
+    "byStyleRemoved": {
+     "balancedR": 0.097347,
+     "noLance": 0.125237,
+     "noMortar": 0.059027,
+     "noPoison": 0.140032,
+     "noSniper": 0.057102
+    },
+    "min": 0.057102,
+    "max": 0.140032,
+    "signStable": true
+   }
+  ]
+ },
+ "power": {
+  "label": "descriptive and post hoc, not part of the confirmatory plan",
+  "alpha": 0.016667,
+  "hypotheses": [
+   {
+    "id": "K1",
+    "sd": 1.810543,
+    "seedsNeeded": 7671
+   },
+   {
+    "id": "K2",
+    "sd": 0.18832,
+    "seedsNeeded": 11
+   },
+   {
+    "id": "K3",
+    "sd": 0.098607,
+    "seedsNeeded": 11
+   }
+  ]
+ }
+}
