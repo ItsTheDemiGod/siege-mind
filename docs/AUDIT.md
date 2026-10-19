@@ -65,5 +65,5 @@ Measured in headless Chrome without a GPU on this machine: an upper bound on fra
 
 | Quality | Frames | Average ms | p95 ms | Max ms | Enemies alive |
 | --- | --- | --- | --- | --- | --- |
-| high | 322 | 24.9 | 33.4 | 50.0 | 224 |
-| low | 422 | 19.0 | 33.3 | 49.9 | 230 |
+| high | 318 | 25.2 | 33.4 | 50.0 | 221 |
+| low | 431 | 18.6 | 33.4 | 33.5 | 227 |

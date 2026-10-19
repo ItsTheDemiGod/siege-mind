@@ -1,4 +1,4 @@
-// Renders one catalogue sound onto ANY BaseAudioContext (live or offline). Browser audio API only; no DOM, no clock, no Math.random.
+// Renders one catalogue sound onto ANY BaseAudioContext (live or offline). Browser audio API only; no DOM, no clock, no random source.
 // Nodes used: OscillatorNode, GainNode, BiquadFilterNode, AudioBufferSourceNode (precomputed noise buffer) and parameter automation.
 
 const FLOOR = 0.0001; // exponential ramps cannot reach 0

@@ -86,7 +86,7 @@ const CHECKS = [
       key('Enter', 'Enter'); await sleep(500);
       const after = gold();
       const parts = { before, after, live };
-      return { ok: before === 150 && after === 90 && /^Column \\d+, row \\d+: /.test(live), \detail: JSON.stringify(parts) };
+      return { ok: before === 150 && after === 90 && /^Column \\d+, row \\d+: /.test(live), detail: JSON.stringify(parts) };
     })()`,
   },
   {

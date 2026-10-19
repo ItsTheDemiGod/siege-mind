@@ -39,6 +39,9 @@ Open the game, pick **Quick** (15 waves, about 20 minutes) or **Full** (30 waves
 |---|---|
 | Esc | Cancel placing / deselect, otherwise open the pause menu |
 | Space | Pause / resume |
+| M | Mute / unmute the sound (also in the pause menu and Settings) |
+| Arrow keys | While a tower is armed: move the placement cursor to the next buildable tile; **Enter** places the tower there (otherwise Enter starts the wave) |
+| [ / ] | Select the previous / next tower |
 | 1 / 2 / 3 | Game speed x1 / x2 / x3 |
 | N | Single step (while paused) |
 | ` (backquote) | Toggle debug HUD |
@@ -49,7 +52,16 @@ More dev controls:
 
 - Backquote shows/hides the debug panel (hidden by default; FPS, frame ms avg/p95/max, ticks/s, sim speed, quality, particles).
 - Enemies now come only from the 30 waves. `?debug=1&spawn=N` turns on the old random spawner (one random enemy every N ticks) for testing.
-- The gear button in the HUD opens Settings (quality, auto-lower quality, screen shake, reduced motion, particle density).
+- The gear button in the HUD opens Settings (quality, auto-lower quality, screen shake, reduced motion, particle density, sound on/off, master and effects volume, and **Reset hints**).
+- First-run hints: four short tips appear top left in your first game (build, start the wave, upgrade, and in the adaptive modes the Director). **Got it** dismisses one, **Skip all hints** turns them off, Settings brings them back. They never appear in `?debug=1` games.
+
+### Sound
+
+All sounds are generated live in the browser from oscillators and filtered noise (Web Audio); nothing is downloaded. The browser starts audio after your first click or key press. Master and effects volume are in Settings, **M** mutes. The Sound lab in the style gallery (http://localhost:8137/gallery.html, section 8) plays every sound, stress-tests the voice limiter and analyzes every sound offline (peak, loudness, DC offset, leading silence).
+
+### Audit (dev)
+
+`npm run audit` drives a headless Chrome through the main screens and writes docs/AUDIT.md: accessible names and roles, dialogs and focus traps, focus rings, text contrast, overflow at four window sizes, reduced motion and frame times in stress mode (measured without a GPU: an upper bound).
 - Style gallery: http://localhost:8137/gallery.html
 
 ### Building towers (Phase 3A)

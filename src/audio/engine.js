@@ -39,8 +39,10 @@ export function createAudioEngine({ AudioContextCtor, settings, nowMs, cfg = aud
 
   const unsubscribe = settings.subscribe((key) => {
     if (inert || !chain || !['muted', 'masterVolume', 'sfxVolume'].includes(key)) return;
-    applyVolumes(false);
-    if (key === 'muted' && !current().muted && !hidden && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    try {
+      applyVolumes(false);
+      if (key === 'muted' && !current().muted && !hidden && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    } catch { /* a broken audio context must not break the settings panel */ }
   });
 
   /** Create the context on the first gesture. @returns {boolean} whether the context is running */

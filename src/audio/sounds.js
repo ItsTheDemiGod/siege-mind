@@ -22,7 +22,7 @@ export const SOUNDS = Object.freeze(Object.fromEntries([
   sound('fireMortar', 'fire', 1, 90, 3, 0.8, 0.35, [osc('sine', 120, 50, 0, 0.004, 0.3, 1), noise('lowpass', 400, 0, 0.7, 0, 0.003, 0.12, 0.6)]),
   sound('fireFrost', 'fire', 1, 120, 3, 0.45, 0.45, [osc('sine', 1320, 0, 0, 0.01, 0.3, 0.6), osc('sine', 1760, 0, 0.09, 0.01, 0.3, 0.5)]),
   sound('firePoison', 'fire', 1, 70, 3, 0.5, 0.25, [osc('sine', 300, 520, 0, 0.01, 0.12, 0.7, { rate: 18, depth: 40 }), osc('sine', 360, 600, 0.1, 0.01, 0.12, 0.7, { rate: 18, depth: 40 })]),
-  sound('fireSniper', 'fire', 2, 150, 2, 0.75, 0.22, [noise('highpass', 2500, 0, 0.7, 0, 0.001, 0.06, 0.9), osc('sine', 1400, 200, 0, 0.001, 0.18, 0.6)]),
+  sound('fireSniper', 'fire', 2, 150, 2, 0.68, 0.22, [noise('highpass', 2500, 0, 0.7, 0, 0.001, 0.06, 0.9), osc('sine', 1400, 200, 0, 0.001, 0.18, 0.6)]),
   // impacts
   sound('impactShell', 'impact', 2, 60, 3, 0.8, 0.22, [noise('lowpass', 600, 200, 0.7, 0, 0.002, 0.2, 1), osc('sine', 90, 40, 0, 0.002, 0.2, 0.6)]),
   sound('impactCloud', 'impact', 1, 80, 2, 0.45, 0.18, [noise('bandpass', 900, 0, 1, 0, 0.01, 0.15, 0.9)]),
@@ -38,7 +38,7 @@ export const SOUNDS = Object.freeze(Object.fromEntries([
   sound('waveClear', 'wave', 2, 0, 1, 0.5, 0.8, [osc('triangle', 392, 0, 0, 0.01, 0.4, 0.6), osc('triangle', 494, 0, 0.12, 0.01, 0.4, 0.6), osc('triangle', 587, 0, 0.24, 0.01, 0.5, 0.6)]),
   sound('directorSweep', 'wave', 2, 0, 1, 0.5, 0.85, [noise('bandpass', 400, 3000, 4, 0, 0.3, 0.5, 0.8), osc('sine', 600, 1800, 0, 0.3, 0.5, 0.2)]),
   sound('leak', 'game', 3, 150, 2, 0.8, 0.5, [osc('sine', 110, 60, 0, 0.005, 0.3, 0.9), osc('sawtooth', 233, 0, 0, 0.01, 0.4, 0.25)]),
-  sound('lifeLost', 'game', 3, 150, 2, 0.8, 0.7, [osc('sine', 80, 40, 0, 0.005, 0.5, 0.9), osc('sawtooth', 150, 0, 0, 0.01, 0.5, 0.2), osc('sawtooth', 158, 0, 0, 0.01, 0.5, 0.2), noise('lowpass', 300, 0, 0.7, 0, 0.005, 0.2, 0.4)]),
+  sound('lifeLost', 'game', 3, 150, 2, 0.72, 0.7, [osc('sine', 80, 40, 0, 0.005, 0.5, 0.9), osc('sawtooth', 150, 0, 0, 0.01, 0.5, 0.2), osc('sawtooth', 158, 0, 0, 0.01, 0.5, 0.2), noise('lowpass', 300, 0, 0.7, 0, 0.005, 0.2, 0.4)]),
   sound('victory', 'game', 3, 0, 1, 0.6, 1.8, [osc('triangle', 523, 0, 0, 0.01, 0.4, 0.6), osc('triangle', 659, 0, 0.2, 0.01, 0.4, 0.6), osc('triangle', 784, 0, 0.4, 0.01, 0.5, 0.6), osc('triangle', 1047, 0, 0.65, 0.01, 1.1, 0.7)]),
   sound('defeat', 'game', 3, 0, 1, 0.6, 1.8, [osc('triangle', 440, 0, 0, 0.01, 0.45, 0.6), osc('triangle', 392, 0, 0.3, 0.01, 0.45, 0.6), osc('triangle', 349, 0, 0.6, 0.01, 0.5, 0.6), osc('triangle', 311, 0, 0.9, 0.01, 0.85, 0.7)]),
 ]));
