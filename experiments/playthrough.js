@@ -11,11 +11,11 @@ const ACT_EVERY_TICKS = 120; // while a wave is running
 
 /**
  * Play one full static-mode game.
- * @param {{seed?: number, bot: {act: Function}, maxTicks?: number, gameOptions?: object}} o
+ * @param {{seed?: number, bot: {act: Function}, maxTicks?: number, totalWaves?: 15|30, gameOptions?: object}} o
  * @returns {{result: 'won'|'lost'|'timeout', wave: number, lives: number, ticks: number, seconds: number, minutes: number, stats: object, perWave: object[]}}
  */
-export function playGame({ seed = 1, bot, maxTicks = 600000, gameOptions = {} }) {
-  const game = createGame({ seed, debugSpawnEveryTicks: 0, ...gameOptions });
+export function playGame({ seed = 1, bot, maxTicks = 600000, totalWaves = config.game.totalWaves, gameOptions = {} }) {
+  const game = createGame({ seed, debugSpawnEveryTicks: 0, totalWaves, ...gameOptions });
   const perWave = [];
   let waveStartTick = 0;
   game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => { waveStartTick = ev.tick; });
@@ -40,10 +40,11 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const arg = (name, def) => (process.argv.find((a) => a.startsWith(`--${name}=`)) ?? `--${name}=${def}`).split('=')[1];
   const botName = arg('bot', 'balanced');
   const seed = Number(arg('seed', 1));
+  const waves = Number(arg('waves', config.game.totalWaves));
   const t0 = performance.now();
-  const r = playGame({ seed, bot: getBot(botName) });
+  const r = playGame({ seed, totalWaves: waves, bot: getBot(botName) });
   const ms = performance.now() - t0;
-  console.log(`bot=${botName} seed=${seed}`);
+  console.log(`bot=${botName} seed=${seed} mode=static length=${waves === 15 ? 'Quick' : 'Full'} (${waves} waves)`);
   console.log('wave  threat  hpMult  seconds  kills  leaks  livesLost  livesAfter   gold  towers');
   for (const w of r.perWave) {
     console.log([w.wave, w.threat, w.hpMult.toFixed(2), w.seconds.toFixed(0), w.kills, w.leaks, w.livesLost, w.livesAfter, Math.round(w.gold), w.towers].map((v, i) => String(v).padStart([4, 7, 8, 9, 7, 7, 11, 11, 7, 8][i])).join(''));

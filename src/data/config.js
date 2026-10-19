@@ -21,7 +21,9 @@ export const config = Object.freeze({
   game: Object.freeze({
     startGold: 150,
     startLives: 20,
-    totalWaves: 30,
+    totalWaves: 30, // the Full game and the research setting
+    allowedTotals: Object.freeze([15, 30]),
+    quickTotal: 15,
     mode: 'static',
   }),
   quality: Object.freeze({
@@ -41,6 +43,18 @@ export const config = Object.freeze({
     durSlow: 0.25,
     tooltipDelay: 0.25,
     towerPanelRefreshSeconds: 0.25,
+    bannerSeconds: 2.6,
+    bannerFixedSeconds: 3.6,
+    bannerFinalSeconds: 4.0,
+    wavePreviewHeight: 44,
+    wavePreviewWidth: 420,
+    wavePreviewGap: 8,
+    endScreenDelayLost: 1.6,
+    endScreenDelayWon: 1.2,
+    confirmWindowSeconds: 3,
+    ringSize: 44,
+    ringStroke: 4,
+    menuWidth: 560,
     waveControlWidth: 300,
     waveControlHeight: 64,
     waveControlBottomMargin: 16,
@@ -106,6 +120,12 @@ export const config = Object.freeze({
     decalCapacity: 12, // mortar scorch marks
     beamCapacity: 16, // sniper beams
     ghostCapacity: 24, // sell-dissolve ghosts
+    coreSegments: 12,
+    coreDamagedBelow: 0.67,
+    coreCriticalBelow: 0.34,
+    coreDestroySeconds: 1.8,
+    coreVictorySeconds: 3.0,
+    coreVictoryRingEverySeconds: 0.35,
     statusTintAmount: 0.25, // body mixed this far toward the slow/poison color
     shellScaleGain: 0.35, // shell grows this much (fraction) at the apex of its visual arc
     shellShadowShrink: 0.5, // ground shadow shrinks this much (fraction) at the apex

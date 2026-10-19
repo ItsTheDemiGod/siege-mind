@@ -1,7 +1,7 @@
 // Wave runner (pure): phases prep -> running -> intermission -> ... -> won/lost, clear bonus, countdown, game end.
 import { config } from '../data/config.js';
 import { ENEMIES } from '../data/enemies.js';
-import { TOTAL_WAVES, BUDGETS, planThreat, hpMultiplierForWave } from '../data/waves.js';
+import { BUDGETS, planThreat, hpMultiplierForWave } from '../data/waves.js';
 import { EVENT_TYPES } from './events.js';
 import { queueEnemy } from './enemies.js';
 import { earnGold } from './economy.js';
@@ -36,7 +36,7 @@ export function canStartWave(game) {
   if (game.over) return { ok: false, reason: 'game_over' };
   const { phase, nextWave } = game.waves;
   if (phase === 'running') return { ok: false, reason: 'wave_in_progress' };
-  if (nextWave > TOTAL_WAVES) return { ok: false, reason: 'no_more_waves' };
+  if (nextWave > game.totalWaves) return { ok: false, reason: 'no_more_waves' };
   return { ok: true };
 }
 
@@ -68,7 +68,7 @@ export function startNextWave(game) {
     composition[g.type] = g.picks * ENEMIES[g.type].packSize;
   }
   game.events.emit(EVENT_TYPES.WAVE_STARTED, {
-    wave, total: TOTAL_WAVES, name: plan.name, fixed: plan.fixed, mode: game.mode, budget: BUDGETS[wave - 1],
+    wave, total: game.totalWaves, name: plan.name, fixed: plan.fixed, mode: game.mode, budget: BUDGETS[wave - 1],
     threat: planThreat(plan.groups), hpMult: hpMultiplierForWave(wave), composition, picks, tick: game.tick,
   });
   return { ok: true, wave };
@@ -87,6 +87,14 @@ export function freezeInterpolation(game) {
  */
 export function endGame(game, result) {
   if (game.over) return;
+  if (result === 'lost' && game.waves.phase === 'running') { // the wave in progress becomes a partial log entry
+    const w = game.waves;
+    game.waveLog.push({
+      wave: w.current, name: w.plan.name, fixed: w.plan.fixed, complete: false, kills: w.waveStats.kills, leaks: w.waveStats.leaks,
+      livesLost: w.waveStats.livesLost, livesAfter: game.lives, goldFromKills: w.waveStats.goldFromKills, clearBonus: 0,
+      seconds: (game.tick - w.startTick) * config.sim.stepSeconds, hpMult: hpMultiplierForWave(w.current), threat: planThreat(w.plan.groups),
+    });
+  }
   game.over = true;
   game.result = result;
   game.waves.phase = result;
@@ -111,7 +119,7 @@ export function stepWaves(game) {
       wave, kills: w.waveStats.kills, leaks: w.waveStats.leaks, livesLost: w.waveStats.livesLost, goldFromKills: w.waveStats.goldFromKills,
       clearBonus: bonus, lives: game.lives, tick: game.tick,
     });
-    if (wave >= TOTAL_WAVES) {
+    if (wave >= game.totalWaves) {
       endGame(game, 'won');
     } else {
       w.phase = 'intermission';
@@ -138,4 +146,12 @@ export function wireWaves(game) {
   events.on(EVENT_TYPES.ENEMY_KILLED, (ev) => { game.waves.waveStats.kills++; game.waves.waveStats.goldFromKills += ev.reward; });
   events.on(EVENT_TYPES.ENEMY_LEAKED, () => { game.waves.waveStats.leaks++; });
   events.on(EVENT_TYPES.LIVES_CHANGED, (ev) => { game.waves.waveStats.livesLost -= ev.delta; });
+  events.on(EVENT_TYPES.WAVE_ENDED, (ev) => {
+    const w = game.waves;
+    game.waveLog.push({
+      wave: ev.wave, name: w.plan.name, fixed: w.plan.fixed, complete: true, kills: ev.kills, leaks: ev.leaks, livesLost: ev.livesLost,
+      livesAfter: ev.lives, goldFromKills: ev.goldFromKills, clearBonus: ev.clearBonus, seconds: (ev.tick - w.startTick) * config.sim.stepSeconds,
+      hpMult: hpMultiplierForWave(ev.wave), threat: planThreat(w.plan.groups),
+    });
+  });
 }

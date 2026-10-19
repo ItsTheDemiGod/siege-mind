@@ -12,22 +12,24 @@ import { wireEconomy } from './economy.js';
 import { wireLives } from './lives.js';
 import { createStats, wireStats } from './stats.js';
 import { createWavesState, wireWaves, stepWaves, freezeInterpolation } from './waveRunner.js';
-import { TOTAL_WAVES } from '../data/waves.js';
 
 /**
  * Create a new game (plain-object state).
  * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number, startGold?: number, startLives?: number,
- *   mode?: 'static', startWave?: number, wavesConfig?: object}} options - startWave is for the debug URL; wavesConfig overrides config.waves (tests)
+ *   mode?: 'static', startWave?: number, wavesConfig?: object, totalWaves?: 15|30}} options - startWave is for the debug URL; wavesConfig overrides config.waves (tests)
  * @returns {object} game state
  */
 export function createGame({
   seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.autoSpawnEveryTicks, startGold = config.game.startGold,
-  startLives = config.game.startLives, mode = config.game.mode, startWave, wavesConfig = {},
+  startLives = config.game.startLives, mode = config.game.mode, startWave, wavesConfig = {}, totalWaves = config.game.totalWaves,
 }) {
+  if (!Number.isInteger(totalWaves) || !config.game.allowedTotals.includes(totalWaves)) {
+    throw new RangeError(`totalWaves must be one of ${config.game.allowedTotals.join(', ')}, got ${String(totalWaves)}`);
+  }
   if (mode === 'adaptive') throw new Error('Adaptive mode is implemented in Phase 6');
   if (mode !== 'static') throw new RangeError(`unknown game mode: ${String(mode)}`);
-  if (startWave !== undefined && (!Number.isInteger(startWave) || startWave < 1 || startWave > TOTAL_WAVES)) {
-    throw new RangeError(`startWave must be an integer 1..${TOTAL_WAVES}, got ${String(startWave)}`);
+  if (startWave !== undefined && (!Number.isInteger(startWave) || startWave < 1 || startWave > totalWaves)) {
+    throw new RangeError(`startWave must be an integer 1..${totalWaves}, got ${String(startWave)}`);
   }
   const main = createRng(seed);
   const game = {
@@ -52,6 +54,9 @@ export function createGame({
     mode,
     wavesCfg: { ...config.waves, ...wavesConfig },
     lives: startLives,
+    maxLives: startLives,
+    totalWaves,
+    waveLog: [], // UI summary log, one entry per cleared wave (plus a partial one on defeat); Phase 5 telemetry stays the research data source
     over: false,
     result: null,
     stats: createStats(),
@@ -113,6 +118,9 @@ export function snapshotGame(game) {
     nextEnemyId: game.nextEnemyId,
     gold: game.gold,
     lives: game.lives,
+    maxLives: game.maxLives,
+    totalWaves: game.totalWaves,
+    waveLog: game.waveLog.map((e) => ({ ...e })),
     over: game.over,
     result: game.result,
     stats: { ...game.stats },

@@ -61,3 +61,16 @@ test('the playthrough is deterministic', () => {
   const again = run('balanced');
   assert.deepEqual(again, balanced);
 });
+
+test('Quick game: the balanced bot on seed 1 wins a 15-wave game with 1-20 lives left in 8-30 minutes', () => {
+  const quick = playGame({ seed: 1, bot: getBot('balanced'), totalWaves: 15 });
+  console.log(`# quick (15 waves) seed 1: ${quick.result}, ${quick.lives} lives, ${quick.minutes.toFixed(1)} min`);
+  for (const s of [2, 3, 4, 5]) {
+    const r = playGame({ seed: s, bot: getBot('balanced'), totalWaves: 15 });
+    console.log(`# quick seed ${s}: ${r.result}, ${r.lives} lives, ${r.minutes.toFixed(1)} min`);
+  }
+  assert.equal(quick.result, 'won');
+  assert.equal(quick.wave, 15);
+  assert.ok(quick.lives >= 1 && quick.lives <= 20, `lives ${quick.lives}`);
+  assert.ok(quick.minutes >= 8 && quick.minutes <= 30, `${quick.minutes} min`);
+});
