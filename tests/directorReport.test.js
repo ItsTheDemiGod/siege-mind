@@ -4,7 +4,7 @@ import { config } from '../src/data/config.js';
 import { ENEMIES, ENEMY_ORDER } from '../src/data/enemies.js';
 import { TOWERS, TOWER_ORDER } from '../src/data/towers.js';
 import { isAdaptiveEligible } from '../src/data/waves.js';
-import { buildDirectorReport, decisionShift } from '../src/ui/directorReport.js';
+import { buildDirectorReport, decisionShift, reportFootnote } from '../src/ui/directorReport.js';
 import { playGame } from '../experiments/playthrough.js';
 import { getBot } from '../experiments/bots.js';
 
@@ -32,21 +32,32 @@ test('decisionShift is half the L1 distance', () => {
   assert.ok(Math.abs(decisionShift(d) - 0.1) < 1e-12);
 });
 
-test('the full adaptive report: exact insights, ordering, tie rules and the cap of five', () => {
+// approved reversal (Phase 8A): the cap is 7, so two pushed and two eased types no longer cut the last insights
+test('the full adaptive report: two pushed and two eased types show all seven lines in order', () => {
   const scores = { armoredGrunt: -0.5, swarmling: 0.2, fastRunner: 0.4, regenerator: 0.1, shieldedBruiser: -0.3 };
   const run = miniRun({ waves: [wave(5, { director: decision(5, { scores }) })] });
   const r = buildDirectorReport(run);
   assert.equal(r.available, true);
   assert.equal(r.title, "Director's Report");
   assert.equal(r.headline, 'Adaptive · Quick (15 waves) · Victory');
+  assert.equal(config.report.maxInsights, 7);
   assert.deepEqual(r.insights, [
     'The Director leaned on Fast Runner (weight ×1.40): it earned the most threat-adjusted progress against your defense.',
     'The Director leaned on Swarmling (weight ×1.20): it earned the most threat-adjusted progress against your defense.',
     'It backed off Armored Grunt (weight ×0.50): your towers stopped them early.',
     'It backed off Shielded Bruiser (weight ×0.70): your towers stopped them early.',
     'Mortar dealt 86% of your damage. The Director pushed Fast Runner, which Mortar handles poorly.',
+    'No lives were lost.',
+    "On average 0% of each adapted wave's threat moved to different enemy types.",
   ]);
   assert.equal(r.insights.length, config.report.maxInsights);
+});
+
+test('the footnote carries the tankiness caveat for adaptive runs only', () => {
+  const base = 'This report describes this run only; the experiment compares many runs.';
+  assert.equal(reportFootnote('random'), base);
+  assert.equal(reportFootnote('static'), base);
+  assert.equal(reportFootnote('adaptive'), base + ' Tanky enemy types tend to score higher against most defenses, so compare with the random control before reading intent into the weights.');
 });
 
 test('one pushed type, the weakness append, toughest wave with ties, and the shift percentage', () => {

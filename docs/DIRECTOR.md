@@ -90,7 +90,7 @@ Press **I** (or the eye button left of the speed buttons) in Adaptive or Random 
 
 ## The Director's Report
 
-Adaptive and random runs offer a "Director's Report" button on the end card. It is built from the telemetry run (so a saved JSON file can be re-read) and has: the insights, the weight chart, the template-versus-Director composition strip, a per-type table and a footnote that it describes this run only.
+Adaptive and random runs offer a "Director's Report" button on the end card. It is built from the telemetry run (so a saved JSON file can be re-read) and has: the insights, the weight chart, the template-versus-Director composition strip, a per-type table and a footnote that it describes this run only. In adaptive mode the footnote adds the tankiness caveat: tanky enemy types tend to score higher against most defenses, so compare with the random control before reading intent into the weights.
 
 Definitions: **shift** of a wave = half the sum over enemy types of |final share − template share| (the fraction of the wave's threat that moved); **final weight** = the held weight after the last wave (all x1.00 for the random control); **toughest wave** = the wave with the most lives lost (the earliest wins ties).
 

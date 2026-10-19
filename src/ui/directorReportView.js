@@ -5,6 +5,7 @@ import { trapTab } from './focusTrap.js';
 import { endCardLayout } from './endCardLayout.js';
 import { directionMark } from './directionMark.js';
 import { directionOf } from './directorView.js';
+import { reportFootnote } from './directorReport.js';
 import { renderTiltChart, renderCompositionStrip, renderPatternLegend } from './directorChartView.js';
 
 const pctText = (x) => `${Math.round(100 * x)}%`;
@@ -52,7 +53,7 @@ export function renderDirectorReport(model, { onClose, onDownload }) {
   const card = h('div', { class: 'panel panel--director report-card', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'report-title', 'data-director-report': '' }, [
     h('header', { class: 'report-head' }, [h('h2', { id: 'report-title', text: model.title }), h('p', { class: 'report-headline', text: model.headline })]),
     ...sections,
-    h('p', { class: 'report-foot', text: 'This report describes this run only; the experiment compares many runs.' }),
+    h('p', { class: 'report-foot', text: reportFootnote(model.mode) }),
     h('div', { class: 'actions' }, [closeBtn, download]),
   ]);
   const { top, maxHeight } = endCardLayout({ stageH: config.view.height, hudH: config.view.hudHeight, margin: config.ui.reportMargin });

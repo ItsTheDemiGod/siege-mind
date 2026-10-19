@@ -42,7 +42,7 @@ export const config = Object.freeze({
     directionRatio: 1.1, // a tilt at or above this (or at or below its inverse) shows a direction mark
     pushRatio: 1.15, // final tilt at or beyond this counts as "leaned on" / "backed off" in the report
     topDamageShare: 0.3, // a tower type with at least this share of the damage gets an insight
-    maxInsights: 5,
+    maxInsights: 7, // rule 1 up to 2 lines, rule 2 up to 2, rules 3, 4 and 5 one each
     chartWidth: 680,
     chartHeight: 180,
     miniChartWidth: 272,

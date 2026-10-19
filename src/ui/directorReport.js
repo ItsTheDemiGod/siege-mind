@@ -9,6 +9,11 @@ import { lengthLabel } from './waveSummary.js';
 import { chartTilt } from './directorView.js';
 
 const TITLE = "Director's Report";
+const FOOT = 'This report describes this run only; the experiment compares many runs.';
+const TANK_CAVEAT = ' Tanky enemy types tend to score higher against most defenses, so compare with the random control before reading intent into the weights.';
+
+/** @param {string} mode game mode @returns {string} the footnote of the report: the tankiness caveat applies to adaptive runs only */
+export const reportFootnote = (mode) => (mode === 'adaptive' ? FOOT + TANK_CAVEAT : FOOT);
 const NO_EVIDENCE = (first) => `The Director had no evidence to act on yet (it starts adapting at wave ${first}).`;
 const RANDOM_LINE = 'This run used the random control: enemy weights were random and ignored how your defense performed.';
 
