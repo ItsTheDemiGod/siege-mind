@@ -32,9 +32,9 @@ Context: game development class project (solo). Goal is a polished, fully playab
 
 - **Language:** vanilla JavaScript, ES modules. No TypeScript, no framework, no bundler.
 - **Rendering:** HTML5 Canvas 2D.
-- **Charts:** Chart.js, vendored locally into `vendor/` (NOT loaded from a CDN, so demos work offline).
+- **Charts:** hand-built SVG (no chart library); Chart.js is not used.
 - **Node.js 22+** is for dev tooling only: local server, tests (`node --test`), headless simulation.
-- **Runtime dependencies allowed:** Chart.js only. Ask the user before adding anything else.
+- **Runtime dependencies allowed:** none. Ask the user before adding anything.
 - **Target:** latest desktop Chrome/Edge. Logical canvas 1280x720, scaled to fit the window.
 - **Assets:** All visuals are procedural (canvas, SVG, CSS) per Section 6B. Placeholder shapes are allowed only through Phase 1A. Optional CC0 assets (e.g. Kenney.nl) or fonts only with the user's approval. Never use copyrighted assets.
 
@@ -70,6 +70,7 @@ siege-mind/
     galleryEnemies.js        <- gallery: enemy states grid + sim-event effect buttons
     galleryTowers.js         <- gallery: 15 live towers, silhouettes, effect buttons
     galleryScreens.js        <- gallery 4b: core states, wave banner, end screens (real modules, fake data)
+    galleryDirector.js       <- gallery 7: overlay, charts, report from docs/fixtures/demo-adaptive-w15.json
     sim/                     <- PURE logic, runs in Node
       rng.js
       game.js                <- top-level game state + step()
@@ -182,6 +183,17 @@ siege-mind/
       waveBanner.js          <- wave start banner (live region)
       wavePreview.js         <- incoming-wave preview above the wave control
       endScreenView.js       <- end-screen DOM from a plain model (also used by the gallery)
+      endCardLayout.js       <- pure: where the end card and the report sit (clear of the HUD strip)
+      decisionLog.js         <- pure: log of the Director decision records of started waves
+      directorView.js        <- pure: overlay view model, tilt bar fraction, directions, held weights
+      directorChart.js       <- pure: tilt chart geometry, markers, dashes, fill patterns
+      directorReport.js      <- pure: Director report model and insight rules from a telemetry run
+      directorOverlay.js     <- Director overlay panel (key I, HUD button)
+      directorChartView.js   <- SVG tilt chart, composition strip, pattern legend
+      directorReportView.js  <- the Director report modal (and its sections, reused by the gallery)
+      reportController.js    <- opens and closes the report from the end card
+      directionMark.js       <- up/down triangle marks on composition chips
+      svg.js                 <- createElementNS helper
     audio/
       synth.js               <- WebAudio procedural SFX
   tests/                     <- node:test unit tests (golden/ holds the frozen Phase 5 static waves; sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, trayState, waves-data, lives, stats, waveRunner, balance, waveControlState, format, restart, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
@@ -192,6 +204,7 @@ siege-mind/
     tiles.js                 <- shared tile ranking
     playthrough.js           <- headless full-game playthrough (npm run playthrough; --telemetry=full|summary writes JSON/CSV)
     summarize.js             <- plain-text tables from a run JSON (npm run summarize)
+    makeFixture.js           <- writes docs/fixtures/demo-adaptive-w15.json (npm run fixture:demo)
     directorCompare.js       <- Static vs Adaptive vs Random over bots and seeds, report-only hypotheses (npm run compare)
     run.js                   <- headless batch runner (Phase 8)
     matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
@@ -199,7 +212,8 @@ siege-mind/
     analysis/                <- charts / stats for the report
   docs/
     TELEMETRY.md             <- telemetry schema, attribution rules, CSV tables
-    DIRECTOR.md              <- the Director algorithm, config keys, decision record, controls
+    DIRECTOR.md              <- the Director algorithm, config keys, decision record, controls, overlay and report
+    fixtures/                <- demo-adaptive-w15.json: a recorded adaptive run for the gallery and tests
     DEMO_SCRIPT.md
     REPORT_NOTES.md
     screens/                 <- screenshots and GIFs for README/report
@@ -298,6 +312,8 @@ Random control: tilt = 1 / tiltMax + (tiltMax - 1 / tiltMax) * u with u from cre
 
 Explainability: every wave has a decision record (reason, tilts, shares, picks, threat target and realized, what it was based on, human-readable lines) in the WAVE_STARTED payload and in telemetry waves[n].director (see docs/DIRECTOR.md).
 
+Explainability (Phase 7): the overlay (key I, HUD button, Adaptive and Random modes) shows the decision for the upcoming wave while the game is in prep or intermission (read-only, from the pure planner planWaveWithDecision) and the latest logged decision (a decision log filled from WAVE_STARTED) while a wave runs or after the game. Rows show the applied tilt; the tilt chart plots the HELD weights (tiltFromScores of the scores) because non-eligible waves report an applied tilt of 1. The Director's Report (end card, adaptive and random runs) is built from the telemetry run: insight 1 leaned-on types, 2 backed-off types, 3 top damage tower with a weakness note, 4 toughest wave, 5 mean share shift; capped at config.report.maxInsights. Details and exact templates in docs/DIRECTOR.md.
+
 Numeric rules: only + - * / comparisons and Math.min/max/floor/round/abs (no Math.pow, Math.exp, Math.log) so every JavaScript engine gives the same numbers.
 
 ## 8. Telemetry Spec (Phase 5, implemented)
@@ -316,7 +332,7 @@ Full reference: docs/TELEMETRY.md. Observation only: `attachTelemetry(game, { de
 - Runs export through `attachTelemetry` and the CSV tables (src/sim/telemetryExport.js); 'summary' detail (no per-enemy records) is the default for batch experiments.
 - Phase 8 compares the three modes (static, adaptive, random) over bot-and-seed batches; the bots now include monoMortar and monoSniper next to none, weak and balanced. experiments/directorCompare.js is the small preview.
 - Metrics: wave reached, lives lost, total leaks, leak rate per enemy type, gold efficiency, Director weight trajectories.
-- Output: CSV/JSON into `experiments/results/`; analysis scripts/charts in `experiments/analysis/` (JS with Chart.js, or optional Python pandas/matplotlib for report figures).
+- Output: CSV/JSON into `experiments/results/`; analysis scripts/charts in `experiments/analysis/` (hand-built SVG or JS, or optional Python pandas/matplotlib for report figures).
 - Report mean +/- 95% CI and a significance test for Static vs Adaptive per bot.
 
 ## 10. Coding Conventions
@@ -462,13 +478,16 @@ Implemented; awaiting user check, then tag phase-5-complete.
 **Done when:** in Adaptive Mode, waves visibly shift toward whatever the loadout handles worst, with equal total threat to Static.
 Implemented; awaiting user check, then tag phase-6-complete.
 
-### [ ] Phase 7 — Explainability overlay and mode UI
-- [ ] Vendor Chart.js; live panel: effectiveness bars, weight history, per-wave reason text
-- [ ] Menu toggle Static/Adaptive; in-game overlay show/hide hotkey
-- [ ] Wave preview ("incoming composition") bar
-- [ ] Reads the decision records (waves[n].director / WAVE_STARTED.director); the end screen needs its layout reworked so the card clears the HUD strip and has room for the Director's Report
-- [ ] Director identity in violet (animated Director panel, animated weight bars, scan-sweep on composition change) and a 'Director's Report' end-of-run screen: weight timeline, what the Director learned about the player's build, and one-line plain-language insights
+### [~] Phase 7 — Explainability overlay and mode UI
+- [x] Live overlay: weight bars, template to final shares, last-wave evidence, plain-language lines, mini tilt chart (hand-built SVG, no Chart.js)
+- [x] Menu toggle Static/Adaptive (Phase 6); overlay hotkey I and a HUD button
+- [x] Wave preview bar (Phase 4B) with direction marks; banner direction marks
+- [x] Reads the decision records (WAVE_STARTED.director, decision log, telemetry waves[n].director); end card and report positioned below the HUD strip
+- [x] Director identity in violet: overlay, scan sweep on adapted waves (one short fade in reduced motion), direction triangles
+- [x] The Director's Report (insights, tilt chart, composition strip, per-type table) from the end card
+- [x] Gallery section 7 Director with a recorded fixture; window.__siege debug handle (debug only); browser-check smoke extended
 **Done when:** a viewer can watch the overlay and understand why each wave changed.
+Implemented; awaiting user check, then tag phase-7-complete.
 
 ### [ ] Phase 8 — Headless experiment harness
 - [ ] Bots (Section 9) and batch runner using the same `src/sim/` code
@@ -488,6 +507,7 @@ Implemented; awaiting user check, then tag phase-6-complete.
 - [ ] Separate early and late HP-curve slopes (lives are only lost in waves 2-10 today)
 - [ ] Quick-mode finale wave (wave 15 is an ordinary wave in a Quick game)
 - [ ] Re-check the 60% worst-wave-share clause of T5 that Phase 4A.2 dropped
+- [ ] Wave control and end-card polish if the user finds issues
 - [ ] Rebalance after Phase 8 data: the Mortar deals about a third of all damage; revisit tiltMax, beta and alpha using Phase 8 results
 **Done when:** the game feels good to play for 15+ minutes and balance data supports it.
 
@@ -638,6 +658,18 @@ Implemented; awaiting user check, then tag phase-6-complete.
 - 2026-10-19 | 6 | (l) Approved reversals: the tests that asserted adaptive throws (waveRunner, quick-game) and that Adaptive is unavailable in MODES were replaced by tests of the new behavior | The behavior changed on purpose
 - 2026-10-19 | 6 | (m) Other: the decision record also carries the explanatory lines; the compare tool measures lives lost as startLives - lives left (so the lost final wave counts); validateRun checks director records per run mode; the debug panel's Director line uses short enemy names so it fits; menu preselects Adaptive from ?mode=adaptive and keeps ?mode=random until a radio is chosen | Small gaps the brief left open
 
+- 2026-10-19 | 7 | (a) Charts are hand-built SVG (createElementNS, patterns, markers) instead of Chart.js; Section 3 updated, nothing vendored or downloaded | No dependency, offline, full control over shape/pattern encodings for accessibility
+- 2026-10-19 | 7 | (b) The report reads the telemetry run (self-describing: names and tower weaknesses come from run.definitions) while the overlay reads decisions (planWaveWithDecision for the upcoming wave, a decision log for past waves) | The report survives being loaded from a file; the overlay needs no telemetry
+- 2026-10-19 | 7 | (c) The tilt chart plots held weights (tiltFromScores of the scores) because non-eligible waves report an applied tilt of 1 | A chart of applied tilts would drop to x1.00 on every set piece and hide what the Director believes
+- 2026-10-19 | 7 | (d) shift = half the L1 distance between final and template shares, i.e. the fraction of a wave's threat that moved to other types | Easy to read as a percentage
+- 2026-10-19 | 7 | (e) Insight templates are descriptive, not causal ("earned the most threat-adjusted progress", "your towers stopped them early") | The data shows correlation with the player's defense, not why
+- 2026-10-19 | 7 | (f) Direction marks are an additive pass over the existing chips and only for adapted waves (random and static show none) | describeBanner and describePreview and their tests are unchanged; the random control stays hidden
+- 2026-10-19 | 7 | (g) The ' · Enemy HP ×N.N' suffix was removed from the wave control text because the preview chips already show it (approved test reversal in waveControlState.test.js) | Fits the 360 px control on one line
+- 2026-10-19 | 7 | (h) The end card and the report are placed with the pure endCardLayout (top = HUD height + margin, max height inside the stage) and scroll inside | They never overlap the HUD strip
+- 2026-10-19 | 7 | (i) window.__siege (game, telemetry, step, startWave) exists only with ?debug=1; the smoke tool asserts it is absent otherwise | Lets tools/browser-check drive a real game without leaking a global into normal play
+- 2026-10-19 | 7 | (j) docs/fixtures/demo-adaptive-w15.json is a committed snapshot of an adaptive run for the gallery and tests; its test checks validity and report building but deliberately does not compare it with a fresh run | The fixture must not break every time the sim changes; regenerate with npm run fixture:demo
+- 2026-10-19 | 7 | (k) Other: the report model also carries totalWaves; the reduced-motion scan is a new renderer.fx.directorFade (0.12 s fade of the HUD strip) instead of directorScan; the overlay returns its element so the gallery can inline it; the overlay is also created in static mode and only shows a toast; sr-only data tables are wrapped in a div because tables ignore overflow clipping | Gaps the brief left open
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -674,6 +706,11 @@ Implemented; awaiting user check, then tag phase-6-complete.
 - The end card overlaps the HUD strip a little (Phase 7 reworks the end screen layout).
 - About 30% of the 40-tower stress layout never fires (towers out of range of the path).
 - The first adaptive wave (5) is 'adapted' as soon as waves 1-4 produced non-zero scores; 'cold-start' therefore appears only when the scores are exactly zero or a wave is observed without any updated type.
+- The report's insight cap (config.report.maxInsights = 5) applies to the concatenated list, so when the Director leaned on or backed off two types each, the toughest-wave and mean-shift insights (4 and 5) are cut off; in the real 15-wave run only 'Mortar dealt 34% of your damage.' fit after the four weight lines.
+- Phase 7 was checked in headless Chrome with software rendering (no GPU, no human): overlay values, direction marks, the report and Esc/focus behavior were read from the DOM and screenshots were looked at, but animations (scan sweep, bar transitions, staged fades) were not judged in motion.
+- The overlay (max height 420) scrolls inside when its rows, plain-language lines and mini chart do not fit; the mini chart can sit below the fold.
+- The wave control title can wrap for long set-piece names in the intermission ('Next: Wave 10 — The Vanguard' was not measured).
+- Gallery overlays are driven by a stand-in game object; they show the recorded run's decisions, not live ones.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -690,3 +727,4 @@ Implemented; awaiting user check, then tag phase-6-complete.
 - 2026-10-19 | Phase 4B | Test tightening, Quick game (15 waves), waveLog and wave preview in the sim, main menu, how-to, pause menu, wave banner, wave preview, countdown ring, four core states with destroyed and victory animations, animated end screens with wave strip, pause locks and a single Escape handler, gallery 4b; 615 tests pass; verified in headless Chrome | User playtests, then tag phase-4b-complete; Phase 5 only when the user says so
 - 2026-10-19 | Phase 5 | Telemetry collector, schema, validateRun, JSON/CSV export, docs/TELEMETRY.md, playthrough --telemetry, summarize, download buttons, debug telemetry line, browser-check dev tool (check, smoke); 700 tests pass; 30-wave balanced seed 1 still wins with 8 lives in 43.4 min (15 waves 18.9 min), none loses at wave 3, weak at wave 10; headless Chrome smoke passes | User checks, then tag phase-5-complete; Phase 6 only when the user says so
 - 2026-10-19 | Phase 6 | Shared wave composer and golden static waves, Director math, Director and random control, game wiring, decision records, telemetry hook and validation, docs/DIRECTOR.md, monoMortar and monoSniper bots, playthrough --mode, compare tool, modes in menu and URL, Director UI lines; 778 tests pass; static results identical to Phase 5; headless Chrome smoke passes (5 checks) | User checks, then tag phase-6-complete; Phase 7 only when the user says so
+- 2026-10-19 | Phase 7 | Layout fixes (wave control 360, HUD text), pure modules (decision log, director view, chart model, report, end card layout), Director overlay with HUD button and hotkey I, SVG charts, direction marks, scan sweep with a reduced-motion fade, the Director's Report from the end card, gallery section, demo fixture, window.__siege debug handle, smoke checks 6-8; 834 tests pass; Phase 6 results reproduce exactly (static 8 lives, adaptive 1, random 5); real-browser evidence from headless Chrome | User checks, then tag phase-7-complete; Phase 8 only when the user says so

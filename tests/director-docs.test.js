@@ -14,3 +14,10 @@ for (const name of ['DIRECTOR.md', 'TELEMETRY.md']) {
     for (const key of DECISION_KEYS) assert.ok(doc.includes(key), `${name}: decision key ${key}`);
   });
 }
+
+test('docs/DIRECTOR.md describes the overlay and every report insight rule', () => {
+  const doc = read('DIRECTOR.md');
+  assert.ok(doc.includes("Director's Report"));
+  assert.ok(doc.includes('Reading the overlay'));
+  for (let n = 1; n <= 5; n++) assert.ok(doc.includes(`Insight ${n}`), `Insight ${n}`);
+});

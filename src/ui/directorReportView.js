@@ -59,5 +59,5 @@ export function renderDirectorReport(model, { onClose, onDownload }) {
   Object.assign(card.style, { width: `${config.ui.reportWidth}px`, marginTop: `${top}px`, maxHeight: `${maxHeight}px` });
   const el = h('div', { class: 'report-backdrop' }, [card]);
   el.addEventListener('keydown', trapTab(card));
-  return { el, focusFirst: () => closeBtn.focus() };
+  return { el, focusFirst: () => closeBtn.focus({ preventScroll: true }) };
 }

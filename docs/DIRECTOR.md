@@ -76,6 +76,34 @@ Every wave in a Director mode has a plain JSON record, in the `WAVE_STARTED` pay
 | `scores` | the scores at decision time |
 | `lines` | human-readable explanation, for example "Fast Runner: weight x2.20, earned 1.8x the wave-average reward last wave (1 of 1 leaked)" |
 
+## Reading the overlay
+
+Press **I** (or the eye button left of the speed buttons) in Adaptive or Random mode. In Static mode the overlay never opens (a toast says so).
+
+- **Header:** "Director" (or "Random control"), the wave the panel describes and the reason (adapted, no evidence yet, too early to adapt, new enemy type, set piece, random weights).
+- **Rows (one per enemy type):** a center-zero bar (the tick in the middle is x1.00; a violet bar to the right means the Director raised the type, a grey bar to the left means it lowered it), a small up or down triangle when the change is at least 10%, the weight (for example x1.24) and "template% → final%": the share of the wave's threat the static script gives the type, and the share the Director uses.
+- **Evidence:** "last wave 12 sent, 1 leaked, 45% progress, advantage +0.22": what the Director saw of that type in the last finished wave.
+- **Lines:** the first two plain-language lines of the decision, and a mini chart of the weights over the waves.
+- **Before a wave** (preparation or intermission) the panel shows the decision for the wave that is about to start, so it matches the preview; while a wave runs, and after the game, it shows the latest decision.
+- **Held versus applied weights:** rows show the weight actually applied to this wave. A static wave (a set piece, an introduction wave, waves 1-4) applies x1.00 to every type, so the rows read x1.00 even though the Director keeps its beliefs. The tilt chart therefore plots the HELD weights (computed from the scores), which do not drop to x1.00 on set pieces. Filled markers mark waves the Director could adapt, hollow markers waves it held.
+- Series are told apart by dash pattern and marker shape (circle, triangle, diamond, square, cross), and the composition strip by fill pattern (solid, diagonal, dots, horizontal, cross), not by color alone.
+
+## The Director's Report
+
+Adaptive and random runs offer a "Director's Report" button on the end card. It is built from the telemetry run (so a saved JSON file can be re-read) and has: the insights, the weight chart, the template-versus-Director composition strip, a per-type table and a footnote that it describes this run only.
+
+Definitions: **shift** of a wave = half the sum over enemy types of |final share − template share| (the fraction of the wave's threat that moved); **final weight** = the held weight after the last wave (all x1.00 for the random control); **toughest wave** = the wave with the most lives lost (the earliest wins ties).
+
+Insights, in this order, at most `maxInsights` (the cap applies to the whole list):
+
+- **Insight 1 (leaned on):** for up to 2 types with a final weight of at least `pushRatio`, largest first: "The Director leaned on {Name} (weight ×{tilt}): it earned the most threat-adjusted progress against your defense."
+- **Insight 2 (backed off):** for up to 2 types with a final weight of at most 1 / `pushRatio`, smallest first: "It backed off {Name} (weight ×{tilt}): your towers stopped them early."
+- **Insight 3 (top damage):** when a tower type has at least `topDamageShare` of the damage: "{Tower} dealt {pct}% of your damage." plus, when that tower is weak against a type from insight 1: " The Director pushed {Name}, which {Tower} handles poorly."
+- **Insight 4 (toughest wave):** "Toughest wave: wave {n}{ · name} — {k} lives lost{, mostly to {Name} leaks}." or "No lives were lost."
+- **Insight 5 (mean shift):** "On average {pct}% of each adapted wave's threat moved to different enemy types."
+
+Special cases: an adaptive run with no adapted wave replaces insights 1, 2 and 5 by "The Director had no evidence to act on yet (it starts adapting at wave 5)."; the random control replaces them by "This run used the random control: enemy weights were random and ignored how your defense performed."; a static run has no report. The wording is descriptive, not causal. Config keys used: `directionRatio`, `pushRatio`, `topDamageShare`, `maxInsights` in `config.report`.
+
 ## Phases 7 and 8
 
-Phase 7 visualizes these records (effectiveness and weights per wave, the reason lines, a Director's Report at the end). Phase 8 runs batches of bots and seeds in all three modes and compares them: Director versus Static (does it make the game harder?) and Director versus Random (is that because it responds to the defense?). `npm run compare` (experiments/directorCompare.js) is the small preview of that harness; its hypotheses are reported, never asserted, and are never used to tune the parameters.
+Phase 7 visualizes these records (the overlay, the charts and the Director's Report, described above). Phase 8 runs batches of bots and seeds in all three modes and compares them: Director versus Static (does it make the game harder?) and Director versus Random (is that because it responds to the defense?). `npm run compare` (experiments/directorCompare.js) is the small preview of that harness; its hypotheses are reported, never asserted, and are never used to tune the parameters.
