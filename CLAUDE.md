@@ -1,3 +1,4 @@
+
 # SIEGE MIND — Project Brain (CLAUDE.md)
 
 > Read this ENTIRE file at the start of every session before touching any code.
