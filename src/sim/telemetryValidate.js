@@ -1,9 +1,12 @@
 // Consistency checks for a telemetry run (pure). Returns a list of problem strings; empty means valid.
 import { config } from '../data/config.js';
+import { ENEMY_ORDER } from '../data/enemies.js';
 
 const REQUIRED = ['schemaVersion', 'meta', 'config', 'definitions', 'result', 'totals', 'offWave', 'waves', 'towers'];
 const OUTCOMES = new Set(['killed', 'leaked', 'alive']);
 const SUM_TOLERANCE = 1e-6;
+const DIRECTOR_REASONS = new Set(['static-early', 'static-intro', 'static-fixed', 'cold-start', 'adapted', 'random']);
+const DIRECTOR_MODES = new Set(['adaptive', 'random']);
 
 const isNum = (v) => typeof v === 'number';
 
@@ -31,6 +34,24 @@ function checkWave(w, problems) {
   }
   if (types.reduce((n, t) => n + t.killed, 0) !== w.killed) problems.push(`${where}: per-type killed does not sum to the wave killed`);
   if (types.reduce((n, t) => n + t.leaked, 0) !== w.leaked) problems.push(`${where}: per-type leaked does not sum to the wave leaked`);
+}
+
+function checkDirector(w, mode, problems) {
+  const where = `wave ${w.wave}`;
+  const d = w.director;
+  if (mode === 'static') {
+    if (d !== null) problems.push(`${where}: a static run must not have a director record`);
+    return;
+  }
+  if (!DIRECTOR_MODES.has(mode)) return;
+  if (d === null || typeof d !== 'object') { problems.push(`${where}: missing director record`); return; }
+  if (d.wave !== w.wave) problems.push(`${where}: director record is for wave ${String(d.wave)}`);
+  if (d.mode !== mode) problems.push(`${where}: director mode ${String(d.mode)} differs from run mode ${mode}`);
+  if (!DIRECTOR_REASONS.has(d.reason)) problems.push(`${where}: unknown director reason ${String(d.reason)}`);
+  for (const [key, minOpen] of [['tilt', true], ['finalShares', false]]) {
+    const bad = ENEMY_ORDER.some((t) => !isNum(d[key]?.[t]) || !Number.isFinite(d[key][t]) || (minOpen ? d[key][t] <= 0 : d[key][t] < 0));
+    if (bad) problems.push(`${where}: director ${key} needs a finite ${minOpen ? 'positive' : 'non-negative'} number for every enemy type`);
+  }
 }
 
 function checkEnemies(enemies, problems) {
@@ -78,6 +99,7 @@ export function validateRun(run) {
   run.waves.forEach((w, i) => {
     if (i > 0 && w.wave <= run.waves[i - 1].wave) problems.push(`wave numbers are not strictly increasing at wave ${w.wave}`);
     checkWave(w, problems);
+    checkDirector(w, run.meta.mode, problems);
   });
   if (run.enemies) checkEnemies(run.enemies, problems);
   checkTotals(run, problems);

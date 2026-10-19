@@ -19,7 +19,7 @@ tele.dispose();                 // unsubscribe everything (idempotent)
 |---|---|
 | `schemaVersion` | 1 |
 | `meta` | `detail`, `seed`, `mode`, `totalWaves`, `startLives`, `startGold`, `stepSeconds` (exact 1/60), `attachedAtTick` (0 unless attached late), `ignoredEvents`, `enemyRecordsDropped`, then the flat extra keys given in the `meta` option |
-| `config` | exact copy of `config.sim`, `game`, `waves`, `economy`, `towers`, `combat`, `statuses`, `enemies` |
+| `config` | exact copy of `config.sim`, `game`, `waves`, `economy`, `towers`, `combat`, `statuses`, `enemies`, `director` |
 | `definitions` | exact copy of the enemy and tower data (`enemies`, `towers`), so a file is self-describing |
 | `result` | `over`, `result` ('won' / 'lost' / null), `wave` (current wave number), `lives`, `ticks`, `seconds` |
 | `totals` | `spawned`, `killed`, `leaked`, `livesLost`, `shots`, `impacts`, `impactsWithHit`, `damageBySource` (7 numbers), `towersBuilt`, `towersSold`, `upgrades`, `gold` (`earnedKills`, `clearBonus`, `spent`, `refunded`) |
@@ -86,3 +86,11 @@ Rows use `\n`, fields are quoted RFC 4180 style, floats have 4 decimals, boolean
 - **Browser:** the end screen has "Download data (JSON)" and "Wave table (CSV)"; the pause menu has "Download run data". File names look like `siege-mind_seed-1_static_quick_won-w15.json`.
 - **CLI:** `npm run playthrough -- --bot=balanced --seed=1 --waves=15 --telemetry=full|summary [--out=DIR]` writes `<base>.json`, `.waves.csv`, `.wavetypes.csv`, `.towers.csv` and, for full detail, `.enemies.csv` into `experiments/results/` (or DIR), then validates the run with `validateRun`.
 - **Summarize:** `npm run summarize -- path/to/run.json` prints the per-wave, damage-by-source, per-enemy-type and tower tables.
+
+## Director records (Phase 6)
+
+In `adaptive` and `random` mode every wave record's `director` field is the Director's decision record, copied from the `WAVE_STARTED` payload (floats rounded like everything else). In `static` runs it is null. `validateRun` enforces this: a static run must have no director records; a Director run needs one per wave whose `wave` and `mode` match, with a known `reason` and a positive `tilt` and non-negative `finalShares` for every enemy type. The explicit `attachDirector(wave, record)` API still replaces the record.
+
+Fields of the record (full explanation in docs/DIRECTOR.md): `version`, `wave`, `mode`, `eligible`, `reason`, `templateShares`, `tilt`, `finalShares`, `picks`, `threatTarget`, `threatRealized`, `basedOnWave`, `observed`, `scores`, `lines`.
+
+The tuning keys behind the numbers live in `config.director` (embedded in every run under `config.director`): `firstAdaptiveWave`, `rewardExponent`, `alpha`, `decay`, `minThreatShare`, `advClipHigh`, `beta`, `tiltMax`, `absentFloorShare`, `historyLimit`.

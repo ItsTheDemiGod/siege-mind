@@ -26,6 +26,18 @@ export const config = Object.freeze({
     quickTotal: 15,
     mode: 'static',
   }),
+  director: Object.freeze({
+    firstAdaptiveWave: 5, // waves before this stay static
+    rewardExponent: 2, // reward = leakDamage * meanProgress^k / threatCost
+    alpha: 0.5, // score = (1 - alpha) * score + alpha * advantage
+    decay: 0.85, // scores of types that were not observed fade by this factor per wave
+    minThreatShare: 0.05, // a type must have spent this share of the wave threat to be scored
+    advClipHigh: 2, // advantage is clamped to [-1, advClipHigh]
+    beta: 1, // tilt = 1 + beta * score
+    tiltMax: 3, // tilt is clamped to [1 / tiltMax, tiltMax]
+    absentFloorShare: 0.05, // base share of an unlocked type that the template leaves out
+    historyLimit: 40, // observation entries kept in the director state
+  }),
   telemetry: Object.freeze({
     schemaVersion: 1,
     detail: 'full', // 'full' keeps one record per enemy; 'summary' keeps aggregates only

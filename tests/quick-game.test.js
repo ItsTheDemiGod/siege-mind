@@ -147,13 +147,17 @@ test('getWavePreview: phases, ordering, units and agreement with WAVE_STARTED', 
   assert.equal(m.hpMult, ws[0][1].hpMult);
 });
 
-test('getWavePreview: isFinal on the last wave of a 15-wave game, null when over, adaptive throws', () => {
+const g0 = () => make({ totalWaves: 15 });
+
+test('getWavePreview: isFinal on the last wave of a 15-wave game, null when over, and Director modes give a preview with the decision info', () => {
   const g = make({ totalWaves: 15, startWave: 15 });
   assert.equal(getWavePreview(g).isFinal, true);
   endGame(g, 'lost');
   assert.equal(getWavePreview(g), null);
-  const fake = { over: false, mode: 'adaptive', totalWaves: 30, waves: { phase: 'prep', nextWave: 1 } };
-  assert.throws(() => getWavePreview(fake), /Phase 6/);
+  // approved reversal (Phase 6): adaptive no longer throws; the preview carries the Director info
+  const adaptive = make({ mode: 'adaptive', totalWaves: 15 });
+  assert.deepEqual(getWavePreview(adaptive).director, { eligible: false, reason: 'static-early' });
+  assert.equal(getWavePreview(g0()).director, null);
 });
 
 test('no more waves after the total: preview is null', () => {

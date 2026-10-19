@@ -197,8 +197,11 @@ test('getWaveCountdownSeconds and enemiesRemaining', () => {
 });
 
 test('modes and startWave are validated', () => {
-  assert.throws(() => make({ mode: 'adaptive' }), /Phase 6/);
-  assert.throws(() => make({ mode: 'chaos' }), RangeError);
+  // approved reversal (Phase 6): adaptive and random are valid modes now
+  assert.equal(make({ mode: 'adaptive' }).director.mode, 'adaptive');
+  assert.equal(make({ mode: 'random' }).director.mode, 'random');
+  assert.equal(make({ mode: 'static' }).director, null);
+  for (const bad of ['chaos', 'Adaptive', '', 5]) assert.throws(() => make({ mode: bad }), RangeError);
   const g = make({ startWave: 12 });
   assert.deepEqual([g.waves.nextWave, g.waves.current, g.stats.wavesCleared], [12, 11, 0]);
   for (const bad of [0, 31, 2.5, '5']) assert.throws(() => make({ startWave: bad }), RangeError);

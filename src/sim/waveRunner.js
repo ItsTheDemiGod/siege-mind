@@ -5,7 +5,7 @@ import { BUDGETS, planThreat, hpMultiplierForWave } from '../data/waves.js';
 import { EVENT_TYPES } from './events.js';
 import { queueEnemy } from './enemies.js';
 import { earnGold } from './economy.js';
-import { planWave } from './waves.js';
+import { planWaveWithDecision } from './waves.js';
 
 /** @returns {object} fresh `game.waves` state */
 export function createWavesState() {
@@ -50,7 +50,7 @@ export function startNextWave(game) {
   if (!can.ok) return can;
   const w = game.waves;
   const wave = w.nextWave;
-  const plan = planWave(game, wave);
+  const { plan, decision } = planWaveWithDecision(game, wave);
   for (const g of plan.groups) {
     for (let i = 0; i < g.picks; i++) queueEnemy(game, g.type, { delayTicks: g.startTicks + i * g.gapTicks });
   }
@@ -69,7 +69,7 @@ export function startNextWave(game) {
   }
   game.events.emit(EVENT_TYPES.WAVE_STARTED, {
     wave, total: game.totalWaves, name: plan.name, fixed: plan.fixed, mode: game.mode, budget: BUDGETS[wave - 1],
-    threat: planThreat(plan.groups), hpMult: hpMultiplierForWave(wave), composition, picks, tick: game.tick,
+    threat: planThreat(plan.groups), hpMult: hpMultiplierForWave(wave), composition, picks, director: decision, tick: game.tick,
   });
   return { ok: true, wave };
 }

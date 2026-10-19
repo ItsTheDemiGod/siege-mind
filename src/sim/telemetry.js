@@ -10,7 +10,7 @@ import {
   copyPlain, roundTree, makeAggregate, makeWaveState, loadoutSnapshot, makeTowerRecord, towerOutput, waveOutput, offWaveOutput, enemyOutput,
 } from './telemetryRecords.js';
 
-const CONFIG_SECTIONS = ['sim', 'game', 'waves', 'economy', 'towers', 'combat', 'statuses', 'enemies'];
+const CONFIG_SECTIONS = ['sim', 'game', 'waves', 'economy', 'towers', 'combat', 'statuses', 'enemies', 'director'];
 const RESERVED_META = new Set(['detail', 'seed', 'mode', 'totalWaves', 'startLives', 'startGold', 'stepSeconds', 'attachedAtTick', 'ignoredEvents', 'enemyRecordsDropped']);
 const E = EVENT_TYPES;
 
@@ -119,6 +119,9 @@ export function attachTelemetry(game, { detail = config.telemetry.detail, meta =
 
   const onWaveStarted = (ev) => {
     open = makeWaveState(ev, game.gold, prep, loadoutSnapshot(game));
+    if (ev.director !== null && ev.director !== undefined) { // the Director's decision record (adaptive and random modes); static waves have none
+      try { open.director = copyPlain(ev.director, 'director'); } catch { ignored++; }
+    }
     prep.spent = 0;
     prep.refunded = 0;
     waves.push(open);
