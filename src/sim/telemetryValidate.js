@@ -6,7 +6,7 @@ const REQUIRED = ['schemaVersion', 'meta', 'config', 'definitions', 'result', 't
 const OUTCOMES = new Set(['killed', 'leaked', 'alive']);
 const SUM_TOLERANCE = 1e-6;
 const DIRECTOR_REASONS = new Set(['static-early', 'static-intro', 'static-fixed', 'cold-start', 'adapted', 'random']);
-const DIRECTOR_MODES = new Set(['adaptive', 'random']);
+const DIRECTOR_MODES = new Set(['adaptive', 'random', 'adaptive2', 'counter']);
 
 const isNum = (v) => typeof v === 'number';
 

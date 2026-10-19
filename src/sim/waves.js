@@ -3,6 +3,8 @@ import { config } from '../data/config.js';
 import { STATIC_WAVES, hpMultiplierForWave, planThreat } from '../data/waves.js';
 import { ENEMIES, ENEMY_ORDER } from '../data/enemies.js';
 import { planFor } from './director.js';
+import { planForV2 } from './directorV2.js';
+import { planForCounter } from './directorCounter.js';
 
 const toTicks = (seconds) => Math.round(seconds / config.sim.stepSeconds);
 
@@ -12,7 +14,8 @@ const toTicks = (seconds) => Math.round(seconds / config.sim.stepSeconds);
  * @returns {{plan: {wave: number, name: string|null, fixed: boolean, groups: {type: string, picks: number, startTicks: number, gapTicks: number}[]}, decision: object|null}}
  */
 export function planWaveWithDecision(game, wave) {
-  const planned = game.mode === 'static' ? { plan: STATIC_WAVES[wave - 1], decision: null } : planFor(game, wave);
+  const planned = game.mode === 'static' ? { plan: STATIC_WAVES[wave - 1], decision: null }
+    : game.mode === 'adaptive2' ? planForV2(game, wave) : game.mode === 'counter' ? planForCounter(game, wave) : planFor(game, wave);
   const { plan } = planned;
   return {
     plan: {

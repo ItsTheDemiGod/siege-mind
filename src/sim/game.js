@@ -14,24 +14,33 @@ import { createStats, wireStats } from './stats.js';
 import { createWavesState, wireWaves, stepWaves, freezeInterpolation } from './waveRunner.js';
 import { createDirectorState, wireDirector } from './director.js';
 import { validateDirectorConfig } from './directorMath.js';
+import { createDirectorV2State, wireDirectorV2 } from './directorV2.js';
+import { createCounterState } from './directorCounter.js';
+import { validateDirectorV2Config, validateCounterConfig } from './directorMathV2.js';
+
+export const GAME_MODES = Object.freeze(['static', 'adaptive', 'random', 'adaptive2', 'counter']);
 
 /**
  * Create a new game (plain-object state).
  * @param {{seed: number|string, mapDef?: object, events?: object, debugSpawnEveryTicks?: number, startGold?: number, startLives?: number,
- *   mode?: 'static'|'adaptive'|'random', startWave?: number, wavesConfig?: object, totalWaves?: 15|30, directorConfig?: object}} options - startWave is for the debug URL;
- *   wavesConfig overrides config.waves and directorConfig overrides config.director (tests)
+ *   mode?: 'static'|'adaptive'|'random'|'adaptive2'|'counter', startWave?: number, wavesConfig?: object, totalWaves?: 15|30, directorConfig?: object, directorV2Config?: object, counterConfig?: object}} options - startWave is for the debug URL;
+ *   wavesConfig overrides config.waves and directorConfig / directorV2Config / counterConfig override config.director / config.directorV2 / config.counter (tests)
  * @returns {object} game state
  */
 export function createGame({
   seed, mapDef = DEFAULT_MAP, events, debugSpawnEveryTicks = config.debug.autoSpawnEveryTicks, startGold = config.game.startGold,
-  startLives = config.game.startLives, mode = config.game.mode, startWave, wavesConfig = {}, totalWaves = config.game.totalWaves, directorConfig,
+  startLives = config.game.startLives, mode = config.game.mode, startWave, wavesConfig = {}, totalWaves = config.game.totalWaves, directorConfig, directorV2Config, counterConfig,
 }) {
   if (!Number.isInteger(totalWaves) || !config.game.allowedTotals.includes(totalWaves)) {
     throw new RangeError(`totalWaves must be one of ${config.game.allowedTotals.join(', ')}, got ${String(totalWaves)}`);
   }
-  if (!['static', 'adaptive', 'random'].includes(mode)) throw new RangeError(`unknown game mode: ${String(mode)}`);
+  if (!GAME_MODES.includes(mode)) throw new RangeError(`unknown game mode: ${String(mode)}`);
   const directorCfg = directorConfig === undefined ? undefined : { ...config.director, ...directorConfig };
   if (directorCfg) validateDirectorConfig(directorCfg);
+  const directorV2Cfg = directorV2Config === undefined ? undefined : { ...config.directorV2, ...directorV2Config };
+  if (directorV2Cfg) validateDirectorV2Config(directorV2Cfg);
+  const counterCfg = counterConfig === undefined ? undefined : { ...config.counter, ...counterConfig };
+  if (counterCfg) validateCounterConfig(counterCfg);
   if (startWave !== undefined && (!Number.isInteger(startWave) || startWave < 1 || startWave > totalWaves)) {
     throw new RangeError(`startWave must be an integer 1..${totalWaves}, got ${String(startWave)}`);
   }
@@ -57,7 +66,9 @@ export function createGame({
     occupancy: [],
     mode,
     directorCfg, // override for tests; undefined means config.director
-    director: mode === 'static' ? null : createDirectorState(mode), // plain state; the Director's only memory
+    directorV2Cfg, // override for tests; undefined means config.directorV2
+    counterCfg, // override for tests; undefined means config.counter
+    director: mode === 'static' ? null : mode === 'adaptive2' ? createDirectorV2State() : mode === 'counter' ? createCounterState() : createDirectorState(mode), // plain state; the Director's only memory
     wavesCfg: { ...config.waves, ...wavesConfig },
     lives: startLives,
     maxLives: startLives,
@@ -74,7 +85,8 @@ export function createGame({
   wireStats(game); // stats and wave counters before lives: lives can end the game from inside the leak event
   wireWaves(game);
   wireLives(game);
-  if (game.director) wireDirector(game);
+  if (game.director && mode === 'adaptive2') wireDirectorV2(game);
+  else if (game.director && mode !== 'counter') wireDirector(game); // the counter arm learns nothing, so it needs no event wiring
   // Per-tower statistics, driven by attribution on the events.
   game.events.on(EVENT_TYPES.ENEMY_DAMAGED, (ev) => { const t = getTowerById(game, ev.towerId); if (t) t.damageDealt += ev.amount; });
   game.events.on(EVENT_TYPES.ENEMY_KILLED, (ev) => { const t = getTowerById(game, ev.towerId); if (t) t.kills++; });

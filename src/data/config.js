@@ -38,6 +38,20 @@ export const config = Object.freeze({
     absentFloorShare: 0.05, // base share of an unlocked type that the template leaves out
     historyLimit: 40, // observation entries kept in the director state
   }),
+  // Phase 9A-2a research arms (initial values, not tuned). 'adaptive2' = Director v2: rewards are divided by a static baseline (src/data/directorBaseline.js)
+  // and each type's advantage is shrunk by units / (units + shrinkK). Same keys as `director` where they mean the same thing.
+  directorV2: Object.freeze({
+    rewardExponent: 2, alpha: 0.5, decay: 0.85, minThreatShare: 0.05, advClipHigh: 2, beta: 1, tiltMax: 3, absentFloorShare: 0.05, historyLimit: 40,
+    firstAdaptiveWave: 5,
+    shrinkK: 4, // an advantage measured on `units` units counts units / (units + shrinkK)
+    baselineWindow: 1, // waves on each side pooled into one baseline entry (used by npm run baseline)
+    baselineFloorFraction: 0.1, // the baseline of a type/wave never falls below this fraction of the type's fallback baseline
+  }),
+  // 'counter' = informed counter arm: reads the tower loadout (a ceiling, not a fair competitor).
+  counter: Object.freeze({
+    firstAdaptiveWave: 5, gain: 1.5, tiltMax: 3, absentFloorShare: 0.05,
+    levelWeight: 0.5, // a tower weighs 1 + levelWeight * level
+  }),
   report: Object.freeze({
     directionRatio: 1.1, // a tilt at or above this (or at or below its inverse) shows a direction mark
     pushRatio: 1.15, // final tilt at or beyond this counts as "leaned on" / "backed off" in the report
