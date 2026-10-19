@@ -144,6 +144,7 @@ siege-mind/
       buildState.js          <- pure placement/selection state machine
       waveControl.js         <- wave control (Start Wave button, countdown)
       waveControlState.js    <- pure wave control text/state
+      trayState.js           <- pure tower price/affordability for the tray
       endScreen.js           <- functional victory/defeat card
       format.js              <- pure end-screen formatting
       restart.js             <- pure restart URL builder
@@ -156,7 +157,7 @@ siege-mind/
       keys.js                <- dev keyboard controls
     audio/
       synth.js               <- WebAudio procedural SFX
-  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, waves-data, lives, stats, waveRunner, balance, waveControlState, format, restart, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
+  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, trayState, waves-data, lives, stats, waveRunner, balance, waveControlState, format, restart, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
   experiments/
     bots.js                  <- bot players (none, balanced); Phase 8 extends
     tiles.js                 <- shared tile ranking
@@ -178,7 +179,7 @@ siege-mind/
 
 **Map:** one fixed winding path on a tile grid. Logical canvas 1280x720; a HUD strip is reserved at the top (80 px); the map grid is 20 columns x 10 rows of 64 px tiles = 1280x640, drawn below the HUD strip. The sim's world coordinates have their origin at the top-left corner of the MAP (not the canvas); only the renderer adds the 80 px HUD offset. Spawn tile (0,1), exit tile (19,7), path waypoints (in tile coordinates) (0,1) -> (17,1) -> (17,4) -> (2,4) -> (2,7) -> (19,7), an S-shaped path with two hairpin turns (total length 3520 world units). Blocked (non-buildable decor) tiles: (8,2) (9,2) (10,5) (11,5) (5,9) (6,9). Everything else is buildable. Towers are placed only on buildable tiles. Single entry, single base.
 
-**Economy and lives (initial values, tunable in `config.js`):** start gold 150, lives 20, kill reward per enemy type (in data), tower sell refund 70% of everything invested, 2 upgrade levels per tower. Gold, tower costs, upgrades and selling are implemented in Phase 3A; lives, leaks costing lives, waves and win/lose stay in Phase 4.
+**Economy and lives (initial values, tunable in `config.js`):** start gold 150, lives 20, kill reward per enemy type (in data), 2 upgrade levels per tower, sell refund 70% of everything paid. Tower prices grow with the number owned: `price = round(base * (1 + towerCostGrowth * towersOwned))` with towerCostGrowth 0.03 (upgrades are not scaled); the cap is 60 towers. Clear bonus per wave 13 + 6w gold. Gold, prices, upgrades and selling are Phase 3A; lives, waves and win/lose are Phase 4A.
 
 **Towers** (initial values from src/data/towers.js; upgrade multipliers are absolute per level; Phase 9 retunes everything)
 
@@ -204,7 +205,7 @@ These are initial values (src/data/enemies.js), retuned in Phase 9.
 
 Exact numeric stats are decided in Phases 2 and 3, stored in `src/data/`, and recorded in Section 13.
 
-**Waves:** 30 waves (src/data/waves.js). The target threat budget of wave w is `round(budgetScale * (40 + 22(w-1) + 1.6(w-1)^2))`, with budgetScale 3.6 after calibration (Section 13). Static Mode builds each wave from a hand-authored template of threat shares with a pure builder (largest-remainder rounding, pick cost = threatCost x packSize), so the REALIZED threat STATIC_THREAT[w] stays within max(5%, 12) of the target. Opening: waves 1-2 grunts only; swarmlings from wave 3, runners from 4, regenerators from 6, bruisers from 8. Waves 11-19 and 21-29 rotate themes (grunt-, swarm-, runner-, regenerator-, shield-heavy, then four mixed waves each led by a different type). Fixed waves in both modes: 10 'The Vanguard' (grunt 0.50, bruiser 0.35, regenerator 0.15), 20 'Tide of Swarm' (swarm 0.55, runner 0.30, grunt 0.15), 30 'The Siege' (0.25/0.20/0.15/0.20/0.20). Spawns are spread over a window of min(40, 14 + 0.9w) s per group but never faster than the per-type minimum gap (the window stretches instead). Pacing: wave 1 waits for the player (Enter); later waves auto-start after a 20 s intermission, starting early is allowed with no bonus; clearing a wave pays 20 + 4w gold; clearing wave 30 wins; losing all 20 lives loses. Adaptive Mode (Phase 6) spends the SAME budget but chooses composition via the Director.
+**Waves:** 30 waves (src/data/waves.js). The target threat budget of wave w is `round(budgetScale * (40 + 22(w-1) + 1.6(w-1)^2))` with budgetScale 1. Static Mode builds each wave from a hand-authored template of threat shares with a pure builder (largest-remainder rounding, pick cost = threatCost x packSize), so the REALIZED threat STATIC_THREAT[w] stays within max(5%, 12) of the target; all threat accounting is in BASE threat units. **Enemy HP and shield scale with the wave** by `hpMultiplierForWave(w)` (polynomial curve `1 + 0.325 d + 0.02 d^2`, d = w - 1, so x1.0 at wave 1, x5.5 at wave 10, x14.4 at wave 20, x27.3 at wave 30; the exponential curve remains selectable via config.waves.hpCurve); armor, speed, rewards, leak damage and threat costs stay flat. **Regeneration heals 2% of the enemy type's BASE HP per second**, not of the scaled max HP. Opening: waves 1-2 grunts only; swarmlings from wave 3, runners from 4, regenerators from 6, bruisers from 8. Waves 11-19 and 21-29 rotate themes (grunt-, swarm-, runner-, regenerator-, shield-heavy, then four mixed waves each led by a different type). Fixed waves in both modes: 10 'The Vanguard' (grunt 0.50, bruiser 0.35, regenerator 0.15), 20 'Tide of Swarm' (swarm 0.55, runner 0.30, grunt 0.15), 30 'The Siege' (0.25/0.20/0.15/0.20/0.20). Spawns are spread over a window of min(30, 12 + 0.8w) s per group but never faster than the per-type minimum gap (the window stretches instead). Pacing: wave 1 waits for the player (Enter); later waves auto-start after a 12 s intermission, starting early is allowed with no bonus; clearing wave 30 wins; losing all 20 lives loses. Adaptive Mode (Phase 6) spends the SAME budget but chooses composition via the Director.
 
 ## 6B. Visual Design Bible
 
@@ -252,6 +253,7 @@ Weighted-bandit style, fully explainable. No deep learning.
 - **Update:** `target = softmax(effectiveness / temperature)` over spawned types, then `w = (1 - alpha) * w + alpha * target` (defaults alpha=0.4, temperature=0.25). Types that did not spawn keep their weight, decayed slightly toward uniform.
 - **Safety:** floor `w >= 0.05` for every type (no type disappears), then renormalize. Epsilon-exploration: 10% of spawn slots drawn uniformly.
 - **Composition:** sample enemies by weight with the seeded RNG until the wave's threat budget is spent. Packs (Swarmling) count as one pick.
+- **HP scaling:** the Director spends `STATIC_THREAT[wave]` in BASE threat units and every enemy it spawns gets the same `hpMultiplierForWave(wave)` as in Static mode.
 - **Budget source:** the Director must spend `STATIC_THREAT[wave]` (use `waveInfo(wave)` and `planThreat(groups)` from src/data/waves.js), not the formula target.
 - **Fairness invariant:** total threat per wave is identical between Static and Adaptive Mode. Adaptive may only change composition (and, as a stretch goal, spawn timing/clumping).
 - **Explainability output per wave:** old weights, new weights, per-type effectiveness inputs, and a one-line human-readable reason (e.g. "Fast Runners leaked 40% -> weight up; Armored Grunts died at 22% of path -> weight down").
@@ -373,6 +375,16 @@ Implemented; awaiting user visual check, then tag phase-3b-complete. (Not run in
 - [x] Bots (none, balanced), headless playthrough, difficulty calibration with tests T1/T2
 **Done when:** a human can play wave 1 to 30 in Static Mode start to finish with a real win/lose.
 Implemented; awaiting user playtest, then tag phase-4a-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
+
+### [~] Phase 4A.2 — Difficulty rework
+- [x] Enemy HP and shield scale with the wave (exponential or polynomial curve, plain-arithmetic table); armor, rewards, threat costs stay flat
+- [x] Regeneration heals a fraction of BASE HP (approved reversal of the scaled-HP rule)
+- [x] Tower prices grow with towers owned; cap 60; getTowerCost used by placement, bots and the tray
+- [x] Bot ladder: none, weak, balanced; playthrough with hpMult and seconds per wave
+- [x] Calibration against the ladder (tests/balance.test.js T1-T4, T5', T6, T7')
+- [x] UI: price in the tray (pure trayState), HP multiplier in the wave control and debug panel
+**Done when:** the ladder test passes and the opening/mid game is playable.
+Implemented; awaiting user playtest, then tag phase-4a-complete (covers 4A and 4A.2).
 
 ### [ ] Phase 4B — Presentation
 - [ ] Styled main menu: mode select (Adaptive shown disabled until Phase 6), seed entry, how to play
@@ -512,7 +524,15 @@ Implemented; awaiting user playtest, then tag phase-4a-complete. (Not run in a r
 - 2026-10-18 | 4A | Bots: 'none' and 'balanced' (deterministic, act only through sim commands, rank tiles with experiments/tiles.js shared with the matchup harness); Phase 8 extends experiments/bots.js | Calibration and later experiments use the same commands as a player
 - 2026-10-18 | 4A | Wave control sits bottom centre (config.ui), the debug panel moved to the top centre below the HUD, z-overlay token 55 added for the end screen | Overlap-free layout verified by test
 - 2026-10-18 | 4A | createGame accepts wavesConfig (overrides config.waves for one game, used by tests) and startWave/startLives (debug URL only); mode validated: 'adaptive' throws, unknown values throw RangeError | Testability and the Phase 6 hook
-- 2026-10-18 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
+- 2026-10-19 | 4A.2 | Why the first 4A calibration was wrong: scaling only the threat budget made wave 1 a cliff (the balanced bot lost every life it lost in wave 1) and left waves 2-30 trivial (zero leaks, 60,000 unspent gold). It is replaced by a LADDER of three bots (none, weak, balanced) whose targets T1-T7 check the shape of the difficulty, not just win/lose | A single win/lose number cannot show a flat curve
+- 2026-10-19 | 4A.2 | Enemy HP and shield scale with the wave while armor, speed, rewards, leak damage and threat costs stay flat. Threat accounting stays in base units and the multiplier is the same function in Static and Adaptive mode, so the equal-threat fairness invariant is untouched | Difficulty grows without changing economy or the Director's budget
+- 2026-10-19 | 4A.2 | Regeneration heals 2% of BASE HP per second (reverses the first 4A.2 rule that healed a percentage of scaled max HP): with scaled max HP, healing grew together with the multiplier and a regenerator-heavy wave 24 ended every run in one wave | Removes the wall; the HP curve alone sets the difficulty
+- 2026-10-19 | 4A.2 | Tower price growth 3% per tower owned and a cap of 60 (was 80): late game gold is no longer unlimited | Gold has to matter after wave 15
+- 2026-10-19 | 4A.2 | The 'weak' bot (Lance only, at most 12 towers, never upgrades, same rhythm as balanced) anchors the lower rung of the ladder; Phase 8 extends the ladder with the planned strategy bots | A level-appropriate loss target
+- 2026-10-19 | 4A.2 | CALIBRATION RESULT: STAGE C (LAST RESORT) WAS USED. Stage A (exponential curve, base-HP regen, ~35 runs): lives are 20 until hpGrowth 0.151 (+43 min), then one wave kills the bot (0.152 wins with 2L only through a single wave-30 loss; >= 0.153 loses at wave 24-30; 0.175 loses at 24, 0.2 at 15, 0.25 at 9). Stage A2 (towerCostGrowth 0.02/0.04/0.05, ~27 runs): same cliff, wall at wave 24-25. Stage B (polynomial curve, ~100 runs): the bot is strongest late, so lives are lost only in waves 2-10; hpLinear 0.3 already loses a life in wave 2 (breaks T4) and 0.35+ loses by wave 6-10. Stage B2 (windows 12/0.8/30, clear bonus 12-16 base and 4-7 per wave, ~90 ladders): no configuration passed ALL of T1-T7 (the closest were one target short each, e.g. T3 or T4 or T5 or T7). With the approved relaxed T5' (losses in at least 2 waves) and T7' (at least 3 of seeds 2-5 win with 1-14 lives, a loser must lose at wave >= 20) three configurations pass; chosen: hpCurve polynomial, hpLinear 0.325, hpQuad 0.02, towerCostGrowth 0.03, budgetScale 1, windows 12 / 0.8 / 30, intermission 12, clear bonus 13 + 6w. Ladder: none loses at wave 3, weak at wave 10, balanced seed 1 wins with 8 lives in 43.4 min, seeds 2-5 win with 2, 11, 5, 4 lives | The three passing configurations all have the same worst-wave share (0.67: wave 10 'The Vanguard' takes 8 of the 12 lives); the final one has the smallest clear-bonus base
+- 2026-10-19 | 4A.2 | Duration knobs: windows 12 / 0.8 / 30 (long, spread spawns) were needed so that wave 2 does not leak; a full balanced game still takes 43 minutes (aim was 18-26; the asserted limit is 10-45) because waves are long and enemy HP is high | Reported, not hidden
+- 2026-10-19 | 4A.2 | Existing tests were updated only by deriving expected values from config and the API (budget spot-checks, gold ledgers with price growth, intermission length, subtitle format); no assertion was weakened except T5/T7 under Stage C | See balance.test.js header
+- 2026-10-19 | 1A/1B | Art direction: holographic war room, fully procedural visuals | Claude Code cannot author raster art and this style needs no assets
 - 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
 - 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
 
@@ -525,8 +545,8 @@ Implemented; awaiting user playtest, then tag phase-4a-complete. (Not run in a r
 - Whether Rajdhani digits are tabular is unknown until the gallery numerals row is read; HUD numbers use tabular-nums plus min-width regardless.
 - p95 frame stat sorts a preallocated Float32Array 4x per second (typed-array sort may allocate internally); renderer allocates only at event time (fx.burst option spread, HUD count-up closures).
 - Gallery effect-lab/map-preview stages each run a full renderer; both pause when scrolled out of view.
-- Phase 4A difficulty is NOT well shaped: the T2 target (balanced bot wins with 1-14 lives) is only reachable at budgetScale 3.2-5.0 where wave 1 alone costs the bot all the lives it loses (at 3.6: 8 of 8 leaks in wave 1, then 0 leaks for waves 2-30 with 80 towers and ~60,000 unspent gold). Scaling the whole curve makes the opening a cliff (scale 5.5 loses at wave 2) and the late waves trivial for the bot. A mono-lance bot also wins with 20 lives at 2.5-3.6. A better curve (steeper early/later shape, tower cost scaling, or a weaker/more realistic bot) needs a design decision.
-- Wave length: at scale 3.6 a full game takes about 50 minutes of game time (up to ~340 s for one wave) because minimum spawn gaps stretch the biggest waves; the bot skips the intermissions.
+- The difficulty band is narrow and chaotic (Stage C was used): hpLinear x0.9 makes the balanced bot lose no life at all (20 lives, 40 min); x1.1 loses at wave 8. Lives are lost almost only in waves 7-10 (wave 10 'The Vanguard' costs 8 of 12) because the bot's 60 fully upgraded towers dominate from wave 11. Seeds change the outcome a lot (seed 3 loses 11 lives, seed 2 only 2).
+- Wave length: the balanced bot needs 43.4 game minutes for 30 waves (waves take 60-130 s each; the aim was 18-26 min). Shorter games need fewer/shorter waves or a faster bot, which would reopen the calibration.
 - Phase 4A was NOT run in a real browser by Claude (extension not connected): wave control, end screen, HUD updates, Enter key, debug panel position and focus handling are verified only by pure-logic tests, node --check and sim playthroughs.
 - Phase 3B was NOT run in a real browser by Claude (extension not connected): all tower art, trails, impacts, status overlays, the panel layout and the 40-tower frame rate are verified only by pure-logic tests, node --check, stub-canvas smoke runs (all tiers, reduced motion on and off, stress layout) and file serving. No frame-time numbers exist.
 - Lance and Sniper share the same accent color (Defense primary); only their silhouettes tell them apart, which the gallery colorblind table reports as "rely on silhouette".
@@ -549,3 +569,4 @@ Implemented; awaiting user playtest, then tag phase-4a-complete. (Not run in a r
 - 2026-10-18 | Phase 3A | Built tower data, economy core, placement/upgrade/sell, targeting, firing, projectiles, attribution, matchup harness with R1-R7, build tray, tower panel, placement/selection overlays, ?debug=1 gating; 353 tests pass; no real-browser run | User checks gameplay (build, upgrade, sell, counters), then Phase 3B
 - 2026-10-18 | Phase 3B | UI overlap fix (own commit), tower art/shapes/paths/animations, projectile trails and arcing shells, impact effects, sell ghosts and build-in, status overlays, stress mode, gallery towers; 424 tests pass; no real-browser run | User checks the visuals and the 40-tower performance (stress mode), then Phase 4
 - 2026-10-18 | Phase 4A | Lives, 30-wave static script with pure builder, wave runner, win/lose, stats, wave control and end screen, bots, playthrough and calibration (budgetScale 3.6); 488 tests pass; no real-browser run | User playtests, then Phase 4B
+- 2026-10-19 | Phase 4A.2 | Wave HP scaling (polynomial), base-HP regeneration, tower price growth and cap 60, weak bot, bot ladder calibration (Stage C), price in the tray and HP multiplier in the wave control; 512 tests pass; no real-browser run | User playtests, then Phase 4B

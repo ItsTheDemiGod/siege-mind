@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  TOTAL_WAVES, checkWaveData, BUDGETS, waveBudgetTarget, WAVE_TEMPLATES, STATIC_WAVES, STATIC_THREAT, planThreat, buildStaticWaves, waveInfo,
+  TOTAL_WAVES, checkWaveData, BUDGETS, waveBudgetTarget, WAVE_TEMPLATES, STATIC_WAVES, STATIC_THREAT, planThreat, buildStaticWaves, waveInfo, HP_MULT, buildHpMult, hpMultiplierForWave,
 } from '../src/data/waves.js';
 import { ENEMIES, ENEMY_ORDER } from '../src/data/enemies.js';
 import { config } from '../src/data/config.js';
@@ -20,14 +20,53 @@ test('everything is frozen', () => {
   for (const w of STATIC_WAVES) assert.ok(Object.isFrozen(w) && Object.isFrozen(w.groups) && Object.isFrozen(w.groups[0]));
 });
 
-test('budgets follow the formula (hand-computed at the current scale)', () => {
-  assert.equal(config.waves.budgetScale, 3.6); // the hand-computed values below are for this scale
-  assert.equal(BUDGETS[0], 144); // 3.6 * 40
-  assert.equal(BUDGETS[9], 1323); // 3.6 * (40 + 22*9 + 1.6*81) = 3.6 * 367.6
-  assert.equal(BUDGETS[19], 3728); // 3.6 * 1035.6
-  assert.equal(BUDGETS[29], 7285); // 3.6 * 2023.6
+test('budgets follow the formula and the configured scale', () => {
+  const scale = config.waves.budgetScale;
+  const exact = { 1: 40, 10: 367.6, 20: 1035.6, 30: 2023.6 }; // 40 + 22(w-1) + 1.6(w-1)^2, computed by hand
+  for (const [w, raw] of Object.entries(exact)) assert.equal(BUDGETS[w - 1], Math.round(scale * raw), `wave ${w}`);
+  if (scale === 1) assert.deepEqual([1, 10, 20, 30].map((w) => BUDGETS[w - 1]), [40, 368, 1036, 2024]);
   for (let w = 1; w <= 30; w++) assert.equal(BUDGETS[w - 1], waveBudgetTarget(w));
   assert.equal(waveBudgetTarget(1, { ...config.waves, budgetScale: 1 }), 40);
+});
+
+test('HP_MULT: shape, freezing, and equality with buildHpMult(config.waves)', () => {
+  assert.equal(HP_MULT.length, 31);
+  assert.equal(HP_MULT[0], 1);
+  assert.equal(HP_MULT[1], 1);
+  assert.ok(Object.isFrozen(HP_MULT));
+  for (let w = 1; w <= 30; w++) assert.ok(HP_MULT[w] >= HP_MULT[w - 1]);
+  assert.deepEqual([...HP_MULT], [...buildHpMult(config.waves)]);
+});
+
+test('buildHpMult matches independent computations for both curves', () => {
+  const base = { hpCurve: 'exponential', hpGrowthPerWave: 0.1, hpLinear: 0.3, hpQuad: 0.01 };
+  const exp = buildHpMult(base);
+  let m = 1;
+  for (let w = 2; w <= 30; w++) { m *= 1.1; assert.equal(exp[w], m); }
+  const poly = buildHpMult({ ...base, hpCurve: 'polynomial' });
+  for (let w = 1; w <= 30; w++) assert.equal(poly[w], 1 + 0.3 * (w - 1) + 0.01 * (w - 1) * (w - 1));
+  assert.deepEqual([poly[0], poly[1], exp[0], exp[1]], [1, 1, 1, 1]);
+  assert.ok(Object.isFrozen(exp) && Object.isFrozen(poly));
+  assert.ok(buildHpMult({ ...base, hpGrowthPerWave: 0 })[30] === 1);
+});
+
+test('buildHpMult validates its input', () => {
+  const ok = { hpCurve: 'exponential', hpGrowthPerWave: 0.1, hpLinear: 0.3, hpQuad: 0.01 };
+  assert.throws(() => buildHpMult({ ...ok, hpCurve: 'cubic' }), RangeError);
+  for (const k of ['hpGrowthPerWave', 'hpLinear', 'hpQuad']) {
+    for (const bad of [-0.1, NaN, Infinity, '0.1', undefined]) assert.throws(() => buildHpMult({ ...ok, [k]: bad }), RangeError, `${k}=${String(bad)}`);
+  }
+});
+
+test('hpMultiplierForWave edge cases', () => {
+  assert.equal(hpMultiplierForWave(0), 1);
+  assert.equal(hpMultiplierForWave(1), 1);
+  assert.equal(hpMultiplierForWave(-5), 1);
+  assert.equal(hpMultiplierForWave(NaN), 1);
+  assert.equal(hpMultiplierForWave(Infinity), 1);
+  assert.equal(hpMultiplierForWave(30), HP_MULT[30]);
+  assert.equal(hpMultiplierForWave(31), HP_MULT[30]);
+  assert.equal(hpMultiplierForWave(2.7), HP_MULT[2]);
 });
 
 test('template shares are valid and sum to 1', () => {
@@ -132,7 +171,7 @@ test('buildStaticWaves is pure and survives a tiny budget', () => {
 });
 
 test('waveInfo returns the plan summary and throws outside 1..30', () => {
-  assert.deepEqual(waveInfo(10), { wave: 10, name: 'The Vanguard', fixed: true, budget: BUDGETS[9], threat: STATIC_THREAT[9] });
+  assert.deepEqual(waveInfo(10), { wave: 10, name: 'The Vanguard', fixed: true, budget: BUDGETS[9], threat: STATIC_THREAT[9], hpMult: HP_MULT[10] });
   assert.throws(() => waveInfo(0), RangeError);
   assert.throws(() => waveInfo(31), RangeError);
   assert.throws(() => waveInfo(1.5), RangeError);

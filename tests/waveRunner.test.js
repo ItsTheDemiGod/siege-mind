@@ -211,3 +211,24 @@ test('no more waves after 30', () => {
   g.waves.nextWave = 31;
   assert.deepEqual(canStartWave(g), { ok: false, reason: 'no_more_waves' });
 });
+
+// ---- Phase 4A.2: HP multiplier per wave ----
+import { HP_MULT } from '../src/data/waves.js';
+
+test('WAVE_STARTED carries hpMult, and every enemy has the HP of the wave that spawned it (no stale multiplier)', () => {
+  const g = make({ startWave: 6 });
+  const started = record(g, E.WAVE_STARTED);
+  const spawned = record(g, E.ENEMY_SPAWNED);
+  startNextWave(g);
+  clearWave(g);
+  for (let i = 0; i < INTERMISSION_TICKS + 5; i++) stepGame(g); // wave 7 starts automatically
+  assert.equal(started[0][1].hpMult, HP_MULT[6]);
+  assert.equal(started[1][1].wave, 7);
+  assert.equal(started[1][1].hpMult, HP_MULT[7]);
+  for (let i = 0; i < 300; i++) { stepGame(g); nukeAll(g); }
+  const w6 = spawned.filter(([, p]) => p.wave === 6);
+  const w7 = spawned.filter(([, p]) => p.wave === 7);
+  assert.ok(w6.length > 0 && w7.length > 0);
+  for (const [, p] of w6) assert.equal(p.maxHp, Math.max(1, Math.round(ENEMIES[p.type].hp * HP_MULT[6])));
+  for (const [, p] of w7) assert.equal(p.maxHp, Math.max(1, Math.round(ENEMIES[p.type].hp * HP_MULT[7])));
+});

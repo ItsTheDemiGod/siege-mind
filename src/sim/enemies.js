@@ -1,6 +1,7 @@
 // Enemy lifecycle (pure): spawn queue, movement along the path, leaks, order-preserving compaction, spatial queries.
 import { config } from '../data/config.js';
 import { ENEMIES } from '../data/enemies.js';
+import { hpMultiplierForWave } from '../data/waves.js';
 import { EVENT_TYPES } from './events.js';
 import { applyDamage, flushDot } from './damage.js';
 import { updateStatuses, effectiveSpeed } from './statuses.js';
@@ -22,8 +23,13 @@ export function spawnEnemyNow(game, typeId) {
   const d = def(typeId);
   if (game.enemies.length >= config.combat.maxEnemies) return null;
   const lane = game.rngs.lane.range(-1, 1) * (config.enemies.laneMax - d.radius * 0.3);
+  // HP and shield scale with the wave that spawned the enemy; armor, speed, rewards and radius do not
+  const wave = game.waves.current;
+  const mult = hpMultiplierForWave(wave);
+  const maxHp = Math.max(1, Math.round(d.hp * mult));
+  const maxShield = Math.round(d.shield * mult);
   const enemy = {
-    id: game.nextEnemyId++, type: typeId, hp: d.hp, maxHp: d.hp, shield: d.shield, maxShield: d.shield,
+    id: game.nextEnemyId++, type: typeId, wave, hp: maxHp, maxHp, shield: maxShield, maxShield,
     distance: 0, prevDistance: 0, lane, spawnTick: game.tick, lastHitTick: -1, alive: true,
     slowFactor: 1, slowRemaining: 0, poisonStacks: 0, poisonDps: 0, poisonRemaining: 0, poisonSource: 'debug', poisonTowerId: -1, dotAcc: 0, x: 0, y: 0,
   };
@@ -32,7 +38,7 @@ export function spawnEnemyNow(game, typeId) {
   const p = game.map.path.sampleAt(0, lane, scratch);
   enemy.x = p.x;
   enemy.y = p.y;
-  game.events.emit(EVENT_TYPES.ENEMY_SPAWNED, { id: enemy.id, type: typeId, tick: game.tick, x: p.x, y: p.y });
+  game.events.emit(EVENT_TYPES.ENEMY_SPAWNED, { id: enemy.id, type: typeId, wave, maxHp, tick: game.tick, x: p.x, y: p.y });
   return enemy;
 }
 

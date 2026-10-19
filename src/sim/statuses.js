@@ -63,7 +63,7 @@ export function updateStatuses(game, enemy, dt) {
   }
   if (!enemy.alive) return;
   if (def.regenFraction > 0 && !poisoned && enemy.hp < enemy.maxHp) {
-    enemy.hp = Math.min(enemy.maxHp, enemy.hp + enemy.maxHp * def.regenFraction * dt);
+    enemy.hp = Math.min(enemy.maxHp, enemy.hp + def.hp * def.regenFraction * dt); // a fraction of BASE hp: healing must not grow with the wave multiplier
   }
   if (enemy.dotAcc > 0 && game.tick % config.combat.dotEventTicks === 0) flushDot(game, enemy);
 }

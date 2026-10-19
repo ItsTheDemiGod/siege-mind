@@ -195,3 +195,60 @@ test('snapshot has x/y per enemy and not the index', () => {
   assert.equal('enemyIndex' in snap, false);
   assert.equal(snap.enemies[0].poisonTowerId, -1);
 });
+
+// ---- Phase 4A.2: wave HP scaling and base-HP regeneration ----
+import { HP_MULT } from '../src/data/waves.js';
+import { applyStatus } from '../src/sim/statuses.js';
+
+test('with waves.current = 10 every type spawns with scaled HP (and shield); other stats are untouched', () => {
+  const game = newGame();
+  game.waves.current = 10;
+  const spawned = record(game, EVENT_TYPES.ENEMY_SPAWNED);
+  for (const id of ENEMY_ORDER) {
+    const d = ENEMIES[id];
+    const e = spawnEnemyNow(game, id);
+    assert.equal(e.maxHp, Math.max(1, Math.round(d.hp * HP_MULT[10])), id);
+    assert.equal(e.hp, e.maxHp);
+    assert.equal(e.maxShield, Math.round(d.shield * HP_MULT[10]), id);
+    assert.equal(e.shield, e.maxShield);
+    assert.equal(e.wave, 10);
+    // armor, speed, reward, leakDamage and radius live in the definition and are never copied or scaled
+    assert.deepEqual([d.armor, d.speed, d.reward, d.leakDamage, d.radius], [ENEMIES[id].armor, ENEMIES[id].speed, ENEMIES[id].reward, ENEMIES[id].leakDamage, ENEMIES[id].radius]);
+  }
+  assert.deepEqual(spawned.map(([, p]) => [p.wave, p.maxHp]), ENEMY_ORDER.map((id) => [10, Math.max(1, Math.round(ENEMIES[id].hp * HP_MULT[10]))]));
+  assert.ok(game.enemies.find((e) => e.type === 'shieldedBruiser').maxShield > ENEMIES.shieldedBruiser.shield);
+});
+
+test('current = 0 spawns unscaled; enemy.wave survives a JSON snapshot round trip', () => {
+  const game = newGame();
+  const e = spawnEnemyNow(game, 'regenerator');
+  assert.equal(e.wave, 0);
+  assert.equal(e.maxHp, ENEMIES.regenerator.hp);
+  game.waves.current = 7;
+  spawnEnemyNow(game, 'armoredGrunt');
+  const snap = snapshotGame(game);
+  assert.deepEqual(JSON.parse(JSON.stringify(snap)).enemies.map((x) => x.wave), [0, 7]);
+});
+
+test('regeneration heals a fraction of BASE hp per second, at any wave, never above maxHp, and not while poisoned', () => {
+  for (const wave of [0, 10, 25]) {
+    const game = newGame();
+    game.waves.current = wave;
+    const e = spawnEnemyNow(game, 'regenerator');
+    e.hp = 1;
+    const before = e.hp;
+    for (let i = 0; i < 60; i++) stepGame(game); // one second
+    assert.ok(Math.abs(e.hp - before - 0.02 * ENEMIES.regenerator.hp) < 1e-6, `wave ${wave}: healed ${e.hp - before}`);
+  }
+  const game = newGame();
+  game.waves.current = 10;
+  const e = spawnEnemyNow(game, 'regenerator');
+  e.hp = e.maxHp - 0.01;
+  for (let i = 0; i < 60; i++) stepGame(game);
+  assert.equal(e.hp, e.maxHp);
+  e.hp = 1;
+  applyStatus(game, e, { type: 'poison', dps: 0.0001, duration: 3 });
+  const hp = e.hp;
+  for (let i = 0; i < 60; i++) stepGame(game);
+  assert.ok(e.hp <= hp);
+});

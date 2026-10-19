@@ -1,7 +1,7 @@
 // Wave runner (pure): phases prep -> running -> intermission -> ... -> won/lost, clear bonus, countdown, game end.
 import { config } from '../data/config.js';
 import { ENEMIES } from '../data/enemies.js';
-import { TOTAL_WAVES, BUDGETS, planThreat } from '../data/waves.js';
+import { TOTAL_WAVES, BUDGETS, planThreat, hpMultiplierForWave } from '../data/waves.js';
 import { EVENT_TYPES } from './events.js';
 import { queueEnemy } from './enemies.js';
 import { earnGold } from './economy.js';
@@ -69,7 +69,7 @@ export function startNextWave(game) {
   }
   game.events.emit(EVENT_TYPES.WAVE_STARTED, {
     wave, total: TOTAL_WAVES, name: plan.name, fixed: plan.fixed, mode: game.mode, budget: BUDGETS[wave - 1],
-    threat: planThreat(plan.groups), composition, picks, tick: game.tick,
+    threat: planThreat(plan.groups), hpMult: hpMultiplierForWave(wave), composition, picks, tick: game.tick,
   });
   return { ok: true, wave };
 }

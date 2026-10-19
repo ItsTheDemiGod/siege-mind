@@ -179,3 +179,63 @@ test('createGame without towers still has empty tower state', () => {
   assert.deepEqual([g.towers.length, g.projectiles.length, g.nextTowerId], [0, 0, 1]);
   assert.equal(g.occupancy.length, g.map.cols * g.map.rows);
 });
+
+// ---- Phase 4A.2: tower price growth and the tower cap ----
+import { getTowerCost } from '../src/sim/towers.js';
+
+test('getTowerCost: base price with no towers, grows with the number owned, throws on unknown types', () => {
+  const g = rig({ startGold: 1e6 });
+  const growth = config.economy.towerCostGrowth;
+  for (const id of TOWER_ORDER) assert.equal(getTowerCost(g, id), TOWERS[id].cost);
+  const cells = g.map.buildableCells();
+  for (let n = 1; n <= 5; n++) {
+    placeTower(g, 'lance', cells[n].col, cells[n].row);
+    for (const id of TOWER_ORDER) assert.equal(getTowerCost(g, id), Math.round(TOWERS[id].cost * (1 + growth * n)), `${id} with ${n} owned`);
+  }
+  assert.throws(() => getTowerCost(g, 'dragon'), RangeError);
+});
+
+test('the price paid equals getTowerCost, invested equals it, the refund is floor(0.7 * invested), selling lowers the next price', () => {
+  const g = rig({ startGold: 100000 });
+  const cells = g.map.buildableCells();
+  placeTower(g, 'lance', cells[0].col, cells[0].row);
+  placeTower(g, 'mortar', cells[1].col, cells[1].row);
+  const quoted = getTowerCost(g, 'frost');
+  const before = g.gold;
+  const log = record(g, EVENT_TYPES.TOWER_PLACED);
+  const t = placeTower(g, 'frost', cells[2].col, cells[2].row).tower;
+  assert.equal(before - g.gold, quoted);
+  assert.equal(t.invested, quoted);
+  assert.equal(log[0][1].cost, quoted);
+  const priceWith3 = getTowerCost(g, 'lance');
+  const gold = g.gold;
+  assert.deepEqual(sellTower(g, t.id), { ok: true, refund: Math.floor(quoted * config.economy.sellRefundFraction) });
+  assert.equal(g.gold, gold + Math.floor(quoted * config.economy.sellRefundFraction));
+  assert.ok(getTowerCost(g, 'lance') <= priceWith3);
+  assert.equal(getTowerCost(g, 'lance'), Math.round(TOWERS.lance.cost * (1 + config.economy.towerCostGrowth * 2)));
+});
+
+test('a failed placement does not change the price; upgrade prices ignore the tower count', () => {
+  const g = rig({ startGold: 1e6 });
+  const first = place(g, 'lance');
+  const price = getTowerCost(g, 'lance');
+  assert.equal(placeTower(g, 'lance', 5, 1).ok, false); // path tile
+  assert.equal(getTowerCost(g, 'lance'), price);
+  const goldBefore = g.gold;
+  upgradeTower(g, first.id);
+  assert.equal(goldBefore - g.gold, TOWERS.lance.upgrades[0].cost);
+  const cells = g.map.buildableCells().filter((c) => !(c.col === TILE.col && c.row === TILE.row));
+  for (let i = 0; i < 10; i++) placeTower(g, 'frost', cells[i].col, cells[i].row);
+  const g2 = g.gold;
+  upgradeTower(g, first.id);
+  assert.equal(g2 - g.gold, TOWERS.lance.upgrades[1].cost);
+});
+
+test('the tower limit is config.towers.maxTowers (60) and the reason still applies', () => {
+  assert.equal(config.towers.maxTowers, 60);
+  const g = rig({ startGold: 1e9 });
+  const cells = g.map.buildableCells();
+  for (let i = 0; i < config.towers.maxTowers; i++) assert.ok(placeTower(g, 'lance', cells[i].col, cells[i].row).ok);
+  const next = cells[config.towers.maxTowers];
+  assert.deepEqual(placeTower(g, 'lance', next.col, next.row), { ok: false, reason: 'tower_limit' });
+});

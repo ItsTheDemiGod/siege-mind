@@ -58,4 +58,10 @@ More dev controls:
 - A wave control at the bottom centre shows the wave state. **Enter** (or its button) starts the next wave; wave 1 waits for you, later waves start automatically after a 20 s intermission (starting early is allowed and pays no bonus). Clearing a wave pays 20 + 4 x wave gold.
 - Leaks cost lives; at 0 lives, or after clearing wave 30, a results card appears with **Retry same seed** and **New seed** (it reloads the page with `?seed=`). Esc hides it; "Show results" brings it back.
 - `?debug=1&wave=N` starts at wave N, `?debug=1&startlives=N` sets the lives, `?mode=` accepts only `static` (anything else shows a toast; Adaptive arrives in Phase 6).
-- `npm run playthrough -- --bot=balanced --seed=1` plays a full headless game with a bot and prints a per-wave table (bots: `none`, `balanced`).
+- `npm run playthrough -- --bot=balanced --seed=1` plays a full headless game with a bot and prints a per-wave table (bots: `none`, `weak`, `balanced`; the table also shows the enemy HP multiplier and seconds per wave).
+
+### Difficulty knobs (Phase 4A.2)
+
+- Enemy HP and shield grow with the wave number: `config.waves.hpCurve` is `'exponential'` (`hpGrowthPerWave`, compounding) or `'polynomial'` (`1 + hpLinear * d + hpQuad * d^2`, d = wave - 1). Armor, speed, rewards and threat costs do not scale. Regeneration heals a fraction of the enemy type's BASE HP, so healing does not grow with the multiplier.
+- Tower prices grow with the number of towers owned: price = round(base * (1 + `config.economy.towerCostGrowth` * towers owned)); upgrades are not scaled; the cap is `config.towers.maxTowers` = 60. Selling refunds 70% of what was paid.
+- `npm run playthrough -- --bot=none|weak|balanced --seed=1` replays a whole game headlessly and prints the per-wave table; `tests/balance.test.js` asserts the bot ladder.

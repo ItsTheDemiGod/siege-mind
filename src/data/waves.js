@@ -20,6 +20,42 @@ export function waveBudgetTarget(w, cfg = config.waves) {
   return Math.round(cfg.budgetScale * (cfg.budgetBase + cfg.budgetLinear * (w - 1) + cfg.budgetQuad * (w - 1) ** 2));
 }
 
+// Enemy HP and shield multiplier per wave, built with plain + - * arithmetic only (no Math.pow / Math.exp) so every machine gets
+// identical numbers. Threat accounting (BUDGETS, STATIC_THREAT, planThreat) stays in BASE threat units: the multiplier is applied
+// identically in Static and Adaptive mode and never changes the threat a wave spends.
+/**
+ * @param {{hpCurve: string, hpGrowthPerWave: number, hpLinear: number, hpQuad: number}} cfg
+ * @returns {readonly number[]} length TOTAL_WAVES + 1; entries 0 and 1 are 1
+ */
+export function buildHpMult(cfg) {
+  if (cfg.hpCurve !== 'exponential' && cfg.hpCurve !== 'polynomial') throw new RangeError(`unknown hpCurve: ${String(cfg.hpCurve)}`);
+  for (const k of ['hpGrowthPerWave', 'hpLinear', 'hpQuad']) {
+    if (typeof cfg[k] !== 'number' || !Number.isFinite(cfg[k]) || cfg[k] < 0) throw new RangeError(`${k} must be a finite number >= 0, got ${String(cfg[k])}`);
+  }
+  const m = [1, 1];
+  for (let w = 2; w <= TOTAL_WAVES; w++) {
+    if (cfg.hpCurve === 'exponential') {
+      m.push(m[w - 1] * (1 + cfg.hpGrowthPerWave));
+    } else {
+      const d = w - 1;
+      m.push(1 + cfg.hpLinear * d + cfg.hpQuad * d * d);
+    }
+  }
+  for (let w = 1; w < m.length; w++) {
+    if (!Number.isFinite(m[w]) || m[w] < 1 || m[w] < m[w - 1]) throw new RangeError(`HP multiplier must be finite, >= 1 and non-decreasing (wave ${w}: ${m[w]})`);
+  }
+  return Object.freeze(m);
+}
+
+export const HP_MULT = buildHpMult(config.waves);
+
+/** @param {number} w wave number @returns {number} HP/shield multiplier (1 for waves <= 1, capped at wave 30) */
+export function hpMultiplierForWave(w) {
+  if (!Number.isFinite(w) || w <= 1) return 1;
+  const i = Math.floor(w);
+  return i >= TOTAL_WAVES ? HP_MULT[TOTAL_WAVES] : HP_MULT[i];
+}
+
 export const BUDGETS = Object.freeze(Array.from({ length: TOTAL_WAVES }, (_, i) => waveBudgetTarget(i + 1)));
 
 const share = (g = 0, s = 0, f = 0, r = 0, b = 0) => ({ armoredGrunt: g, swarmling: s, fastRunner: f, regenerator: r, shieldedBruiser: b });
@@ -127,10 +163,10 @@ export const STATIC_THREAT = Object.freeze(STATIC_WAVES.map((w) => planThreat(w.
 
 /**
  * @param {number} w wave number 1..30
- * @returns {{wave: number, name: string|null, fixed: boolean, budget: number, threat: number}}
+ * @returns {{wave: number, name: string|null, fixed: boolean, budget: number, threat: number, hpMult: number}}
  */
 export function waveInfo(w) {
   if (!Number.isInteger(w) || w < 1 || w > TOTAL_WAVES) throw new RangeError(`wave must be an integer 1..${TOTAL_WAVES}, got ${String(w)}`);
   const p = STATIC_WAVES[w - 1];
-  return { wave: w, name: p.name, fixed: p.fixed, budget: BUDGETS[w - 1], threat: STATIC_THREAT[w - 1] };
+  return { wave: w, name: p.name, fixed: p.fixed, budget: BUDGETS[w - 1], threat: STATIC_THREAT[w - 1], hpMult: hpMultiplierForWave(w) };
 }

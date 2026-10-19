@@ -2,7 +2,7 @@
 // (placeTower, upgradeTower, startNextWave). Deterministic: no randomness. Phase 8 extends this file.
 import { config } from '../src/data/config.js';
 import { TOWERS } from '../src/data/towers.js';
-import { placeTower, upgradeTower, towerAt } from '../src/sim/towers.js';
+import { placeTower, upgradeTower, towerAt, getTowerCost } from '../src/sim/towers.js';
 import { startNextWave } from '../src/sim/waveRunner.js';
 import { rankBuildableTiles } from './tiles.js';
 
@@ -29,6 +29,7 @@ function createBalancedBot() {
     const tile = s.tiles.find((t) => !towerAt(game, t.col, t.row) && game.map.isBuildable(t.col, t.row));
     if (!tile) return 'blocked';
     const type = BUILD_ORDER[s.built % BUILD_ORDER.length];
+    if (game.gold < getTowerCost(game, type)) return 'poor'; // prices grow with the number of towers owned
     const r = placeTower(game, type, tile.col, tile.row);
     if (!r.ok) return r.reason === 'insufficient_gold' ? 'poor' : 'blocked';
     s.built++;
@@ -43,6 +44,7 @@ function createBalancedBot() {
       if (u && u.cost < bestCost) { best = t; bestCost = u.cost; }
     }
     if (!best) return 'blocked';
+    if (game.gold < bestCost) return 'poor';
     return upgradeTower(game, best.id).ok ? 'done' : 'poor';
   };
 
@@ -78,7 +80,27 @@ function tryUpgradeAvailable(game) {
   return game.towers.some((t) => TOWERS[t.type].upgrades[t.level]);
 }
 
-const FACTORIES = { none: createNoneBot, balanced: createBalancedBot };
+const WEAK_MAX_TOWERS = 12;
+
+/** Lance-only, at most 12 towers, never upgrades; same rhythm as balanced (starts a wave once nothing is affordable). */
+function createWeakBot() {
+  const states = new WeakMap();
+  return {
+    name: 'weak',
+    act(game) {
+      if (game.over) return;
+      let tiles = states.get(game);
+      if (!tiles) { tiles = rankBuildableTiles(game.map, TILE_RANGE); states.set(game, tiles); }
+      while (game.towers.length < WEAK_MAX_TOWERS && game.gold >= getTowerCost(game, 'lance')) {
+        const tile = tiles.find((t) => !towerAt(game, t.col, t.row) && game.map.isBuildable(t.col, t.row));
+        if (!tile || !placeTower(game, 'lance', tile.col, tile.row).ok) break;
+      }
+      startNextWave(game);
+    },
+  };
+}
+
+const FACTORIES = { none: createNoneBot, weak: createWeakBot, balanced: createBalancedBot };
 
 /** @param {string} name 'none' | 'balanced' @returns {{name: string, act: (game: object) => void}} */
 export function createBot(name) {
@@ -88,3 +110,13 @@ export function createBot(name) {
 }
 
 export const BOT_NAMES = Object.keys(FACTORIES);
+
+/** The bot ladder, weakest to strongest. */
+export const BOTS = Object.freeze(Object.fromEntries(BOT_NAMES.map((n) => [n, FACTORIES[n]()])));
+
+/** @param {string} name @returns {{name: string, act: (game: object) => void}} throws on an unknown name */
+export function getBot(name) {
+  const bot = BOTS[name];
+  if (!bot) throw new Error(`unknown bot: ${name} (have: ${BOT_NAMES.join(', ')})`);
+  return bot;
+}

@@ -3,6 +3,7 @@ import { config } from './data/config.js';
 import { createGame, startGame, stepGame } from './sim/game.js';
 import { EVENT_TYPES } from './sim/events.js';
 import { enemiesRemaining, getWaveCountdownSeconds } from './sim/waveRunner.js';
+import { priceMultiplier } from './ui/trayState.js';
 import { createStepper } from './sim/stepper.js';
 import { computeFit, applyFit } from './render/fit.js';
 import { createRenderer } from './render/renderer.js';
@@ -23,7 +24,7 @@ import { createTowerPanel } from './ui/towerPanel.js';
 import { applyStress } from './ui/stress.js';
 import { createWaveControl } from './ui/waveControl.js';
 import { createEndScreen } from './ui/endScreen.js';
-import { TOTAL_WAVES } from './data/waves.js';
+import { TOTAL_WAVES, hpMultiplierForWave } from './data/waves.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -172,6 +173,7 @@ function frame(now) {
       + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}${stress ? `  stress mode: towers ${stressTowers}` : ''}\n`
       + `fx: particles ${s.particles}  ghosts ${s.ghosts}  beams ${s.beams}  decals ${s.decals}\n`
       + `mode ${game.mode}  phase ${game.waves.phase}  wave ${game.waves.current}/${TOTAL_WAVES}  lives ${game.lives}  countdown ${getWaveCountdownSeconds(game).toFixed(1)}s  remaining ${enemiesRemaining(game)}\n`
+      + `enemy HP x${hpMultiplierForWave(game.waves.current).toFixed(2)} (next x${hpMultiplierForWave(game.waves.nextWave).toFixed(2)})  tower price x${priceMultiplier(game).toFixed(2)}\n`
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);
   }
   requestAnimationFrame(frame);

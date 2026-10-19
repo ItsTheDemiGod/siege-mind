@@ -2,7 +2,7 @@
 import { config } from '../data/config.js';
 import { EVENT_TYPES } from '../sim/events.js';
 import { startNextWave, enemiesRemaining, getWaveCountdownSeconds } from '../sim/waveRunner.js';
-import { waveInfo, TOTAL_WAVES } from '../data/waves.js';
+import { waveInfo, TOTAL_WAVES, hpMultiplierForWave } from '../data/waves.js';
 import { describeWaveControl } from './waveControlState.js';
 import { reasonText } from './towerInfo.js';
 import { h } from './dom.js';
@@ -41,7 +41,7 @@ export function createWaveControl({ root, game, toaster }) {
     const next = game.waves.nextWave;
     const d = describeWaveControl(game.waves, {
       enemiesRemaining: enemiesRemaining(game), countdownSeconds: getWaveCountdownSeconds(game), totalWaves: TOTAL_WAVES,
-      nextWaveName: next <= TOTAL_WAVES ? waveInfo(next).name : null,
+      nextWaveName: next <= TOTAL_WAVES ? waveInfo(next).name : null, hpMultNext: hpMultiplierForWave(next),
     });
     const key = `${d.mode}|${d.title}|${d.subtitle}|${d.buttonLabel}|${d.progress}`;
     if (key === last) return;

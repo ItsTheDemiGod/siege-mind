@@ -45,6 +45,17 @@ export function getTowerStats(typeId, level) {
   return STATS[typeId][level];
 }
 
+/**
+ * Current price of a tower type: the base price grows with the number of towers owned.
+ * @param {object} game @param {string} typeId
+ * @returns {number}
+ */
+export function getTowerCost(game, typeId) {
+  const def = TOWERS[typeId];
+  if (!def) throw new RangeError(`unknown tower type: ${String(typeId)}`);
+  return Math.round(def.cost * (1 + config.economy.towerCostGrowth * game.towers.length));
+}
+
 /** @param {object} game @param {number} col @param {number} row @returns {object|null} */
 export function towerAt(game, col, row) {
   const id = game.occupancy[row * game.map.cols + col];
@@ -69,7 +80,7 @@ export function canPlaceTower(game, typeId, col, row) {
   if (game.map.tileAt(col, row) === null) return { ok: false, reason: 'out_of_bounds' };
   if (!game.map.isBuildable(col, row)) return { ok: false, reason: 'not_buildable' };
   if (game.occupancy[row * game.map.cols + col]) return { ok: false, reason: 'occupied' };
-  if (!canAfford(game, def.cost)) return { ok: false, reason: 'insufficient_gold' };
+  if (!canAfford(game, getTowerCost(game, typeId))) return { ok: false, reason: 'insufficient_gold' };
   if (game.towers.length >= config.towers.maxTowers) return { ok: false, reason: 'tower_limit' };
   return { ok: true };
 }
@@ -83,15 +94,16 @@ export function placeTower(game, typeId, col, row) {
   const check = canPlaceTower(game, typeId, col, row);
   if (!check.ok) return check;
   const def = TOWERS[typeId];
-  spendGold(game, def.cost, 'build');
+  const price = getTowerCost(game, typeId);
+  spendGold(game, price, 'build');
   const c = game.map.tileToWorld(col, row);
   const tower = {
     id: game.nextTowerId++, type: typeId, col, row, x: c.x, y: c.y, level: 0, cooldown: 0, targetMode: def.defaultTarget,
-    targetId: -1, angle: 0, invested: def.cost, builtTick: game.tick, damageDealt: 0, kills: 0, shots: 0,
+    targetId: -1, angle: 0, invested: price, builtTick: game.tick, damageDealt: 0, kills: 0, shots: 0,
   };
   game.occupancy[row * game.map.cols + col] = tower.id;
   game.towers.push(tower);
-  game.events.emit(EVENT_TYPES.TOWER_PLACED, { id: tower.id, type: typeId, col, row, x: c.x, y: c.y, tick: game.tick, cost: def.cost });
+  game.events.emit(EVENT_TYPES.TOWER_PLACED, { id: tower.id, type: typeId, col, row, x: c.x, y: c.y, tick: game.tick, cost: price });
   return { ok: true, tower };
 }
 
