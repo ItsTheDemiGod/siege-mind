@@ -21,7 +21,7 @@ export const PROTOCOL = deepFreeze({
     tuning: { start: 1001, count: 30 },
     heldout: { start: 2001, count: 60 },
   },
-  botKnobs: { tilePool: 6, focusWeight: 0.4, upgradeAfter: 6 }, // initial values; `npm run calibrate` chooses them (static mode only)
+  botKnobs: { tilePool: 1, focusWeight: 0.3, upgradeAfter: 6 }, // chosen by `npm run calibrate` (static mode, calibration seeds only); see docs/results/calibration.md
   stats: { seed: 20261019, signFlipResamples: 100000, bootstrapResamples: 10000, exactMaxN: 16, alpha: 0.05, alignmentThreshold: 1.15 },
   primaryMetric: 'livesLost',
   tiltPredictions: {

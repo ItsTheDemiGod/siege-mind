@@ -1,0 +1,2371 @@
+{
+ "set": "tuning",
+ "n": {
+  "seeds": 30,
+  "styles": 5,
+  "modes": 3,
+  "rows": 450
+ },
+ "completeness": {
+  "complete": true,
+  "expected": 450,
+  "actual": 450,
+  "missing": [],
+  "duplicates": [],
+  "unknownRows": 0,
+  "seeds": [
+   1001,
+   1002,
+   1003,
+   1004,
+   1005,
+   1006,
+   1007,
+   1008,
+   1009,
+   1010,
+   1011,
+   1012,
+   1013,
+   1014,
+   1015,
+   1016,
+   1017,
+   1018,
+   1019,
+   1020,
+   1021,
+   1022,
+   1023,
+   1024,
+   1025,
+   1026,
+   1027,
+   1028,
+   1029,
+   1030
+  ]
+ },
+ "notes": [
+  "Results on the tuning seed set are exploratory: they may guide tuning, they are not the confirmatory evaluation.",
+  "Seeds are the unit of analysis: all numbers are seed-level paired differences averaged over the styles, not game-level counts.",
+  "The bots are scripted players with fixed tower mixes, not humans.",
+  "The Director may be reacting to tankiness (tanky enemy types tend to score higher against most defenses): compare with the random control."
+ ],
+ "descriptive": {
+  "livesLost": {
+   "byMode": {
+    "static": {
+     "n": 150,
+     "mean": 11.56,
+     "sd": 8.073887,
+     "median": 11,
+     "min": 0,
+     "max": 20
+    },
+    "adaptive": {
+     "n": 150,
+     "mean": 13.04,
+     "sd": 8.086678,
+     "median": 20,
+     "min": 0,
+     "max": 20
+    },
+    "random": {
+     "n": 150,
+     "mean": 12.98,
+     "sd": 7.814519,
+     "median": 18,
+     "min": 0,
+     "max": 20
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 30,
+      "mean": 14.033333,
+      "sd": 7.494749,
+      "median": 20,
+      "min": 0,
+      "max": 20
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 14.166667,
+      "sd": 7.306508,
+      "median": 20,
+      "min": 0,
+      "max": 20
+     },
+     "random": {
+      "n": 30,
+      "mean": 14.5,
+      "sd": 7.431294,
+      "median": 20,
+      "min": 0,
+      "max": 20
+     }
+    },
+    "lanceHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 10.7,
+      "sd": 8.056482,
+      "median": 8,
+      "min": 0,
+      "max": 20
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 12.833333,
+      "sd": 8.221433,
+      "median": 20,
+      "min": 0,
+      "max": 20
+     },
+     "random": {
+      "n": 30,
+      "mean": 12.9,
+      "sd": 7.475708,
+      "median": 13.5,
+      "min": 0,
+      "max": 20
+     }
+    },
+    "mortarHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 11.4,
+      "sd": 8.732026,
+      "median": 12,
+      "min": 0,
+      "max": 20
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 12.1,
+      "sd": 8.723136,
+      "median": 18,
+      "min": 0,
+      "max": 20
+     },
+     "random": {
+      "n": 30,
+      "mean": 12.2,
+      "sd": 8.159615,
+      "median": 13,
+      "min": 0,
+      "max": 20
+     }
+    },
+    "poisonHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 9.066667,
+      "sd": 7.60641,
+      "median": 7,
+      "min": 0,
+      "max": 20
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 11.766667,
+      "sd": 8.676895,
+      "median": 15,
+      "min": 0,
+      "max": 20
+     },
+     "random": {
+      "n": 30,
+      "mean": 11.566667,
+      "sd": 8.156585,
+      "median": 13,
+      "min": 0,
+      "max": 20
+     }
+    },
+    "sniperHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 12.6,
+      "sd": 8.066961,
+      "median": 17,
+      "min": 0,
+      "max": 20
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 14.333333,
+      "sd": 7.612754,
+      "median": 20,
+      "min": 0,
+      "max": 20
+     },
+     "random": {
+      "n": 30,
+      "mean": 13.733333,
+      "sd": 7.991087,
+      "median": 20,
+      "min": 0,
+      "max": 20
+     }
+    }
+   }
+  },
+  "won": {
+   "byMode": {
+    "static": {
+     "n": 150,
+     "mean": 0.606667,
+     "sd": 0.490126,
+     "median": 1,
+     "min": 0,
+     "max": 1,
+     "wilson": [
+      0.526766,
+      0.68124
+     ]
+    },
+    "adaptive": {
+     "n": 150,
+     "mean": 0.493333,
+     "sd": 0.50163,
+     "median": 0,
+     "min": 0,
+     "max": 1,
+     "wilson": [
+      0.414497,
+      0.572503
+     ]
+    },
+    "random": {
+     "n": 150,
+     "mean": 0.54,
+     "sd": 0.500067,
+     "median": 1,
+     "min": 0,
+     "max": 1,
+     "wilson": [
+      0.460238,
+      0.617764
+     ]
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 30,
+      "mean": 0.466667,
+      "sd": 0.507416,
+      "median": 0,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.302324,
+       0.638577
+      ]
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.466667,
+      "sd": 0.507416,
+      "median": 0,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.302324,
+       0.638577
+      ]
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.433333,
+      "sd": 0.504007,
+      "median": 0,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.273775,
+       0.608027
+      ]
+     }
+    },
+    "lanceHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.666667,
+      "sd": 0.479463,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.487801,
+       0.807695
+      ]
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.466667,
+      "sd": 0.507416,
+      "median": 0,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.302324,
+       0.638577
+      ]
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.566667,
+      "sd": 0.504007,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.391973,
+       0.726225
+      ]
+     }
+    },
+    "mortarHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.533333,
+      "sd": 0.507416,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.361423,
+       0.697676
+      ]
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.5,
+      "sd": 0.508548,
+      "median": 0.5,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.331541,
+       0.668459
+      ]
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.533333,
+      "sd": 0.507416,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.361423,
+       0.697676
+      ]
+     }
+    },
+    "poisonHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.8,
+      "sd": 0.406838,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.626943,
+       0.904949
+      ]
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.566667,
+      "sd": 0.504007,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.391973,
+       0.726225
+      ]
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.7,
+      "sd": 0.466092,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.521242,
+       0.833353
+      ]
+     }
+    },
+    "sniperHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.566667,
+      "sd": 0.504007,
+      "median": 1,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.391973,
+       0.726225
+      ]
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.466667,
+      "sd": 0.507416,
+      "median": 0,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.302324,
+       0.638577
+      ]
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.466667,
+      "sd": 0.507416,
+      "median": 0,
+      "min": 0,
+      "max": 1,
+      "wilson": [
+       0.302324,
+       0.638577
+      ]
+     }
+    }
+   }
+  },
+  "finalWave": {
+   "byMode": {
+    "static": {
+     "n": 150,
+     "mean": 12.033333,
+     "sd": 4.318552,
+     "median": 15,
+     "min": 3,
+     "max": 15
+    },
+    "adaptive": {
+     "n": 150,
+     "mean": 11.573333,
+     "sd": 4.340146,
+     "median": 15,
+     "min": 3,
+     "max": 15
+    },
+    "random": {
+     "n": 150,
+     "mean": 11.673333,
+     "sd": 4.403319,
+     "median": 15,
+     "min": 3,
+     "max": 15
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 30,
+      "mean": 10.4,
+      "sd": 5.136751,
+      "median": 14,
+      "min": 3,
+      "max": 15
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 10.1,
+      "sd": 5.155178,
+      "median": 12,
+      "min": 3,
+      "max": 15
+     },
+     "random": {
+      "n": 30,
+      "mean": 9.933333,
+      "sd": 5.071444,
+      "median": 10,
+      "min": 3,
+      "max": 15
+     }
+    },
+    "lanceHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 12.5,
+      "sd": 4.091623,
+      "median": 15,
+      "min": 3,
+      "max": 15
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 12.033333,
+      "sd": 4.097799,
+      "median": 15,
+      "min": 3,
+      "max": 15
+     },
+     "random": {
+      "n": 30,
+      "mean": 12.1,
+      "sd": 4.357712,
+      "median": 15,
+      "min": 3,
+      "max": 15
+     }
+    },
+    "mortarHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 11.566667,
+      "sd": 4.36825,
+      "median": 15,
+      "min": 3,
+      "max": 15
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 11.366667,
+      "sd": 4.358767,
+      "median": 14.5,
+      "min": 3,
+      "max": 15
+     },
+     "random": {
+      "n": 30,
+      "mean": 11.4,
+      "sd": 4.35969,
+      "median": 15,
+      "min": 3,
+      "max": 15
+     }
+    },
+    "poisonHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 13.633333,
+      "sd": 3.357784,
+      "median": 15,
+      "min": 5,
+      "max": 15
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 12.8,
+      "sd": 3.689687,
+      "median": 15,
+      "min": 5,
+      "max": 15
+     },
+     "random": {
+      "n": 30,
+      "mean": 13.166667,
+      "sd": 3.572726,
+      "median": 15,
+      "min": 5,
+      "max": 15
+     }
+    },
+    "sniperHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 12.066667,
+      "sd": 4.05933,
+      "median": 15,
+      "min": 3,
+      "max": 15
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 11.566667,
+      "sd": 4.091061,
+      "median": 14,
+      "min": 3,
+      "max": 15
+     },
+     "random": {
+      "n": 30,
+      "mean": 11.766667,
+      "sd": 4.174498,
+      "median": 14,
+      "min": 3,
+      "max": 15
+     }
+    }
+   }
+  },
+  "leakFraction": {
+   "byMode": {
+    "static": {
+     "n": 150,
+     "mean": 0.117112,
+     "sd": 0.190208,
+     "median": 0.021235,
+     "min": 0,
+     "max": 0.656566
+    },
+    "adaptive": {
+     "n": 150,
+     "mean": 0.127043,
+     "sd": 0.188237,
+     "median": 0.035247,
+     "min": 0,
+     "max": 0.656566
+    },
+    "random": {
+     "n": 150,
+     "mean": 0.129042,
+     "sd": 0.191227,
+     "median": 0.029022,
+     "min": 0,
+     "max": 0.656566
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 30,
+      "mean": 0.203337,
+      "sd": 0.247901,
+      "median": 0.042308,
+      "min": 0,
+      "max": 0.656566
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.210242,
+      "sd": 0.245054,
+      "median": 0.059283,
+      "min": 0,
+      "max": 0.656566
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.214741,
+      "sd": 0.245926,
+      "median": 0.080885,
+      "min": 0,
+      "max": 0.656566
+     }
+    },
+    "lanceHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.102421,
+      "sd": 0.183407,
+      "median": 0.015761,
+      "min": 0,
+      "max": 0.656566
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.112165,
+      "sd": 0.181154,
+      "median": 0.037483,
+      "min": 0,
+      "max": 0.656566
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.122466,
+      "sd": 0.192186,
+      "median": 0.02593,
+      "min": 0,
+      "max": 0.656566
+     }
+    },
+    "mortarHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.112107,
+      "sd": 0.169256,
+      "median": 0.023862,
+      "min": 0,
+      "max": 0.656566
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.117281,
+      "sd": 0.169034,
+      "median": 0.031345,
+      "min": 0,
+      "max": 0.656566
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.117153,
+      "sd": 0.168053,
+      "median": 0.021693,
+      "min": 0,
+      "max": 0.656566
+     }
+    },
+    "poisonHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.060204,
+      "sd": 0.123075,
+      "median": 0.013354,
+      "min": 0,
+      "max": 0.397541
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.078652,
+      "sd": 0.126188,
+      "median": 0.022081,
+      "min": 0,
+      "max": 0.394309
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.072149,
+      "sd": 0.120733,
+      "median": 0.021844,
+      "min": 0,
+      "max": 0.399177
+     }
+    },
+    "sniperHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.10749,
+      "sd": 0.188708,
+      "median": 0.031072,
+      "min": 0,
+      "max": 0.656566
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.116874,
+      "sd": 0.186205,
+      "median": 0.03971,
+      "min": 0,
+      "max": 0.656566
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.118699,
+      "sd": 0.190792,
+      "median": 0.041864,
+      "min": 0,
+      "max": 0.656566
+     }
+    }
+   }
+  },
+  "penetration": {
+   "byMode": {
+    "static": {
+     "n": 150,
+     "mean": 0.540101,
+     "sd": 0.133826,
+     "median": 0.493094,
+     "min": 0.356557,
+     "max": 1
+    },
+    "adaptive": {
+     "n": 150,
+     "mean": 0.558703,
+     "sd": 0.123237,
+     "median": 0.521033,
+     "min": 0.393897,
+     "max": 1
+    },
+    "random": {
+     "n": 150,
+     "mean": 0.54981,
+     "sd": 0.134643,
+     "median": 0.509807,
+     "min": 0.350609,
+     "max": 1
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 30,
+      "mean": 0.592448,
+      "sd": 0.17789,
+      "median": 0.524914,
+      "min": 0.39377,
+      "max": 1
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.6057,
+      "sd": 0.167752,
+      "median": 0.567915,
+      "min": 0.416419,
+      "max": 1
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.601645,
+      "sd": 0.177072,
+      "median": 0.581675,
+      "min": 0.384912,
+      "max": 1
+     }
+    },
+    "lanceHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.529826,
+      "sd": 0.120657,
+      "median": 0.496865,
+      "min": 0.396884,
+      "max": 0.902792
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.54862,
+      "sd": 0.1095,
+      "median": 0.520509,
+      "min": 0.43116,
+      "max": 0.902792
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.542568,
+      "sd": 0.12319,
+      "median": 0.513625,
+      "min": 0.41524,
+      "max": 0.902792
+     }
+    },
+    "mortarHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.530494,
+      "sd": 0.129538,
+      "median": 0.494975,
+      "min": 0.356557,
+      "max": 0.902729
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.542043,
+      "sd": 0.118205,
+      "median": 0.517604,
+      "min": 0.393897,
+      "max": 0.902729
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.5377,
+      "sd": 0.129323,
+      "median": 0.520382,
+      "min": 0.350609,
+      "max": 0.902729
+     }
+    },
+    "poisonHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.491359,
+      "sd": 0.079098,
+      "median": 0.474463,
+      "min": 0.401246,
+      "max": 0.682744
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.524499,
+      "sd": 0.075689,
+      "median": 0.503444,
+      "min": 0.429081,
+      "max": 0.702107
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.50599,
+      "sd": 0.087531,
+      "median": 0.479239,
+      "min": 0.407399,
+      "max": 0.707669
+     }
+    },
+    "sniperHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 0.55638,
+      "sd": 0.130409,
+      "median": 0.526072,
+      "min": 0.395078,
+      "max": 0.905422
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 0.572651,
+      "sd": 0.118789,
+      "median": 0.558202,
+      "min": 0.430835,
+      "max": 0.905422
+     },
+     "random": {
+      "n": 30,
+      "mean": 0.561148,
+      "sd": 0.130853,
+      "median": 0.525642,
+      "min": 0.409352,
+      "max": 0.905422
+     }
+    }
+   }
+  },
+  "minutes": {
+   "byMode": {
+    "static": {
+     "n": 150,
+     "mean": 14.056209,
+     "sd": 5.119089,
+     "median": 16.297778,
+     "min": 3.629444,
+     "max": 21.408889
+    },
+    "adaptive": {
+     "n": 150,
+     "mean": 13.928919,
+     "sd": 5.355626,
+     "median": 16.271666,
+     "min": 3.629444,
+     "max": 23.391667
+    },
+    "random": {
+     "n": 150,
+     "mean": 13.59217,
+     "sd": 5.119868,
+     "median": 16.049166,
+     "min": 3.629444,
+     "max": 20.518333
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 30,
+      "mean": 12.343602,
+      "sd": 6.017794,
+      "median": 15.986528,
+      "min": 3.637778,
+      "max": 20.176389
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 12.325148,
+      "sd": 6.272055,
+      "median": 14.12,
+      "min": 3.637778,
+      "max": 19.756389
+     },
+     "random": {
+      "n": 30,
+      "mean": 11.709954,
+      "sd": 5.831235,
+      "median": 11.642639,
+      "min": 3.637778,
+      "max": 18.838056
+     }
+    },
+    "lanceHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 14.636,
+      "sd": 4.928397,
+      "median": 16.371528,
+      "min": 3.637778,
+      "max": 20.679167
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 14.50225,
+      "sd": 5.044903,
+      "median": 16.608055,
+      "min": 3.637778,
+      "max": 21.095
+     },
+     "random": {
+      "n": 30,
+      "mean": 14.188343,
+      "sd": 5.157862,
+      "median": 16.535833,
+      "min": 3.637778,
+      "max": 19.7125
+     }
+    },
+    "mortarHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 13.511935,
+      "sd": 5.061508,
+      "median": 15.926112,
+      "min": 3.629444,
+      "max": 20.120833
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 13.673241,
+      "sd": 5.305977,
+      "median": 16.240972,
+      "min": 3.629444,
+      "max": 21.82
+     },
+     "random": {
+      "n": 30,
+      "mean": 13.278185,
+      "sd": 4.990733,
+      "median": 15.44875,
+      "min": 3.629444,
+      "max": 19.867778
+     }
+    },
+    "poisonHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 15.840509,
+      "sd": 4.096427,
+      "median": 16.566389,
+      "min": 5.789722,
+      "max": 21.408889
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 15.398759,
+      "sd": 4.645628,
+      "median": 16.532222,
+      "min": 5.7675,
+      "max": 23.391667
+     },
+     "random": {
+      "n": 30,
+      "mean": 15.215139,
+      "sd": 4.14301,
+      "median": 16.187917,
+      "min": 5.919167,
+      "max": 20.518333
+     }
+    },
+    "sniperHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 13.949,
+      "sd": 4.97429,
+      "median": 16.122361,
+      "min": 3.629444,
+      "max": 19.948333
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 13.745194,
+      "sd": 5.244674,
+      "median": 15.746111,
+      "min": 3.629444,
+      "max": 20.949722
+     },
+     "random": {
+      "n": 30,
+      "mean": 13.569232,
+      "sd": 5.014186,
+      "median": 16.116667,
+      "min": 3.629444,
+      "max": 19.899167
+     }
+    }
+   }
+  },
+  "towersBuilt": {
+   "byMode": {
+    "static": {
+     "n": 150,
+     "mean": 21.273333,
+     "sd": 10.577231,
+     "median": 28,
+     "min": 2,
+     "max": 32
+    },
+    "adaptive": {
+     "n": 150,
+     "mean": 20.12,
+     "sd": 10.75469,
+     "median": 27,
+     "min": 2,
+     "max": 32
+    },
+    "random": {
+     "n": 150,
+     "mean": 20.406667,
+     "sd": 10.825087,
+     "median": 27,
+     "min": 2,
+     "max": 32
+    }
+   },
+   "byStyleMode": {
+    "balancedR": {
+     "static": {
+      "n": 30,
+      "mean": 17.466667,
+      "sd": 12.033669,
+      "median": 25,
+      "min": 2,
+      "max": 30
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 16.933333,
+      "sd": 12.295032,
+      "median": 20,
+      "min": 2,
+      "max": 31
+     },
+     "random": {
+      "n": 30,
+      "mean": 16.4,
+      "sd": 12.118951,
+      "median": 13.5,
+      "min": 2,
+      "max": 31
+     }
+    },
+    "lanceHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 23.233333,
+      "sd": 10.572193,
+      "median": 29,
+      "min": 2,
+      "max": 32
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 21.933333,
+      "sd": 10.87843,
+      "median": 29,
+      "min": 2,
+      "max": 32
+     },
+     "random": {
+      "n": 30,
+      "mean": 22.233333,
+      "sd": 11.183989,
+      "median": 29,
+      "min": 2,
+      "max": 32
+     }
+    },
+    "mortarHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 19.866667,
+      "sd": 10.66329,
+      "median": 27,
+      "min": 2,
+      "max": 30
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 19.466667,
+      "sd": 10.698802,
+      "median": 25.5,
+      "min": 2,
+      "max": 31
+     },
+     "random": {
+      "n": 30,
+      "mean": 19.533333,
+      "sd": 10.772677,
+      "median": 27.5,
+      "min": 2,
+      "max": 30
+     }
+    },
+    "poisonHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 25.6,
+      "sd": 8.340181,
+      "median": 28.5,
+      "min": 4,
+      "max": 31
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 23.366667,
+      "sd": 9.411964,
+      "median": 28.5,
+      "min": 4,
+      "max": 31
+     },
+     "random": {
+      "n": 30,
+      "mean": 24.3,
+      "sd": 9.036898,
+      "median": 29,
+      "min": 4,
+      "max": 31
+     }
+    },
+    "sniperHeavy": {
+     "static": {
+      "n": 30,
+      "mean": 20.2,
+      "sd": 9.664724,
+      "median": 26.5,
+      "min": 2,
+      "max": 29
+     },
+     "adaptive": {
+      "n": 30,
+      "mean": 18.9,
+      "sd": 9.742725,
+      "median": 24.5,
+      "min": 2,
+      "max": 29
+     },
+     "random": {
+      "n": 30,
+      "mean": 19.566667,
+      "sd": 9.754516,
+      "median": 24.5,
+      "min": 2,
+      "max": 30
+     }
+    }
+   }
+  }
+ },
+ "hypotheses": [
+  {
+   "id": "P1",
+   "family": "primary",
+   "label": "Adaptive costs the player more lives than static",
+   "metric": "livesLost",
+   "modeA": "adaptive",
+   "modeB": "static",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": 1.48,
+   "sdDiffs": 1.876607,
+   "ci95": [
+    0.853333,
+    2.153333
+   ],
+   "dz": 0.788657,
+   "pRaw": 0.0001,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.0002,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0.133333,
+     "ci95": [
+      -0.5,
+      0.8
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": 2.133333,
+     "ci95": [
+      0.733333,
+      3.766667
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": 0.7,
+     "ci95": [
+      -0.266667,
+      2
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": 2.7,
+     "ci95": [
+      0.866667,
+      4.8
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": 1.733333,
+     "ci95": [
+      0.233333,
+      3.566667
+     ]
+    }
+   }
+  },
+  {
+   "id": "P2",
+   "family": "primary",
+   "label": "Adaptive costs the player more lives than the random control",
+   "metric": "livesLost",
+   "modeA": "adaptive",
+   "modeB": "random",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": 0.06,
+   "sdDiffs": 1.987652,
+   "ci95": [
+    -0.653333,
+    0.753333
+   ],
+   "dz": 0.030186,
+   "pRaw": 0.886111,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.886111,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": -0.333333,
+     "ci95": [
+      -1.3,
+      0.466667
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.066667,
+     "ci95": [
+      -1.833333,
+      1.666667
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": -0.1,
+     "ci95": [
+      -1.333333,
+      1.133333
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": 0.2,
+     "ci95": [
+      -1.366667,
+      1.733333
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": 0.6,
+     "ci95": [
+      -0.866667,
+      2.3
+     ]
+    }
+   }
+  },
+  {
+   "id": "S1",
+   "family": "secondary",
+   "label": "Adaptive wins less often than static",
+   "metric": "won",
+   "modeA": "adaptive",
+   "modeB": "static",
+   "direction": "less",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": -0.113333,
+   "sdDiffs": 0.145586,
+   "ci95": [
+    -0.166667,
+    -0.066667
+   ],
+   "dz": -0.778461,
+   "pRaw": 0.00021,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.00108,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0,
+     "ci95": [
+      -0.1,
+      0.1
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.2,
+     "ci95": [
+      -0.366667,
+      -0.066667
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": -0.033333,
+     "ci95": [
+      -0.1,
+      0
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": -0.233333,
+     "ci95": [
+      -0.4,
+      -0.1
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": -0.1,
+     "ci95": [
+      -0.233333,
+      0
+     ]
+    }
+   }
+  },
+  {
+   "id": "S2",
+   "family": "secondary",
+   "label": "Adaptive wins less often than the random control",
+   "metric": "won",
+   "modeA": "adaptive",
+   "modeB": "random",
+   "direction": "less",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": -0.046667,
+   "sdDiffs": 0.179527,
+   "ci95": [
+    -0.106667,
+    0.02
+   ],
+   "dz": -0.259943,
+   "pRaw": 0.233508,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.700524,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0.033333,
+     "ci95": [
+      0,
+      0.1
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.1,
+     "ci95": [
+      -0.233333,
+      0.033333
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": -0.033333,
+     "ci95": [
+      -0.133333,
+      0.066667
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": -0.133333,
+     "ci95": [
+      -0.266667,
+      -0.033333
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": 0,
+     "ci95": [
+      -0.2,
+      0.166667
+     ]
+    }
+   }
+  },
+  {
+   "id": "S3",
+   "family": "secondary",
+   "label": "A larger fraction of threat leaks under adaptive than static",
+   "metric": "leakFraction",
+   "modeA": "adaptive",
+   "modeB": "static",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": 0.009931,
+   "sdDiffs": 0.01412,
+   "ci95": [
+    0.005357,
+    0.015269
+   ],
+   "dz": 0.703309,
+   "pRaw": 0.00009,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.00063,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0.006905,
+     "ci95": [
+      -0.003473,
+      0.022195
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": 0.009743,
+     "ci95": [
+      0.000326,
+      0.02331
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": 0.005175,
+     "ci95": [
+      0.00081,
+      0.010642
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": 0.018447,
+     "ci95": [
+      0.004713,
+      0.038559
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": 0.009384,
+     "ci95": [
+      -0.002713,
+      0.025196
+     ]
+    }
+   }
+  },
+  {
+   "id": "S4",
+   "family": "secondary",
+   "label": "A larger fraction of threat leaks under adaptive than random",
+   "metric": "leakFraction",
+   "modeA": "adaptive",
+   "modeB": "random",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": -0.001999,
+   "sdDiffs": 0.015536,
+   "ci95": [
+    -0.007476,
+    0.003357
+   ],
+   "dz": -0.128671,
+   "pRaw": 0.490915,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.728532,
+   "supportsDirection": false,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": -0.004499,
+     "ci95": [
+      -0.014487,
+      0.003589
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.010301,
+     "ci95": [
+      -0.023352,
+      0.000985
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": 0.000128,
+     "ci95": [
+      -0.00732,
+      0.006974
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": 0.006502,
+     "ci95": [
+      -0.001418,
+      0.016237
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": -0.001825,
+     "ci95": [
+      -0.01773,
+      0.016122
+     ]
+    }
+   }
+  },
+  {
+   "id": "S5",
+   "family": "secondary",
+   "label": "Enemies get further along the path under adaptive than static",
+   "metric": "penetration",
+   "modeA": "adaptive",
+   "modeB": "static",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": 0.018602,
+   "sdDiffs": 0.013588,
+   "ci95": [
+    0.014111,
+    0.023516
+   ],
+   "dz": 1.36898,
+   "pRaw": 0.00001,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.00009,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0.013252,
+     "ci95": [
+      0.00345,
+      0.023659
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": 0.018795,
+     "ci95": [
+      0.010002,
+      0.02905
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": 0.011549,
+     "ci95": [
+      0.003559,
+      0.020331
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": 0.03314,
+     "ci95": [
+      0.0199,
+      0.048916
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": 0.016272,
+     "ci95": [
+      0.00544,
+      0.030893
+     ]
+    }
+   }
+  },
+  {
+   "id": "S6",
+   "family": "secondary",
+   "label": "Enemies get further along the path under adaptive than random",
+   "metric": "penetration",
+   "modeA": "adaptive",
+   "modeB": "random",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": 0.008893,
+   "sdDiffs": 0.016953,
+   "ci95": [
+    0.003,
+    0.014985
+   ],
+   "dz": 0.524552,
+   "pRaw": 0.00628,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.02512,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0.004055,
+     "ci95": [
+      -0.004271,
+      0.011614
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": 0.006053,
+     "ci95": [
+      -0.003678,
+      0.015202
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": 0.004343,
+     "ci95": [
+      -0.003861,
+      0.012545
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": 0.018509,
+     "ci95": [
+      0.006921,
+      0.030941
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": 0.011503,
+     "ci95": [
+      -0.002354,
+      0.027374
+     ]
+    }
+   }
+  },
+  {
+   "id": "S7",
+   "family": "secondary",
+   "label": "The final wave reached is lower under adaptive than static",
+   "metric": "finalWave",
+   "modeA": "adaptive",
+   "modeB": "static",
+   "direction": "less",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": -0.46,
+   "sdDiffs": 0.670872,
+   "ci95": [
+    -0.713333,
+    -0.24
+   ],
+   "dz": -0.685675,
+   "pRaw": 0.00018,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.00108,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": -0.3,
+     "ci95": [
+      -1.066667,
+      0.266667
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.466667,
+     "ci95": [
+      -1.166667,
+      0
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": -0.2,
+     "ci95": [
+      -0.533333,
+      0
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": -0.833333,
+     "ci95": [
+      -1.7,
+      -0.166667
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": -0.5,
+     "ci95": [
+      -1.2,
+      0
+     ]
+    }
+   }
+  },
+  {
+   "id": "S8",
+   "family": "secondary",
+   "label": "The final wave reached is lower under adaptive than random",
+   "metric": "finalWave",
+   "modeA": "adaptive",
+   "modeB": "random",
+   "direction": "less",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": -0.1,
+   "sdDiffs": 0.547723,
+   "ci95": [
+    -0.3,
+    0.086667
+   ],
+   "dz": -0.182574,
+   "pRaw": 0.364266,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.728532,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0.166667,
+     "ci95": [
+      -0.066667,
+      0.533333
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.066667,
+     "ci95": [
+      -0.5,
+      0.266667
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": -0.033333,
+     "ci95": [
+      -0.233333,
+      0.166667
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": -0.366667,
+     "ci95": [
+      -0.833333,
+      -0.033333
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": -0.2,
+     "ci95": [
+      -1.033333,
+      0.5
+     ]
+    }
+   }
+  },
+  {
+   "id": "T1",
+   "family": "secondary",
+   "label": "The final weights lean toward the predicted enemy types more often under adaptive than random",
+   "metric": "tiltAligned",
+   "modeA": "adaptive",
+   "modeB": "random",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": -0.308333,
+   "sdDiffs": 0.298584,
+   "ci95": [
+    -0.416667,
+    -0.2
+   ],
+   "dz": -1.032653,
+   "pRaw": 0.00003,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.00024,
+   "supportsDirection": false,
+   "perStyle": {
+    "balancedR": null,
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.3,
+     "ci95": [
+      -0.533333,
+      -0.066667
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": -0.433333,
+     "ci95": [
+      -0.6,
+      -0.266667
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": -0.1,
+     "ci95": [
+      -0.233333,
+      0.033333
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": -0.4,
+     "ci95": [
+      -0.633333,
+      -0.166667
+     ]
+    }
+   }
+  },
+  {
+   "id": "C1",
+   "family": "descriptive",
+   "label": "Composition variability alone (random versus static) costs lives",
+   "metric": "livesLost",
+   "modeA": "random",
+   "modeB": "static",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": 1.42,
+   "sdDiffs": 2.038492,
+   "ci95": [
+    0.74,
+    2.173333
+   ],
+   "dz": 0.696593,
+   "pRaw": 0.00019,
+   "pMethod": "monte-carlo",
+   "pHolm": null,
+   "supportsDirection": true,
+   "perStyle": {
+    "balancedR": {
+     "n": 30,
+     "meanDiff": 0.466667,
+     "ci95": [
+      -0.1,
+      1.266667
+     ]
+    },
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": 2.2,
+     "ci95": [
+      0.666667,
+      3.966667
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": 0.8,
+     "ci95": [
+      -0.533333,
+      2.566667
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": 2.5,
+     "ci95": [
+      1,
+      4.233333
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": 1.133333,
+     "ci95": [
+      -0.1,
+      2.533333
+     ]
+    }
+   }
+  }
+ ],
+ "tiltAlignment": {
+  "threshold": 1.15,
+  "perStyle": {
+   "lanceHeavy": {
+    "predictedTypes": [
+     "swarmling"
+    ],
+    "adaptive": {
+     "rate": 0.166667,
+     "wilson": [
+      0.073365,
+      0.335644
+     ],
+     "n": 30
+    },
+    "random": {
+     "rate": 0.466667,
+     "wilson": [
+      0.302324,
+      0.638577
+     ],
+     "n": 30
+    }
+   },
+   "mortarHeavy": {
+    "predictedTypes": [
+     "fastRunner"
+    ],
+    "adaptive": {
+     "rate": 0,
+     "wilson": [
+      0,
+      0.113513
+     ],
+     "n": 30
+    },
+    "random": {
+     "rate": 0.433333,
+     "wilson": [
+      0.273775,
+      0.608027
+     ],
+     "n": 30
+    }
+   },
+   "poisonHeavy": {
+    "predictedTypes": [
+     "fastRunner",
+     "shieldedBruiser"
+    ],
+    "adaptive": {
+     "rate": 0.733333,
+     "wilson": [
+      0.55552,
+      0.858173
+     ],
+     "n": 30
+    },
+    "random": {
+     "rate": 0.833333,
+     "wilson": [
+      0.664356,
+      0.926635
+     ],
+     "n": 30
+    }
+   },
+   "sniperHeavy": {
+    "predictedTypes": [
+     "swarmling",
+     "fastRunner"
+    ],
+    "adaptive": {
+     "rate": 0.2,
+     "wilson": [
+      0.095051,
+      0.373057
+     ],
+     "n": 30
+    },
+    "random": {
+     "rate": 0.6,
+     "wilson": [
+      0.423204,
+      0.754094
+     ],
+     "n": 30
+    }
+   }
+  },
+  "pooled": {
+   "id": "T1",
+   "family": "secondary",
+   "label": "The final weights lean toward the predicted enemy types more often under adaptive than random",
+   "metric": "tiltAligned",
+   "modeA": "adaptive",
+   "modeB": "random",
+   "direction": "greater",
+   "n": 30,
+   "droppedSeeds": [],
+   "meanDiff": -0.308333,
+   "sdDiffs": 0.298584,
+   "ci95": [
+    -0.416667,
+    -0.2
+   ],
+   "dz": -1.032653,
+   "pRaw": 0.00003,
+   "pMethod": "monte-carlo",
+   "pHolm": 0.00024,
+   "supportsDirection": false,
+   "perStyle": {
+    "balancedR": null,
+    "lanceHeavy": {
+     "n": 30,
+     "meanDiff": -0.3,
+     "ci95": [
+      -0.533333,
+      -0.066667
+     ]
+    },
+    "mortarHeavy": {
+     "n": 30,
+     "meanDiff": -0.433333,
+     "ci95": [
+      -0.6,
+      -0.266667
+     ]
+    },
+    "poisonHeavy": {
+     "n": 30,
+     "meanDiff": -0.1,
+     "ci95": [
+      -0.233333,
+      0.033333
+     ]
+    },
+    "sniperHeavy": {
+     "n": 30,
+     "meanDiff": -0.4,
+     "ci95": [
+      -0.633333,
+      -0.166667
+     ]
+    }
+   }
+  },
+  "tilts": {
+   "balancedR": {
+    "armoredGrunt": {
+     "mean": 0.756691,
+     "ci95": [
+      0.654108,
+      0.862607
+     ]
+    },
+    "swarmling": {
+     "mean": 0.839597,
+     "ci95": [
+      0.752649,
+      0.93267
+     ]
+    },
+    "fastRunner": {
+     "mean": 0.644489,
+     "ci95": [
+      0.555293,
+      0.737584
+     ]
+    },
+    "regenerator": {
+     "mean": 1.192721,
+     "ci95": [
+      1.126816,
+      1.259532
+     ]
+    },
+    "shieldedBruiser": {
+     "mean": 1.187916,
+     "ci95": [
+      1.109854,
+      1.269828
+     ]
+    }
+   },
+   "lanceHeavy": {
+    "armoredGrunt": {
+     "mean": 0.658983,
+     "ci95": [
+      0.578079,
+      0.746478
+     ]
+    },
+    "swarmling": {
+     "mean": 0.827064,
+     "ci95": [
+      0.74265,
+      0.915254
+     ]
+    },
+    "fastRunner": {
+     "mean": 0.546157,
+     "ci95": [
+      0.481691,
+      0.619705
+     ]
+    },
+    "regenerator": {
+     "mean": 1.295969,
+     "ci95": [
+      1.228002,
+      1.36319
+     ]
+    },
+    "shieldedBruiser": {
+     "mean": 1.245377,
+     "ci95": [
+      1.169513,
+      1.322712
+     ]
+    }
+   },
+   "mortarHeavy": {
+    "armoredGrunt": {
+     "mean": 0.676623,
+     "ci95": [
+      0.597082,
+      0.762167
+     ]
+    },
+    "swarmling": {
+     "mean": 0.835763,
+     "ci95": [
+      0.73826,
+      0.937828
+     ]
+    },
+    "fastRunner": {
+     "mean": 0.560994,
+     "ci95": [
+      0.493901,
+      0.637327
+     ]
+    },
+    "regenerator": {
+     "mean": 1.273963,
+     "ci95": [
+      1.196769,
+      1.35204
+     ]
+    },
+    "shieldedBruiser": {
+     "mean": 1.222686,
+     "ci95": [
+      1.128283,
+      1.321508
+     ]
+    }
+   },
+   "poisonHeavy": {
+    "armoredGrunt": {
+     "mean": 0.634941,
+     "ci95": [
+      0.55011,
+      0.726561
+     ]
+    },
+    "swarmling": {
+     "mean": 0.730473,
+     "ci95": [
+      0.66767,
+      0.795946
+     ]
+    },
+    "fastRunner": {
+     "mean": 0.542585,
+     "ci95": [
+      0.475011,
+      0.622794
+     ]
+    },
+    "regenerator": {
+     "mean": 1.307292,
+     "ci95": [
+      1.232485,
+      1.378834
+     ]
+    },
+    "shieldedBruiser": {
+     "mean": 1.300568,
+     "ci95": [
+      1.230262,
+      1.370656
+     ]
+    }
+   },
+   "sniperHeavy": {
+    "armoredGrunt": {
+     "mean": 0.698353,
+     "ci95": [
+      0.625249,
+      0.777633
+     ]
+    },
+    "swarmling": {
+     "mean": 0.897512,
+     "ci95": [
+      0.772421,
+      1.029144
+     ]
+    },
+    "fastRunner": {
+     "mean": 0.559492,
+     "ci95": [
+      0.494438,
+      0.629057
+     ]
+    },
+    "regenerator": {
+     "mean": 1.283135,
+     "ci95": [
+      1.197248,
+      1.367422
+     ]
+    },
+    "shieldedBruiser": {
+     "mean": 1.140268,
+     "ci95": [
+      1.073835,
+      1.210331
+     ]
+    }
+   }
+  }
+ },
+ "staticWinRateGuard": {
+  "perStyle": {
+   "balancedR": 0.466667,
+   "lanceHeavy": 0.666667,
+   "mortarHeavy": 0.533333,
+   "poisonHeavy": 0.8,
+   "sniperHeavy": 0.566667
+  },
+  "mean": 0.606667
+ },
+ "power": {
+  "P1": {
+   "sdSeedDiffs": 1.876607,
+   "observedEffect": 1.48,
+   "nForObservedEffect": 13,
+   "nForHalfEffect": 51
+  },
+  "P2": {
+   "sdSeedDiffs": 1.987652,
+   "observedEffect": 0.06,
+   "nForObservedEffect": 8614,
+   "nForHalfEffect": 34455
+  }
+ }
+}
