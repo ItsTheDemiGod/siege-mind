@@ -215,6 +215,11 @@ siege-mind/
     analyze.js               <- the pre-registered analysis (analyzeFormat.js renders text and markdown)
     analyzeCli.js            <- npm run analyze
     calibrate.js             <- bot calibration grid and chooseKnobs (static mode only); calibrateCli.js is npm run calibrate
+    compareRows.js           <- diffColumns: unit-by-unit comparison of two row sets (proves what an amendment changed)
+    amendmentReport.js       <- amendment A1 report (legacy versus A1 final tilt); npm run amendment-report
+    diagnose.js              <- static-mode diagnostics of the reward signal (diagnoseFormat.js, diagnoseCli.js; npm run diagnose)
+    figures/                 <- hand-written SVG toolkit (palette, svg, draw) and the six figure builders (figuresA.js, figuresB.js)
+    figuresCli.js            <- npm run figures: writes docs/results/figures
     directorCompare.js       <- Static vs Adaptive vs Random over bots and seeds, report-only hypotheses (npm run compare)
     run.js                   <- headless batch runner (Phase 8)
     matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
@@ -224,7 +229,7 @@ siege-mind/
     TELEMETRY.md             <- telemetry schema, attribution rules, CSV tables
     DIRECTOR.md              <- the Director algorithm, config keys, decision record, controls, overlay and report
     EXPERIMENT.md            <- the pre-registered experiment protocol
-    results/                 <- committed experiment outputs (calibration.*, tuning.csv, tuning.rows.json, tuning-summary.*)
+    results/                 <- committed experiment outputs; README.md explains every file (calibration, tuning, amendment-A1, diagnostics, figures/, archive/)
     fixtures/                <- demo-adaptive-w15.json: a recorded adaptive run for the gallery and tests
     DEMO_SCRIPT.md
     REPORT_NOTES.md
@@ -344,6 +349,7 @@ Full protocol: docs/EXPERIMENT.md (pre-registration); machine-readable: experime
 - **Games:** Quick (15 waves), five style bots (balancedR, lanceHeavy, mortarHeavy, poisonHeavy, sniperHeavy; own seeded random stream, knobs calibrated in static mode only), three modes (static, adaptive, random), seed sets calibration 1001-1010, tuning 1001-1030, held-out 2001-2060.
 - **Pipeline:** `npm run calibrate` -> `npm run experiment -- --set=tuning` (rows + CSV in docs/results) -> `npm run analyze` (paired seed-level differences, cluster bootstrap CI, sign-flip permutation p, Holm per family, effect sizes, power, tilt alignment). Every unit is validated; an incomplete data set is reported, never silently analyzed.
 - **Held-out lock:** `npm run experiment -- --set=heldout --final --yes` writes experiments/heldout.lock.json before playing; a second run needs --new-lock and leaves an audit trail. The held-out set is not run before Phase 8B.
+- **Amendment A1 (protocol version 2):** the final tilt is measured at the last ELIGIBLE wave for adaptive and random alike (`tiltObserved` flag); made after the tuning results were seen and before any held-out run; the v1 outputs are archived and `npm run amendment-report` compares the definitions. **Diagnostics** (`npm run diagnose`, static mode, tuning seeds) and **figures** (`npm run figures`, hand-written SVG) are described in docs/EXPERIMENT.md.
 - Runs export through `attachTelemetry` ('summary' detail) and the CSV tables; experiments/directorCompare.js (`npm run compare`) remains as a small preview.
 
 ## 10. Coding Conventions
@@ -500,7 +506,7 @@ Implemented; awaiting user check, then tag phase-6-complete.
 **Done when:** a viewer can watch the overlay and understand why each wave changed.
 Implemented; awaiting user check, then tag phase-7-complete.
 
-### [~] Phase 8A — Experiment harness
+### [x] Phase 8A — Experiment harness
 - [x] Pre-registered protocol (docs/EXPERIMENT.md, experiments/protocol.js with a hash)
 - [x] Five style bots with their own seeded random stream; calibration in static mode only (chosen knobs recorded)
 - [x] Metrics, batch runner with result files and identity (code hash, git commit), deterministic output
@@ -509,13 +515,16 @@ Implemented; awaiting user check, then tag phase-7-complete.
 - [x] One exploratory run on the tuning set, results committed under docs/results
 - [x] Director's report footnote and insight cap fixes
 **Done when:** one command reproduces the tuning comparison and the analysis is deterministic.
-Implemented; awaiting user check, then tag phase-8a-complete.
+Done (tagged phase-8a-complete).
 
-### [ ] Phase 8B — Figures and the held-out evaluation
-- [ ] Report-ready figures (hand-built SVG) from the results files
-- [ ] The held-out run through the lock (npm run experiment -- --set=heldout --final --yes)
+### [~] Phase 8B — Amendment, diagnostics and figures
+- [x] Amendment A1: final tilt at the last eligible wave (tiltObserved), protocol version 2; v1 outputs archived; the tuning set re-run (every non-tilt column identical)
+- [x] Amendment report (legacy versus A1) and diagnostics of the reward signal in static games
+- [x] Six report-ready figures as hand-written SVG with an index page
+- [ ] The held-out run through the lock (npm run experiment -- --set=heldout --final --yes), deferred until Director v2 exists
 - [ ] A Full-length (30-wave) confirmatory run on the first 20 held-out seeds
 - [ ] The final results write-up
+Implemented (amendment A1, diagnostics, figures); the held-out run is deferred until Director v2 exists; awaiting user check, then tag phase-8b-complete.
 
 ### [ ] Phase 9 — Final polish, audio, and balance
 - [ ] Balance pass using harness data
@@ -530,6 +539,7 @@ Implemented; awaiting user check, then tag phase-8a-complete.
 - [ ] Quick-mode finale wave (wave 15 is an ordinary wave in a Quick game)
 - [ ] Re-check the 60% worst-wave-share clause of T5 that Phase 4A.2 dropped
 - [ ] Wave control and end-card polish if the user finds issues
+- [ ] Director v2 developed on the TUNING set only: normalize rewards per enemy type against the static baselines from the diagnostics, shrink the weights of types with very few units, and add an informed counter arm (reads the tower loadout) as the achievable ceiling; then ONE held-out evaluation through the lock; report v1 as the before
 - [ ] Director tuning on the TUNING seed set only (small-sample shrinkage for types with very few units, tiltMax, beta, alpha, minThreatShare), then a single held-out evaluation; recalibrate the static guard (npm run calibrate) after any balance change
 - [ ] Rebalance after Phase 8 data: the Mortar deals about a third of all damage; revisit tiltMax, beta and alpha using Phase 8 results
 **Done when:** the game feels good to play for 15+ minutes and balance data supports it.
@@ -703,6 +713,13 @@ Implemented; awaiting user check, then tag phase-8a-complete.
 - 2026-10-19 | 8A | (h) Experiment outputs are committed under docs/results (calibration.*, tuning.csv, tuning.rows.json, tuning-summary.*); experiments/results stays git-ignored for scratch output
 - 2026-10-19 | 8A | (i) Other: the style bots' calibration range gives balancedR a fixed 0.2 weight per tower (it ignores focusWeight); T1 skips styles without a prediction; supportsDirection is only the sign of the mean difference (read it together with the CI); the analysis returns an incomplete-data report instead of statistics when units are missing or duplicated; the tuning rows file records the git commit and the dirty flag (it was produced before the calibrated knobs were committed)
 
+- 2026-10-19 | 8B | (a) Amendment A1: the final tilt is the applied tilt of the last ELIGIBLE wave record for adaptive and random alike, plus a tiltObserved flag (protocol version 2, A1 recorded in PROTOCOL.amendments). Why: in Phase 8A random mode could report a tilt of exactly 1 whenever its last record was a non-eligible wave (42 of 150 random rows) while adaptive used held weights, so the two modes were measured differently. Chronology: noticed AFTER the tuning results had been seen, made before any held-out run; no hypothesis, no P1-P2/S1-S8/C1 metric and no seed set changed
+- 2026-10-19 | 8B | (b) The Phase 8A tuning outputs were archived with git mv (docs/results/archive/tuning-v1.*) in their own commit (the move had to wait for a file lock held by a spreadsheet program; the first commit of the phase was made without it and the archive follows in a separate commit, history not rewritten); the re-run under A1 is identical in every column except the tilt columns (checked for all 450 units)
+- 2026-10-19 | 8B | (c) Diagnostics are static-mode only and tuning-seed only, and are used by no code; they test the hypothesis that the reward favors tanky enemy types regardless of the player's defense
+- 2026-10-19 | 8B | (d) Figures are written by hand as SVG strings in JS (no libraries), white background, Okabe-Ito colors, and every series also differs by marker shape or fill pattern; the heatmap repeats direction with a triangle glyph
+- 2026-10-19 | 8B | (e) Nothing under src/ and nothing in the Director changed; the held-out set was not run and experiments/heldout.lock.json does not exist
+- 2026-10-19 | 8B | (f) Other: analyze reports how many rows each tilt statistic used and excluded; T1 uses rows with tiltObserved 1 only; the figure builders import the marker and pattern tables from src/ui/directorChart.js read-only; supportsDirection remains only the sign of the mean difference
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -749,6 +766,11 @@ Implemented; awaiting user check, then tag phase-8a-complete.
 - balancedR (a random tower mix) wins only about 45% of static games and its Director results barely move (a possible ceiling or floor effect); the calibration constrains the mean, not the spread between styles.
 - All styles lose most lives in the same few waves; seeds only change lanes and the bots' random choices, so seed-level variation is modest (sd of seed-level P1 differences 1.9 lives).
 - The tuning run's rows file records gitDirty true: it was produced with the calibrated knobs in the working tree before they were committed (the code and protocol hashes are the ones in the commit).
+- Under A1 the tilt-alignment comparison (T1) is more strongly reversed than under the Phase 8A definition (adaptive minus random -0.556, CI -0.647 to -0.464): the random control leans toward the predicted types in 67% to 97% of its observed games, the Director in 0% to 67%. Random tilts are drawn uniformly from [1/3, 3], so a maximum over the predicted types rarely stays below 1.15; the test favors the control by construction, so T1 says little about whether the Director responds to the style.
+- The diagnostics support the tankiness hypothesis: in static games Regenerator (1.31) and Shielded Bruiser (1.26) earn more reward per unit of threat than average and Fast Runner (0.55) far less; only about 1% of the reward variance is explained by the bot style while 29% to 56% is explained by the wave.
+- 15 of 150 adaptive and 15 of 150 random games ended before an eligible wave (tiltObserved 0) and are excluded from tilt statistics only.
+- Test runtimes grew on this machine (balance 25 s, whole suite 32 s in the last run): the machine was busy; Phase 8A measured 10 s and 12 s.
+- Phase 8B was checked on the tuning set only; the figures were looked at as rendered images in headless Chrome, not in other viewers.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -767,3 +789,4 @@ Implemented; awaiting user check, then tag phase-8a-complete.
 - 2026-10-19 | Phase 6 | Shared wave composer and golden static waves, Director math, Director and random control, game wiring, decision records, telemetry hook and validation, docs/DIRECTOR.md, monoMortar and monoSniper bots, playthrough --mode, compare tool, modes in menu and URL, Director UI lines; 778 tests pass; static results identical to Phase 5; headless Chrome smoke passes (5 checks) | User checks, then tag phase-6-complete; Phase 7 only when the user says so
 - 2026-10-19 | Phase 7 | Layout fixes (wave control 360, HUD text), pure modules (decision log, director view, chart model, report, end card layout), Director overlay with HUD button and hotkey I, SVG charts, direction marks, scan sweep with a reduced-motion fade, the Director's Report from the end card, gallery section, demo fixture, window.__siege debug handle, smoke checks 6-8; 834 tests pass; Phase 6 results reproduce exactly (static 8 lives, adaptive 1, random 5); real-browser evidence from headless Chrome | User checks, then tag phase-7-complete; Phase 8 only when the user says so
 - 2026-10-19 | Phase 8A | Insight cap 7 and the adaptive footnote; pre-registered protocol, five style bots, metrics, batch runner, statistics and analysis, held-out lock (not run), calibration (static only), one exploratory tuning-set run (450 games) with committed results, docs/EXPERIMENT.md; 894 tests pass; Phase 7 results reproduce exactly | User checks, then tag phase-8a-complete; Phase 8B only when the user says so
+- 2026-10-19 | Phase 8B | Amendment A1 (final tilt at the last eligible wave, protocol version 2), archive of the v1 outputs, tuning set re-run (non-tilt columns identical), amendment report, static-mode diagnostics of the reward signal, six hand-written SVG figures with an index page, docs/results/README.md; 934 tests pass; Phase 7 results reproduce exactly; nothing under src changed; held-out set not run | User checks, then tag phase-8b-complete; Phase 9 only when the user says so

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 492" width="960" height="492" role="img" aria-labelledby="fig-title fig-desc">
+<title id="fig-title">Reward signal diagnostics in static games</title>
+<desc id="fig-desc">Bar charts of the reward ratio per enemy type and of the share of reward variance explained by style and wave, measured in static games.</desc>
+<rect width="960" height="492" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#1a1a1a">
+<defs><pattern id="f6-swarmling" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M -1 7 L 7 -1 M -1 1 L 1 -1 M 5 7 L 7 5" stroke="#1a1a1a" stroke-width="1.6" fill="none"/></pattern><pattern id="f6-fastRunner" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><circle cx="3" cy="3" r="1.4" fill="#1a1a1a"/></pattern><pattern id="f6-regenerator" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M 0 2 H 6 M 0 5 H 6" stroke="#1a1a1a" stroke-width="1.5" fill="none"/></pattern><pattern id="f6-shieldedBruiser" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M 3 0 V 6 M 0 3 H 6" stroke="#1a1a1a" stroke-width="1.5" fill="none"/></pattern><pattern id="f6-eta-wave" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M -1 7 L 7 -1 M -1 1 L 1 -1 M 5 7 L 7 5" stroke="#1a1a1a" stroke-width="1.6" fill="none"/></pattern></defs>
+<text x="480" y="28" font-size="16" text-anchor="middle" font-weight="bold" fill="#1a1a1a">Figure 6. Why the weights follow tankiness: the reward signal in static games (tuning seeds)</text>
+<text x="60" y="62" font-size="13" text-anchor="start" font-weight="bold" fill="#1a1a1a">(a) Reward per unit of threat, relative to the all-type average (waves 5+)</text>
+<line x1="60" y1="340" x2="450" y2="340" stroke="#d9d9d9" stroke-width="1"/>
+<text x="54" y="344" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">0</text>
+<line x1="60" y1="264.24" x2="450" y2="264.24" stroke="#d9d9d9" stroke-width="1"/>
+<text x="54" y="268.24" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">0.5</text>
+<line x1="60" y1="188.48" x2="450" y2="188.48" stroke="#d9d9d9" stroke-width="1"/>
+<text x="54" y="192.48" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">1</text>
+<line x1="60" y1="112.73" x2="450" y2="112.73" stroke="#d9d9d9" stroke-width="1"/>
+<text x="54" y="116.73" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">1.5</text>
+<rect x="70" y="216.55" width="58" height="123.45" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" data-type="armoredGrunt" data-panel="a"/>
+<text x="99" y="211.55" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.81</text>
+<text x="99" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Armored</text>
+<text x="99" y="370" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Grunt</text>
+<rect x="148" y="166.63" width="58" height="173.37" fill="url(#f6-swarmling)" stroke="#1a1a1a" stroke-width="1.5" data-type="swarmling" data-panel="a"/>
+<text x="177" y="161.63" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">1.14</text>
+<text x="177" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Swarmling</text>
+<rect x="226" y="256.4" width="58" height="83.6" fill="url(#f6-fastRunner)" stroke="#1a1a1a" stroke-width="1.5" data-type="fastRunner" data-panel="a"/>
+<text x="255" y="251.4" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.55</text>
+<text x="255" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Fast</text>
+<text x="255" y="370" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Runner</text>
+<rect x="304" y="141.33" width="58" height="198.67" fill="url(#f6-regenerator)" stroke="#1a1a1a" stroke-width="1.5" data-type="regenerator" data-panel="a"/>
+<text x="333" y="136.33" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">1.31</text>
+<text x="333" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Regenerator</text>
+<rect x="382" y="148.43" width="58" height="191.57" fill="url(#f6-shieldedBruiser)" stroke="#1a1a1a" stroke-width="1.5" data-type="shieldedBruiser" data-panel="a"/>
+<text x="411" y="143.43" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">1.26</text>
+<text x="411" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Shielded</text>
+<text x="411" y="370" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Bruiser</text>
+<line x1="60" y1="188.48" x2="450" y2="188.48" stroke="#1a1a1a" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="454" y="192.48" font-size="11" text-anchor="start" font-weight="normal" fill="#1a1a1a">1.0</text>
+<line x1="60" y1="340" x2="450" y2="340" stroke="#1a1a1a" stroke-width="1"/>
+<text x="540" y="62" font-size="13" text-anchor="start" font-weight="bold" fill="#1a1a1a">(b) Share of reward variance explained</text>
+<line x1="540" y1="340" x2="940" y2="340" stroke="#d9d9d9" stroke-width="1"/>
+<text x="534" y="344" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">0</text>
+<line x1="540" y1="277.5" x2="940" y2="277.5" stroke="#d9d9d9" stroke-width="1"/>
+<text x="534" y="281.5" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">0.25</text>
+<line x1="540" y1="215" x2="940" y2="215" stroke="#d9d9d9" stroke-width="1"/>
+<text x="534" y="219" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">0.5</text>
+<line x1="540" y1="152.5" x2="940" y2="152.5" stroke="#d9d9d9" stroke-width="1"/>
+<text x="534" y="156.5" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">0.75</text>
+<line x1="540" y1="90" x2="940" y2="90" stroke="#d9d9d9" stroke-width="1"/>
+<text x="534" y="94" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">1</text>
+<rect x="548" y="336.16" width="24" height="3.84" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" data-type="armoredGrunt" data-panel="b" data-series="etaStyle"/>
+<text x="560" y="331.16" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.02</text>
+<rect x="574" y="268.31" width="24" height="71.69" fill="url(#f6-eta-wave)" stroke="#1a1a1a" stroke-width="1.5" data-type="armoredGrunt" data-panel="b" data-series="etaWave"/>
+<text x="586" y="263.31" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.29</text>
+<text x="573" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Armored</text>
+<text x="573" y="370" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Grunt</text>
+<rect x="628" y="337.47" width="24" height="2.53" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" data-type="swarmling" data-panel="b" data-series="etaStyle"/>
+<text x="640" y="332.47" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.01</text>
+<rect x="654" y="216.46" width="24" height="123.54" fill="url(#f6-eta-wave)" stroke="#1a1a1a" stroke-width="1.5" data-type="swarmling" data-panel="b" data-series="etaWave"/>
+<text x="666" y="211.46" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.49</text>
+<text x="653" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Swarmling</text>
+<rect x="708" y="338.48" width="24" height="1.52" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" data-type="fastRunner" data-panel="b" data-series="etaStyle"/>
+<text x="720" y="333.48" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.01</text>
+<rect x="734" y="203.49" width="24" height="136.51" fill="url(#f6-eta-wave)" stroke="#1a1a1a" stroke-width="1.5" data-type="fastRunner" data-panel="b" data-series="etaWave"/>
+<text x="746" y="198.49" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.55</text>
+<text x="733" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Fast</text>
+<text x="733" y="370" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Runner</text>
+<rect x="788" y="338.03" width="24" height="1.97" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" data-type="regenerator" data-panel="b" data-series="etaStyle"/>
+<text x="800" y="333.03" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.01</text>
+<rect x="814" y="205.95" width="24" height="134.05" fill="url(#f6-eta-wave)" stroke="#1a1a1a" stroke-width="1.5" data-type="regenerator" data-panel="b" data-series="etaWave"/>
+<text x="826" y="200.95" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.54</text>
+<text x="813" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Regenerator</text>
+<rect x="868" y="336.44" width="24" height="3.56" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5" data-type="shieldedBruiser" data-panel="b" data-series="etaStyle"/>
+<text x="880" y="331.44" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.01</text>
+<rect x="894" y="200.63" width="24" height="139.37" fill="url(#f6-eta-wave)" stroke="#1a1a1a" stroke-width="1.5" data-type="shieldedBruiser" data-panel="b" data-series="etaWave"/>
+<text x="906" y="195.63" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">0.56</text>
+<text x="893" y="356" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Shielded</text>
+<text x="893" y="370" font-size="11" text-anchor="middle" font-weight="normal" fill="#1a1a1a">Bruiser</text>
+<line x1="540" y1="340" x2="940" y2="340" stroke="#1a1a1a" stroke-width="1"/>
+<rect x="540" y="392" width="22" height="12" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.2"/>
+<text x="568" y="403" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">explained by style</text>
+<rect x="704.8" y="392" width="22" height="12" fill="url(#f6-eta-wave)" stroke="#1a1a1a" stroke-width="1.2"/>
+<text x="732.8" y="403" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">explained by wave</text>
+<text x="16" y="432" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">These are static-mode measurements: no Director influenced the games. (a) A bar above 1 means an enemy type earns more reward per</text>
+<text x="16" y="448" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">unit of threat than the average type, whatever the player builds. (b) Eta squared is the share of the variance of the per-wave</text>
+<text x="16" y="464" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">reward of a type explained by the bot style (solid) or by the wave (hatched).</text>
+</g>
+</svg>

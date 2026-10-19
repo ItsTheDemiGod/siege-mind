@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 484" width="960" height="484" role="img" aria-labelledby="fig-title fig-desc">
+<title id="fig-title">Tilt alignment, adaptive versus random</title>
+<desc id="fig-desc">Dot and whisker chart of the share of games whose final enemy weights lean toward the predicted types, adaptive versus random control.</desc>
+<rect width="960" height="484" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#1a1a1a">
+<text x="480" y="28" font-size="16" text-anchor="middle" font-weight="bold" fill="#1a1a1a">Figure 5. How often the final weights lean toward the predicted enemy types (tuning set)</text>
+<path d="M 236 49 h 10 v 10 h -10 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+<text x="258" y="57" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Adaptive</text>
+<path d="M 339.8 49 L 344.8 59 L 334.8 59 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+<text x="356.8" y="57" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Random control</text>
+<line x1="230" y1="86" x2="230" y2="392" stroke="#d9d9d9" stroke-width="1"/>
+<text x="230" y="410" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0%</text>
+<line x1="368" y1="86" x2="368" y2="392" stroke="#d9d9d9" stroke-width="1"/>
+<text x="368" y="410" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">20%</text>
+<line x1="506" y1="86" x2="506" y2="392" stroke="#d9d9d9" stroke-width="1"/>
+<text x="506" y="410" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">40%</text>
+<line x1="644" y1="86" x2="644" y2="392" stroke="#d9d9d9" stroke-width="1"/>
+<text x="644" y="410" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">60%</text>
+<line x1="782" y1="86" x2="782" y2="392" stroke="#d9d9d9" stroke-width="1"/>
+<text x="782" y="410" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">80%</text>
+<line x1="920" y1="86" x2="920" y2="392" stroke="#d9d9d9" stroke-width="1"/>
+<text x="920" y="410" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">100%</text>
+<text x="216" y="131" font-size="12" text-anchor="end" font-weight="bold" fill="#1a1a1a">lanceHeavy</text>
+<text x="216" y="147" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">predicted: swarmling</text>
+<g data-point="lanceHeavy:adaptive">
+<line x1="270.82" y1="122" x2="454.1" y2="122" stroke="#D55E00" stroke-width="2"/>
+<path d="M 326.72 116.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="lanceHeavy:random">
+<line x1="559.99" y1="144" x2="791.36" y2="144" stroke="#009E73" stroke-width="2"/>
+<path d="M 690 138.5 L 695.5 149.5 L 684.5 149.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="216" y="205" font-size="12" text-anchor="end" font-weight="bold" fill="#1a1a1a">mortarHeavy</text>
+<text x="216" y="221" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">predicted: fastRunner</text>
+<g data-point="mortarHeavy:adaptive">
+<line x1="230" y1="196" x2="315.94" y2="196" stroke="#D55E00" stroke-width="2"/>
+<path d="M 224.5 190.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="mortarHeavy:random">
+<line x1="638.78" y1="218" x2="846.81" y2="218" stroke="#009E73" stroke-width="2"/>
+<path d="M 766.67 212.5 L 772.17 223.5 L 761.17 223.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="216" y="279" font-size="12" text-anchor="end" font-weight="bold" fill="#1a1a1a">poisonHeavy</text>
+<text x="216" y="295" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">predicted: fastRunner, shieldedBruiser</text>
+<g data-point="poisonHeavy:adaptive">
+<line x1="566.58" y1="270" x2="787.31" y2="270" stroke="#D55E00" stroke-width="2"/>
+<path d="M 684.5 264.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="poisonHeavy:random">
+<line x1="804.97" y1="292" x2="915.92" y2="292" stroke="#009E73" stroke-width="2"/>
+<path d="M 897 286.5 L 902.5 297.5 L 891.5 297.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="216" y="353" font-size="12" text-anchor="end" font-weight="bold" fill="#1a1a1a">sniperHeavy</text>
+<text x="216" y="369" font-size="11" text-anchor="end" font-weight="normal" fill="#555555">predicted: swarmling, fastRunner</text>
+<g data-point="sniperHeavy:adaptive">
+<line x1="320.88" y1="344" x2="538.28" y2="344" stroke="#D55E00" stroke-width="2"/>
+<path d="M 403.39 338.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="sniperHeavy:random">
+<line x1="726.4" y1="366" x2="893.42" y2="366" stroke="#009E73" stroke-width="2"/>
+<path d="M 843.33 360.5 L 848.83 371.5 L 837.83 371.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="575" y="430" font-size="12" text-anchor="middle" font-weight="normal" fill="#1a1a1a">share of games with a final weight of at least 1.15 on a predicted type</text>
+<text x="16" y="454" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Only games that reached an eligible wave are counted (amendment A1). Whiskers are Wilson 95% intervals. Tuning-set results are</text>
+<text x="16" y="470" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">exploratory.</text>
+</g>
+</svg>

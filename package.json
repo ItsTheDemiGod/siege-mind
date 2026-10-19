@@ -19,7 +19,8 @@
     "analyze": "node experiments/analyzeCli.js",
     "calibrate": "node experiments/calibrateCli.js",
     "amendment-report": "node experiments/amendmentReport.js",
-    "diagnose": "node experiments/diagnoseCli.js"
+    "diagnose": "node experiments/diagnoseCli.js",
+    "figures": "node experiments/figuresCli.js"
   },
   "engines": {
     "node": ">=22"

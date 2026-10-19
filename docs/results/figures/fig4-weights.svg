@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 494" width="960" height="494" role="img" aria-labelledby="fig-title fig-desc">
+<title id="fig-title">Mean final enemy weight per style</title>
+<desc id="fig-desc">Heatmap of the Director&apos;s mean final weight per enemy type for each bot style in adaptive mode.</desc>
+<rect width="960" height="494" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#1a1a1a">
+<text x="480" y="28" font-size="16" text-anchor="middle" font-weight="bold" fill="#1a1a1a">Figure 4. Mean final enemy weight per bot style, adaptive mode (tuning set)</text>
+<path d="M 164 64 a 5 5 0 1 0 10 0 a 5 5 0 1 0 -10 0 Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5"/>
+<text x="179" y="69" font-size="12" text-anchor="start" font-weight="bold" fill="#1a1a1a">Armored Grunt</text>
+<path d="M 311 59 L 316 69 L 306 69 Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5"/>
+<text x="321" y="69" font-size="12" text-anchor="start" font-weight="bold" fill="#1a1a1a">Swarmling</text>
+<path d="M 453 59 L 458 64 L 453 69 L 448 64 Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5"/>
+<text x="463" y="69" font-size="12" text-anchor="start" font-weight="bold" fill="#1a1a1a">Fast Runner</text>
+<path d="M 590 59 h 10 v 10 h -10 Z" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="1.5"/>
+<text x="605" y="69" font-size="12" text-anchor="start" font-weight="bold" fill="#1a1a1a">Regenerator</text>
+<path d="M 732 59 L 742 69 M 732 69 L 742 59" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+<text x="747" y="69" font-size="12" text-anchor="start" font-weight="bold" fill="#1a1a1a">Shielded Bruiser</text>
+<text x="138" y="132" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">balancedR</text>
+<g data-cell="balancedR:armoredGrunt">
+<rect x="151" y="101" width="140" height="54" fill="#8dc0dd" stroke="#ffffff" stroke-width="2"/>
+<text x="229" y="134" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.68</text>
+<path d="M 160 123 L 172 123 L 166 134 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="balancedR:swarmling">
+<rect x="293" y="101" width="140" height="54" fill="#c2dded" stroke="#ffffff" stroke-width="2"/>
+<text x="371" y="134" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.83</text>
+<path d="M 302 123 L 314 123 L 308 134 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="balancedR:fastRunner">
+<rect x="435" y="101" width="140" height="54" fill="#65aad0" stroke="#ffffff" stroke-width="2"/>
+<text x="513" y="134" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.57</text>
+<path d="M 444 123 L 456 123 L 450 134 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="balancedR:regenerator">
+<rect x="577" y="101" width="140" height="54" fill="#f1c8a8" stroke="#ffffff" stroke-width="2"/>
+<text x="655" y="134" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.24</text>
+<path d="M 592 122 L 598 133 L 586 133 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="balancedR:shieldedBruiser">
+<rect x="719" y="101" width="140" height="54" fill="#f1caab" stroke="#ffffff" stroke-width="2"/>
+<text x="797" y="134" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.24</text>
+<path d="M 734 122 L 740 133 L 728 133 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<text x="138" y="188" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">lanceHeavy</text>
+<g data-cell="lanceHeavy:armoredGrunt">
+<rect x="151" y="157" width="140" height="54" fill="#7eb8d8" stroke="#ffffff" stroke-width="2"/>
+<text x="229" y="190" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.64</text>
+<path d="M 160 179 L 172 179 L 166 190 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="lanceHeavy:swarmling">
+<rect x="293" y="157" width="140" height="54" fill="#c0dcec" stroke="#ffffff" stroke-width="2"/>
+<text x="371" y="190" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.82</text>
+<path d="M 302 179 L 314 179 L 308 190 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="lanceHeavy:fastRunner">
+<rect x="435" y="157" width="140" height="54" fill="#53a0cb" stroke="#ffffff" stroke-width="2"/>
+<text x="513" y="190" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.52</text>
+<path d="M 444 179 L 456 179 L 450 190 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="lanceHeavy:regenerator">
+<rect x="577" y="157" width="140" height="54" fill="#ecb58a" stroke="#ffffff" stroke-width="2"/>
+<text x="655" y="190" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.33</text>
+<path d="M 592 178 L 598 189 L 586 189 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="lanceHeavy:shieldedBruiser">
+<rect x="719" y="157" width="140" height="54" fill="#f0c7a6" stroke="#ffffff" stroke-width="2"/>
+<text x="797" y="190" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.25</text>
+<path d="M 734 178 L 740 189 L 728 189 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<text x="138" y="244" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">mortarHeavy</text>
+<g data-cell="mortarHeavy:armoredGrunt">
+<rect x="151" y="213" width="140" height="54" fill="#86bcda" stroke="#ffffff" stroke-width="2"/>
+<text x="229" y="246" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.66</text>
+<path d="M 160 235 L 172 235 L 166 246 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="mortarHeavy:swarmling">
+<rect x="293" y="213" width="140" height="54" fill="#c7e0ee" stroke="#ffffff" stroke-width="2"/>
+<text x="371" y="246" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.84</text>
+<path d="M 302 235 L 314 235 L 308 246 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="mortarHeavy:fastRunner">
+<rect x="435" y="213" width="140" height="54" fill="#57a2cc" stroke="#ffffff" stroke-width="2"/>
+<text x="513" y="246" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.53</text>
+<path d="M 444 235 L 456 235 L 450 246 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="mortarHeavy:regenerator">
+<rect x="577" y="213" width="140" height="54" fill="#eebc96" stroke="#ffffff" stroke-width="2"/>
+<text x="655" y="246" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.30</text>
+<path d="M 592 234 L 598 245 L 586 245 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="mortarHeavy:shieldedBruiser">
+<rect x="719" y="213" width="140" height="54" fill="#f3d1b6" stroke="#ffffff" stroke-width="2"/>
+<text x="797" y="246" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.20</text>
+<path d="M 734 234 L 740 245 L 728 245 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<text x="138" y="300" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">poisonHeavy</text>
+<g data-cell="poisonHeavy:armoredGrunt">
+<rect x="151" y="269" width="140" height="54" fill="#83bad9" stroke="#ffffff" stroke-width="2"/>
+<text x="229" y="302" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.65</text>
+<path d="M 160 291 L 172 291 L 166 302 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="poisonHeavy:swarmling">
+<rect x="293" y="269" width="140" height="54" fill="#a2cce3" stroke="#ffffff" stroke-width="2"/>
+<text x="371" y="302" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.74</text>
+<path d="M 302 291 L 314 291 L 308 302 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="poisonHeavy:fastRunner">
+<rect x="435" y="269" width="140" height="54" fill="#60a7cf" stroke="#ffffff" stroke-width="2"/>
+<text x="513" y="302" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.55</text>
+<path d="M 444 291 L 456 291 L 450 302 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="poisonHeavy:regenerator">
+<rect x="577" y="269" width="140" height="54" fill="#edbb93" stroke="#ffffff" stroke-width="2"/>
+<text x="655" y="302" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.30</text>
+<path d="M 592 290 L 598 301 L 586 301 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="poisonHeavy:shieldedBruiser">
+<rect x="719" y="269" width="140" height="54" fill="#efc29e" stroke="#ffffff" stroke-width="2"/>
+<text x="797" y="302" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.27</text>
+<path d="M 734 290 L 740 301 L 728 301 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<text x="138" y="356" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">sniperHeavy</text>
+<g data-cell="sniperHeavy:armoredGrunt">
+<rect x="151" y="325" width="140" height="54" fill="#8abedc" stroke="#ffffff" stroke-width="2"/>
+<text x="229" y="358" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.67</text>
+<path d="M 160 347 L 172 347 L 166 358 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="sniperHeavy:swarmling">
+<rect x="293" y="325" width="140" height="54" fill="#d9eaf3" stroke="#ffffff" stroke-width="2"/>
+<text x="371" y="358" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.89</text>
+<path d="M 302 347 L 314 347 L 308 358 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="sniperHeavy:fastRunner">
+<rect x="435" y="325" width="140" height="54" fill="#53a0cb" stroke="#ffffff" stroke-width="2"/>
+<text x="513" y="358" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">0.52</text>
+<path d="M 444 347 L 456 347 L 450 358 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="sniperHeavy:regenerator">
+<rect x="577" y="325" width="140" height="54" fill="#ecb58a" stroke="#ffffff" stroke-width="2"/>
+<text x="655" y="358" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.33</text>
+<path d="M 592 346 L 598 357 L 586 357 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<g data-cell="sniperHeavy:shieldedBruiser">
+<rect x="719" y="325" width="140" height="54" fill="#f6dcc8" stroke="#ffffff" stroke-width="2"/>
+<text x="797" y="358" font-size="17" text-anchor="middle" font-weight="bold" fill="#1a1a1a">1.15</text>
+<path d="M 734 346 L 740 357 L 728 357 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+</g>
+<path d="M 156 396 L 162 407 L 150 407 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+<text x="168" y="406" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">weight above 1.10 (raised)</text>
+<path d="M 364 397 L 376 397 L 370 408 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+<text x="382" y="406" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">weight below 0.91 (lowered)</text>
+<text x="16" y="434" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Cell value: the mean over seeds of the applied weight (tilt) at the last eligible wave, adaptive mode; 1.00 means the static mix.</text>
+<text x="16" y="450" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Blue fill: below 1; vermillion fill: above 1; the triangle glyph repeats the direction for cells outside 0.91 to 1.10. Tuning-set</text>
+<text x="16" y="466" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">results are exploratory.</text>
+</g>
+</svg>

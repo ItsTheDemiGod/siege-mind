@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-labelledby="fig-title fig-desc">
+<title id="fig-title">Win rate by style and mode</title>
+<desc id="fig-desc">Dot and whisker chart of win rates with Wilson intervals for static, adaptive and random modes per bot style.</desc>
+<rect width="960" height="600" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#1a1a1a">
+<text x="480" y="28" font-size="16" text-anchor="middle" font-weight="bold" fill="#1a1a1a">Figure 3. Win rate by bot style and mode, with Wilson 95% intervals (tuning set)</text>
+<path d="M 156 52 a 5 5 0 1 0 10 0 a 5 5 0 1 0 -10 0 Z" fill="#0072B2" stroke="#0072B2" stroke-width="1.5"/>
+<text x="178" y="55" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Static</text>
+<path d="M 241.6 47 h 10 v 10 h -10 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+<text x="263.6" y="55" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Adaptive</text>
+<path d="M 345.4 47 L 350.4 57 L 340.4 57 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+<text x="362.4" y="55" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Random control</text>
+<line x1="150" y1="76" x2="150" y2="492" stroke="#d9d9d9" stroke-width="1"/>
+<text x="150" y="510" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0%</text>
+<line x1="304" y1="76" x2="304" y2="492" stroke="#d9d9d9" stroke-width="1"/>
+<text x="304" y="510" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">20%</text>
+<line x1="458" y1="76" x2="458" y2="492" stroke="#d9d9d9" stroke-width="1"/>
+<text x="458" y="510" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">40%</text>
+<line x1="612" y1="76" x2="612" y2="492" stroke="#d9d9d9" stroke-width="1"/>
+<text x="612" y="510" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">60%</text>
+<line x1="766" y1="76" x2="766" y2="492" stroke="#d9d9d9" stroke-width="1"/>
+<text x="766" y="510" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">80%</text>
+<line x1="920" y1="76" x2="920" y2="492" stroke="#d9d9d9" stroke-width="1"/>
+<text x="920" y="510" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">100%</text>
+<text x="138" y="122" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">balancedR</text>
+<g data-point="balancedR:static">
+<line x1="382.79" y1="101" x2="641.7" y2="101" stroke="#0072B2" stroke-width="2"/>
+<path d="M 503.83 101 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 Z" fill="#0072B2" stroke="#0072B2" stroke-width="1.5"/>
+</g>
+<g data-point="balancedR:adaptive">
+<line x1="382.79" y1="118" x2="641.7" y2="118" stroke="#D55E00" stroke-width="2"/>
+<path d="M 503.83 112.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="balancedR:random">
+<line x1="360.81" y1="135" x2="618.18" y2="135" stroke="#009E73" stroke-width="2"/>
+<path d="M 483.67 129.5 L 489.17 140.5 L 478.17 140.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="138" y="190" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">lanceHeavy</text>
+<g data-point="lanceHeavy:static">
+<line x1="525.61" y1="169" x2="771.93" y2="169" stroke="#0072B2" stroke-width="2"/>
+<path d="M 657.83 169 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 Z" fill="#0072B2" stroke="#0072B2" stroke-width="1.5"/>
+</g>
+<g data-point="lanceHeavy:adaptive">
+<line x1="382.79" y1="186" x2="641.7" y2="186" stroke="#D55E00" stroke-width="2"/>
+<path d="M 503.83 180.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="lanceHeavy:random">
+<line x1="451.82" y1="203" x2="709.19" y2="203" stroke="#009E73" stroke-width="2"/>
+<path d="M 586.33 197.5 L 591.83 208.5 L 580.83 208.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="138" y="258" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">mortarHeavy</text>
+<g data-point="mortarHeavy:static">
+<line x1="428.3" y1="237" x2="687.21" y2="237" stroke="#0072B2" stroke-width="2"/>
+<path d="M 555.17 237 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 Z" fill="#0072B2" stroke="#0072B2" stroke-width="1.5"/>
+</g>
+<g data-point="mortarHeavy:adaptive">
+<line x1="405.29" y1="254" x2="664.71" y2="254" stroke="#D55E00" stroke-width="2"/>
+<path d="M 529.5 248.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="mortarHeavy:random">
+<line x1="428.3" y1="271" x2="687.21" y2="271" stroke="#009E73" stroke-width="2"/>
+<path d="M 560.67 265.5 L 566.17 276.5 L 555.17 276.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="138" y="326" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">poisonHeavy</text>
+<g data-point="poisonHeavy:static">
+<line x1="632.75" y1="305" x2="846.81" y2="305" stroke="#0072B2" stroke-width="2"/>
+<path d="M 760.5 305 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 Z" fill="#0072B2" stroke="#0072B2" stroke-width="1.5"/>
+</g>
+<g data-point="poisonHeavy:adaptive">
+<line x1="451.82" y1="322" x2="709.19" y2="322" stroke="#D55E00" stroke-width="2"/>
+<path d="M 580.83 316.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="poisonHeavy:random">
+<line x1="551.36" y1="339" x2="791.68" y2="339" stroke="#009E73" stroke-width="2"/>
+<path d="M 689 333.5 L 694.5 344.5 L 683.5 344.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="138" y="394" font-size="12" text-anchor="end" font-weight="normal" fill="#1a1a1a">sniperHeavy</text>
+<g data-point="sniperHeavy:static">
+<line x1="451.82" y1="373" x2="709.19" y2="373" stroke="#0072B2" stroke-width="2"/>
+<path d="M 580.83 373 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 Z" fill="#0072B2" stroke="#0072B2" stroke-width="1.5"/>
+</g>
+<g data-point="sniperHeavy:adaptive">
+<line x1="382.79" y1="390" x2="641.7" y2="390" stroke="#D55E00" stroke-width="2"/>
+<path d="M 503.83 384.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="sniperHeavy:random">
+<line x1="382.79" y1="407" x2="641.7" y2="407" stroke="#009E73" stroke-width="2"/>
+<path d="M 509.33 401.5 L 514.83 412.5 L 503.83 412.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="138" y="462" font-size="12" text-anchor="end" font-weight="bold" fill="#1a1a1a">all</text>
+<g data-point="all:static">
+<line x1="555.61" y1="441" x2="674.55" y2="441" stroke="#0072B2" stroke-width="2"/>
+<path d="M 611.63 441 a 5.5 5.5 0 1 0 11 0 a 5.5 5.5 0 1 0 -11 0 Z" fill="#0072B2" stroke="#0072B2" stroke-width="1.5"/>
+</g>
+<g data-point="all:adaptive">
+<line x1="469.16" y1="458" x2="590.83" y2="458" stroke="#D55E00" stroke-width="2"/>
+<path d="M 524.37 452.5 h 11 v 11 h -11 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.5"/>
+</g>
+<g data-point="all:random">
+<line x1="504.38" y1="475" x2="625.68" y2="475" stroke="#009E73" stroke-width="2"/>
+<path d="M 565.8 469.5 L 571.3 480.5 L 560.3 480.5 Z" fill="#009E73" stroke="#009E73" stroke-width="1.5"/>
+</g>
+<text x="535" y="530" font-size="12" text-anchor="middle" font-weight="normal" fill="#1a1a1a">win rate</text>
+<text x="16" y="554" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Each marker is the share of games won; the whisker is the Wilson 95% interval over the games of that style and mode (30 seeds per</text>
+<text x="16" y="570" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">style, 150 games per mode). Tuning-set results are exploratory.</text>
+</g>
+</svg>

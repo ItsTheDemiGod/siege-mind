@@ -74,6 +74,14 @@ Seeds are the clusters: the same seed with different modes shares its random cho
 
 Director v2 will be developed using ONLY the tuning seeds; the v1 tuning results are reported as the "before"; the held-out set will be run once through the lock with the final Director.
 
+## Diagnostics
+
+`npm run diagnose` measures, in STATIC games on the tuning seeds only (no Director involved), why the Director's weights follow enemy tankiness more than the player's defense. The hypothesis: the reward formula (leak damage times progress squared per unit of threat) is higher for tanky enemy types (Regenerator, Shielded Bruiser) than for fragile ones whatever the player builds, so a learner that follows the reward ends up favoring tanks. It reports (1) the pooled reward per enemy type in static baselines and its ratio to the all-type average, for all waves and for waves 5 and later; (2) a variance decomposition: the share of the variance of per-wave rewards explained by the bot style (etaStyle) and by the wave (etaWave); (3) a noise floor: the wave-to-wave sd of the reward for the same style, wave and type across seeds, compared with the spread between types. The diagnostics are used by no code in this phase; Director v2 may use them, developed on the tuning seeds only.
+
+## Figures
+
+`npm run figures` builds six hand-written SVG figures (white background, Okabe-Ito colors, patterns and marker shapes in addition to color) and an index page into docs/results/figures: fig1-forest.svg (all hypotheses), fig2-lives-lost.svg, fig3-win-rate.svg, fig4-weights.svg (mean final weights), fig5-tilt-alignment.svg and fig6-diagnostics.svg. Captions describe what is plotted, never causes.
+
 ## Status after Phase 8A (exploratory, tuning set)
 
 On the 30 tuning seeds (docs/results/tuning-summary.md): P1 mean difference +1.48 lives (95% CI 0.85 to 2.15, Holm p 0.0002); P2 +0.06 (95% CI -0.65 to 0.75, Holm p 0.89); T1 is reversed (the random control leans toward the predicted types more often than the Director: -0.31). These are exploratory numbers, not the confirmatory evaluation.
