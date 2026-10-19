@@ -7,7 +7,7 @@ const d = (o = {}) => ({ enemiesRemaining: 0, countdownSeconds: 0, totalWaves: 3
 
 test('prep: ready title, hint and start button', () => {
   const r = describeWaveControl({ phase: 'prep', nextWave: 1, current: 0 }, d());
-  assert.deepEqual(r, { mode: 'prep', title: 'Wave 1 ready', subtitle: 'Place towers, then start (Enter) · Enemy HP ×1.0', buttonLabel: 'Start Wave 1', canStart: true, progress: null });
+  assert.deepEqual(r, { mode: 'prep', title: 'Wave 1 ready', subtitle: 'Place towers, then start (Enter)', buttonLabel: 'Start Wave 1', canStart: true, progress: null });
 });
 
 test('running: progress text with singular and plural, no button', () => {
@@ -23,13 +23,13 @@ test('intermission: next wave, optional name, ceil countdown, progress fraction'
   const total = config.waves.intermissionSeconds;
   const secs = total - 4.8; // 4.8 s elapsed of the countdown
   const a = describeWaveControl({ phase: 'intermission', nextWave: 4, current: 3 }, d({ countdownSeconds: secs, hpMultNext: 1.84 }));
-  assert.deepEqual([a.mode, a.title, a.subtitle, a.buttonLabel, a.canStart], ['intermission', 'Next: Wave 4', `Starting in ${Math.ceil(secs)}s · Enemy HP ×1.8`, 'Start now', true]);
+  assert.deepEqual([a.mode, a.title, a.subtitle, a.buttonLabel, a.canStart], ['intermission', 'Next: Wave 4', `Starting in ${Math.ceil(secs)}s`, 'Start now', true]);
   assert.ok(Math.abs(a.progress - (1 - secs / total)) < 1e-12);
   const named = describeWaveControl({ phase: 'intermission', nextWave: 8, current: 7 }, d({ countdownSeconds: total, nextWaveName: 'Iron Skin' }));
   assert.equal(named.title, 'Next: Wave 8 — Iron Skin');
   assert.equal(named.progress, 0);
   assert.equal(describeWaveControl({ phase: 'intermission', nextWave: 2, current: 1 }, d({ countdownSeconds: 0 })).progress, 1);
-  assert.equal(describeWaveControl({ phase: 'intermission', nextWave: 2, current: 1 }, d({ countdownSeconds: 0.01 })).subtitle, 'Starting in 1s · Enemy HP ×1.0');
+  assert.equal(describeWaveControl({ phase: 'intermission', nextWave: 2, current: 1 }, d({ countdownSeconds: 0.01 })).subtitle, 'Starting in 1s');
 });
 
 test('over: empty fields', () => {
@@ -39,7 +39,8 @@ test('over: empty fields', () => {
 });
 
 test('the HP multiplier shows one decimal in prep and intermission', () => {
-  assert.ok(describeWaveControl({ phase: 'prep', nextWave: 9, current: 8 }, d({ hpMultNext: 2.345 })).subtitle.endsWith('Enemy HP ×2.3'));
-  assert.ok(describeWaveControl({ phase: 'intermission', nextWave: 9, current: 8 }, d({ countdownSeconds: 5, hpMultNext: 7.04 })).subtitle.endsWith('Enemy HP ×7.0'));
+  // approved reversal (Phase 7): the HP multiplier lives in the preview chips, not in the wave control
+  assert.equal(describeWaveControl({ phase: 'prep', nextWave: 9, current: 8 }, d({ hpMultNext: 2.345 })).subtitle, 'Place towers, then start (Enter)');
+  assert.equal(describeWaveControl({ phase: 'intermission', nextWave: 9, current: 8 }, d({ countdownSeconds: 5, hpMultNext: 7.04 })).subtitle, 'Starting in 5s');
   assert.ok(!describeWaveControl({ phase: 'running', nextWave: 9, current: 8 }, d({ hpMultNext: 3 })).subtitle.includes('HP'));
 });

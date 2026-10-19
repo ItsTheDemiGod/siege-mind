@@ -48,3 +48,23 @@ test('exactly one valid action for every combination', () => {
       if (settingsOpen && !howToOpen) assert.equal(a, 'none');
     }
 });
+
+test('Phase 7: the Director report and overlay fit into the priority table', () => {
+  const table = [
+    [{ reportOpen: true }, 'close-report'],
+    [{ reportOpen: true, howToOpen: true }, 'close-howto'],
+    [{ reportOpen: true, menuOpen: true }, 'close-report'],
+    [{ reportOpen: true, pauseMenuOpen: true, endScreenOpen: true }, 'close-report'],
+    [{ reportOpen: true, endScreenOpen: true, gameOver: true }, 'close-report'],
+    [{ overlayOpen: true }, 'close-overlay'],
+    [{ overlayOpen: true, buildMode: 'placing' }, 'cancel-placing'],
+    [{ overlayOpen: true, buildMode: 'selected' }, 'clear-selection'],
+    [{ overlayOpen: true, pauseMenuOpen: true }, 'close-pause-menu'],
+    [{ overlayOpen: true, endScreenOpen: true, gameOver: true }, 'hide-end-screen'],
+    [{ overlayOpen: true, gameOver: true }, 'none'],
+    [{ overlayOpen: true, settingsOpen: true }, 'none'],
+    [{ overlayOpen: true, menuOpen: true }, 'none'],
+    [{ overlayOpen: false, reportOpen: false }, 'open-pause-menu'],
+  ];
+  for (const [state, expected] of table) assert.equal(r(state), expected, JSON.stringify(state));
+});

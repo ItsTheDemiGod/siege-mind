@@ -38,6 +38,16 @@ export const config = Object.freeze({
     absentFloorShare: 0.05, // base share of an unlocked type that the template leaves out
     historyLimit: 40, // observation entries kept in the director state
   }),
+  report: Object.freeze({
+    directionRatio: 1.1, // a tilt at or above this (or at or below its inverse) shows a direction mark
+    pushRatio: 1.15, // final tilt at or beyond this counts as "leaned on" / "backed off" in the report
+    topDamageShare: 0.3, // a tower type with at least this share of the damage gets an insight
+    maxInsights: 5,
+    chartWidth: 680,
+    chartHeight: 180,
+    miniChartWidth: 272,
+    miniChartHeight: 84,
+  }),
   telemetry: Object.freeze({
     schemaVersion: 1,
     detail: 'full', // 'full' keeps one record per enemy; 'summary' keeps aggregates only
@@ -76,7 +86,13 @@ export const config = Object.freeze({
     ringStroke: 4,
     menuWidth: 560,
     downloadButtonHeight: 32,
-    waveControlWidth: 300,
+    waveControlWidth: 360,
+    directorOverlayWidth: 300,
+    directorOverlayMaxHeight: 420,
+    directorOverlayMargin: 8,
+    reportWidth: 760,
+    reportMargin: 12,
+    chartLineWidth: 2,
     waveControlHeight: 64,
     waveControlBottomMargin: 16,
     endScreenWidth: 420,
