@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { ENEMY_ORDER } from '../src/data/enemies.js';
 import { metricsFromRun, tiltAlignedOf, METRIC_COLUMNS } from '../experiments/metrics.js';
 import { PROTOCOL } from '../experiments/protocol.js';
+import { LEGACY_FOCUS_PREDICTIONS } from '../experiments/legacyPredictions.js'; // tiltAlignedOf tests use the archived focus styles (approved reversal A2)
 import { playGame } from '../experiments/playthrough.js';
 import { getBot } from '../experiments/bots.js';
 
@@ -85,11 +86,11 @@ test('A1: a game with no eligible record, and static games, have tiltObserved 0,
   const m = metricsFromRun(none);
   assert.equal(m.tiltObserved, 0);
   for (const t of ENEMY_ORDER) assert.equal(m[`tilt_${t}`], 1);
-  assert.equal(tiltAlignedOf('lanceHeavy', { ...m, tilt_swarmling: 5 }, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold), null, 'tiltObserved 0 gives null even with a high tilt');
+  assert.equal(tiltAlignedOf('lanceHeavy', { ...m, tilt_swarmling: 5 }, LEGACY_FOCUS_PREDICTIONS, PROTOCOL.stats.alignmentThreshold), null, 'tiltObserved 0 gives null even with a high tilt');
   const s = metricsFromRun(miniRun('static'));
   assert.equal(s.tiltObserved, 0);
-  assert.equal(tiltAlignedOf('mortarHeavy', s, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold), null);
-  assert.equal(tiltAlignedOf('mortarHeavy', { ...metricsFromRun(miniRun('adaptive')), tilt_fastRunner: 1.2 }, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold), 1);
+  assert.equal(tiltAlignedOf('mortarHeavy', s, LEGACY_FOCUS_PREDICTIONS, PROTOCOL.stats.alignmentThreshold), null);
+  assert.equal(tiltAlignedOf('mortarHeavy', { ...metricsFromRun(miniRun('adaptive')), tilt_fastRunner: 1.2 }, LEGACY_FOCUS_PREDICTIONS, PROTOCOL.stats.alignmentThreshold), 1);
 });
 
 test('a won game with no damage or threat does not divide by zero', () => {
@@ -103,7 +104,7 @@ test('a won game with no damage or threat does not divide by zero', () => {
 
 test('tiltAlignedOf truth table', () => {
   const row = (o) => ({ tilt_swarmling: 1, tilt_fastRunner: 1, tilt_shieldedBruiser: 1, ...o });
-  const p = PROTOCOL.tiltPredictions;
+  const p = LEGACY_FOCUS_PREDICTIONS;
   const th = PROTOCOL.stats.alignmentThreshold;
   assert.equal(tiltAlignedOf('balancedR', row({}), p, th), null);
   assert.equal(tiltAlignedOf('lanceHeavy', row({ tilt_swarmling: 1.15 }), p, th), 1);

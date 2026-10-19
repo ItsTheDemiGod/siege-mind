@@ -1,17 +1,19 @@
-# Bot calibration (static mode, calibration seeds)
+# Bot calibration (static mode, calibration seeds, ablation styles)
 
-Rule: mean win rate in [0.5, 0.9], every style at least 0.2, closest to 0.7; ties: larger tilePool, smaller focusWeight, smaller upgradeAfter.
+Stage 1: mean win rate in [0.5, 0.9], every style at least 0.2, closest to 0.7. Stage 2: the same with every style at least 0.1. Stage 3: styles below 0.1 are dropped (balancedR may not be; at least 4 styles remain) and the mean is recomputed over the rest. Ties: larger tilePool, then smaller upgradeAfter. focusWeight is fixed (the ablation styles ignore it).
 
-| tilePool | focusWeight | upgradeAfter | balancedR | lanceHeavy | mortarHeavy | poisonHeavy | sniperHeavy | mean win | mean lives lost | qualifies |
+| tilePool | upgradeAfter | balancedR | noLance | noMortar | noFrost | noPoison | noSniper | mean win | mean lives lost | qualifies in stage |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 0.3 | 6 | 0.50 | 0.70 | 0.70 | 0.90 | 0.40 | 0.640 | 11.36 | yes |
-| 1 | 0.4 | 6 | 0.50 | 0.70 | 0.60 | 0.60 | 0.40 | 0.560 | 10.84 | yes |
-| 1 | 0.5 | 6 | 0.50 | 0.70 | 0.40 | 0.60 | 0.20 | 0.480 | 13.42 | no |
-| 3 | 0.3 | 6 | 0.50 | 0.60 | 0.60 | 0.80 | 0.60 | 0.620 | 11.84 | yes |
-| 3 | 0.4 | 6 | 0.50 | 0.90 | 0.40 | 0.60 | 0.30 | 0.540 | 12.76 | yes |
-| 3 | 0.5 | 6 | 0.50 | 0.60 | 0.30 | 0.40 | 0.30 | 0.420 | 14.78 | no |
-| 6 | 0.3 | 6 | 0.40 | 0.50 | 0.80 | 0.90 | 0.40 | 0.600 | 11.90 | yes |
-| 6 | 0.4 | 6 | 0.40 | 0.80 | 0.70 | 0.50 | 0.30 | 0.540 | 12.02 | yes |
-| 6 | 0.5 | 6 | 0.40 | 0.70 | 0.30 | 0.60 | 0.50 | 0.500 | 12.92 | yes |
+| 1 | 4 | 0.60 | 0.20 | 0.60 | 0.00 | 0.30 | 0.20 | 0.317 | 16.05 | - |
+| 1 | 6 | 0.50 | 0.20 | 0.70 | 0.00 | 0.40 | 0.40 | 0.367 | 15.55 | - |
+| 1 | 8 | 0.50 | 0.20 | 0.70 | 0.00 | 0.30 | 0.40 | 0.350 | 15.80 | - |
+| 3 | 4 | 0.50 | 0.10 | 0.80 | 0.10 | 0.30 | 0.60 | 0.400 | 14.72 | - |
+| 3 | 6 | 0.50 | 0.10 | 0.50 | 0.10 | 0.40 | 0.60 | 0.367 | 15.45 | - |
+| 3 | 8 | 0.40 | 0.20 | 0.50 | 0.00 | 0.30 | 0.50 | 0.317 | 15.63 | - |
+| 6 | 4 | 0.70 | 0.20 | 0.80 | 0.00 | 0.50 | 0.40 | 0.433 | 14.83 | 3 |
+| 6 | 6 | 0.40 | 0.10 | 0.70 | 0.00 | 0.50 | 0.40 | 0.350 | 15.35 | - |
+| 6 | 8 | 0.50 | 0.30 | 0.70 | 0.00 | 0.50 | 0.30 | 0.383 | 15.30 | - |
 
-Chosen: {"tilePool":1,"focusWeight":0.3,"upgradeAfter":6} (mean win rate 0.640).
+Chosen in stage 3: {"tilePool":6,"focusWeight":0.3,"upgradeAfter":4} (mean win rate 0.520 over the kept styles).
+
+**Dropped styles: noFrost** (static win rate below 0.1).

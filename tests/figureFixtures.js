@@ -2,9 +2,18 @@
 import { ENEMY_ORDER, ENEMIES } from '../src/data/enemies.js';
 import { PROTOCOL } from '../experiments/protocol.js';
 import { analyze } from '../experiments/analyze.js';
+import { LEGACY_FOCUS_STYLES, LEGACY_FOCUS_PREDICTIONS } from '../experiments/legacyPredictions.js';
 import { diagnose } from '../experiments/diagnose.js';
 
-const protocol = { ...PROTOCOL, stats: { ...PROTOCOL.stats, bootstrapResamples: 200, signFlipResamples: 500 } };
+// The figure builders were written for protocol version 2 (focus styles, hypothesis T1); they are regenerated for the new styles in a later phase,
+// so their tests pass an explicit legacy protocol (approved reversal A2, rule iii).
+const LEGACY_T1 = { id: 'T1', family: 'secondary', kind: 'metric', metric: 'tiltAligned', modeA: 'adaptive', modeB: 'random', direction: 'greater', label: 'The final weights lean toward the predicted enemy types more often under adaptive than random' };
+const protocol = {
+  ...PROTOCOL,
+  styles: [...LEGACY_FOCUS_STYLES],
+  tiltPredictions: LEGACY_FOCUS_PREDICTIONS,
+  hypotheses: [...PROTOCOL.hypotheses.filter((h) => h.kind === 'metric' && h.id !== 'C1'), LEGACY_T1, PROTOCOL.hypotheses.find((h) => h.id === 'C1')],
+  stats: { ...PROTOCOL.stats, bootstrapResamples: 200, signFlipResamples: 500 } };
 
 export function syntheticRows() {
   const rows = [];

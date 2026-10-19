@@ -8,31 +8,34 @@ const deepFreeze = (o) => {
   return o;
 };
 
-const hyp = (id, family, metric, modeA, modeB, direction, label) => ({ id, family, metric, modeA, modeB, direction, label });
+const hyp = (id, family, metric, modeA, modeB, direction, label) => ({ id, family, kind: 'metric', metric, modeA, modeB, direction, label });
+const contrastHyp = (id, family, modeA, modeB, direction, label) => ({ id, family, kind: 'contrast', metric: 'tiltContrast', modeA, modeB, direction, label });
 
 export const PROTOCOL = deepFreeze({
-  version: 2,
+  version: 3,
   waves: 15,
   amendments: [
     { id: 'A1', summary: 'The final enemy weights are measured at the last ELIGIBLE wave (director.tilt) for adaptive and random alike, with a tiltObserved flag.', affects: ['tilt_*', 'tiltAligned', 'tiltObserved', 'T1'], madeAfterSeeingTuningResults: true, madeBeforeHeldout: true },
+    { id: 'A2', summary: 'The focus styles are replaced by ablation styles (each omits one tower); T1 is retired and replaced by the style-contrast hypotheses T2 and T0; a reached-wave-5 sensitivity analysis is added.', affects: ['styles', 'tiltPredictions', 'calibration', 'botKnobs', 'T1', 'T2', 'T0'], madeAfterSeeingTuningResults: true, madeBeforeHeldout: true },
   ],
   startLives: 20,
-  styles: ['balancedR', 'lanceHeavy', 'mortarHeavy', 'poisonHeavy', 'sniperHeavy'],
+  styles: ['balancedR', 'noLance', 'noMortar', 'noPoison', 'noSniper'], // noFrost was dropped by calibration stage 3 (static win rate 0.00; see docs/results/calibration.md)
   modes: ['static', 'adaptive', 'random'],
   seedSets: {
     calibration: { start: 1001, count: 10 },
     tuning: { start: 1001, count: 30 },
     heldout: { start: 2001, count: 60 },
   },
-  botKnobs: { tilePool: 1, focusWeight: 0.3, upgradeAfter: 6 }, // chosen by `npm run calibrate` (static mode, calibration seeds only); see docs/results/calibration.md
+  botKnobs: { tilePool: 6, focusWeight: 0.3, upgradeAfter: 4 }, // chosen by `npm run calibrate` (static mode, calibration seeds only); see docs/results/calibration.md
   stats: { seed: 20261019, signFlipResamples: 100000, bootstrapResamples: 10000, exactMaxN: 16, alpha: 0.05, alignmentThreshold: 1.15 },
   primaryMetric: 'livesLost',
+  // each prediction is the enemy type in strongVs of the tower the style does NOT build (src/data/towers.js)
   tiltPredictions: {
     balancedR: null,
-    lanceHeavy: ['swarmling'],
-    mortarHeavy: ['fastRunner'],
-    poisonHeavy: ['fastRunner', 'shieldedBruiser'],
-    sniperHeavy: ['swarmling', 'fastRunner'],
+    noLance: ['armoredGrunt'],
+    noMortar: ['swarmling'],
+    noPoison: ['regenerator'],
+    noSniper: ['shieldedBruiser'],
   },
   // difference = metric(modeA) - metric(modeB) per (style, seed), averaged over styles per seed
   hypotheses: [
@@ -46,7 +49,8 @@ export const PROTOCOL = deepFreeze({
     hyp('S6', 'secondary', 'penetration', 'adaptive', 'random', 'greater', 'Enemies get further along the path under adaptive than random'),
     hyp('S7', 'secondary', 'finalWave', 'adaptive', 'static', 'less', 'The final wave reached is lower under adaptive than static'),
     hyp('S8', 'secondary', 'finalWave', 'adaptive', 'random', 'less', 'The final wave reached is lower under adaptive than random'),
-    hyp('T1', 'secondary', 'tiltAligned', 'adaptive', 'random', 'greater', 'The final weights lean toward the predicted enemy types more often under adaptive than random (final weights measured at the last eligible wave)'),
+    contrastHyp('T2', 'secondary', 'adaptive', 'random', 'greater', 'The final weights separate defenses in the predicted direction more under adaptive than under the random control'),
+    contrastHyp('T0', 'descriptive', 'random', null, 'twosided', 'Null check: the random control shows no style contrast'),
     hyp('C1', 'descriptive', 'livesLost', 'random', 'static', 'greater', 'Composition variability alone (random versus static) costs lives'),
   ],
 });
@@ -59,13 +63,17 @@ export function seedsOf(name) {
 }
 
 const FOCUS_TOWER = { lanceHeavy: 'lance', mortarHeavy: 'mortar', poisonHeavy: 'poison', sniperHeavy: 'sniper' };
+const ABLATED_TOWER = { noLance: 'lance', noMortar: 'mortar', noFrost: 'frost', noPoison: 'poison', noSniper: 'sniper' };
+/** Every style the bots know: the current protocol styles plus the archived focus styles (their results must stay reproducible). */
+export const KNOWN_STYLES = Object.freeze(['balancedR', 'lanceHeavy', 'mortarHeavy', 'poisonHeavy', 'sniperHeavy', ...Object.keys(ABLATED_TOWER)]);
 
 /**
- * Tower mix of a style, in TOWER_ORDER (lance, mortar, frost, poison, sniper); sums to 1.
+ * Tower mix of a style, in TOWER_ORDER (lance, mortar, frost, poison, sniper); sums to 1. noX gives X weight 0 and the rest 0.25.
  * @param {string} style @param {number} focusWeight in [0.2, 0.7] @returns {number[]}
  */
 export function styleWeights(style, focusWeight) {
-  if (!PROTOCOL.styles.includes(style)) throw new RangeError(`unknown style: ${String(style)}`);
+  if (!KNOWN_STYLES.includes(style)) throw new RangeError(`unknown style: ${String(style)}`);
+  if (ABLATED_TOWER[style]) return TOWER_ORDER.map((t) => (t === ABLATED_TOWER[style] ? 0 : 1 / (TOWER_ORDER.length - 1))); // focusWeight is ignored
   if (typeof focusWeight !== 'number' || !(focusWeight >= 0.2 && focusWeight <= 0.7)) throw new RangeError(`focusWeight must be in [0.2, 0.7], got ${String(focusWeight)}`);
   const focus = FOCUS_TOWER[style];
   if (!focus) return TOWER_ORDER.map(() => 1 / TOWER_ORDER.length);

@@ -3,6 +3,7 @@
 import { ENEMY_ORDER } from '../src/data/enemies.js';
 import { roundTo } from '../src/sim/telemetrySchema.js';
 import { PROTOCOL } from './protocol.js';
+import { testContrastHypothesis, contrastBlock, earlyEnds, sensitivityReached } from './analyzeExtras.js';
 import { mean, sd, median, seedLevelDiffs, signFlipTest, bootstrapCI, cohensDz, holmAdjust, wilson, requiredN } from './stats.js';
 
 export { formatAnalysis, analysisToMarkdown } from './analyzeFormat.js';
@@ -15,6 +16,7 @@ export const NOTES = Object.freeze([
   'The Director may be reacting to tankiness (tanky enemy types tend to score higher against most defenses): compare with the random control.',
 ]);
 
+const TILT_NOTE = 'tiltAligned uses a fixed threshold and is biased in favor of the random control (its tilts are spread wider than the Director’s); it is shown for continuity, not as a hypothesis.';
 const r6 = (x) => roundTo(x, 6);
 const rCI = (ci) => [r6(ci[0]), r6(ci[1])];
 
@@ -60,6 +62,7 @@ function descriptive(rows, styles, modes) {
 }
 
 function testHypothesis(rows, h, protocol) {
+  if (h.kind === 'contrast') return testContrastHypothesis(rows, h, protocol);
   const st = protocol.stats;
   const { seeds, diffs, dropped, perStyle } = seedLevelDiffs(rows, { metric: h.metric, modeA: h.modeA, modeB: h.modeB, styles: protocol.styles });
   const m = mean(diffs);
@@ -70,7 +73,7 @@ function testHypothesis(rows, h, protocol) {
     per[style] = d.length ? { n: d.length, meanDiff: r6(mean(d)), ci95: rCI(bootstrapCI(d, { resamples: st.bootstrapResamples, alpha: st.alpha, seed: st.seed })) } : null;
   }
   return {
-    id: h.id, family: h.family, label: h.label, metric: h.metric, modeA: h.modeA, modeB: h.modeB, direction: h.direction,
+    id: h.id, family: h.family, kind: 'metric', label: h.label, metric: h.metric, modeA: h.modeA, modeB: h.modeB, direction: h.direction,
     n: seeds.length, droppedSeeds: dropped, meanDiff: r6(m), sdDiffs: r6(sd(diffs)),
     ci95: rCI(bootstrapCI(diffs, { resamples: st.bootstrapResamples, alpha: st.alpha, seed: st.seed })), dz: r6(cohensDz(diffs)),
     pRaw: r6(test.p), pMethod: test.exact ? 'exact' : 'monte-carlo', pHolm: null,
@@ -85,7 +88,7 @@ function applyHolm(results) {
   }
 }
 
-function tiltSection(rows, protocol, hypotheses) {
+function tiltSection(rows, protocol) {
   const st = protocol.stats;
   const alignment = {};
   for (const [style, predicted] of Object.entries(protocol.tiltPredictions)) {
@@ -108,7 +111,7 @@ function tiltSection(rows, protocol, hypotheses) {
   const count = (mode, observed) => rows.filter((r) => r.mode === mode && (r.tiltObserved === 1) === observed).length;
   const rowsUsed = { adaptive: count('adaptive', true), random: count('random', true) };
   const rowsExcluded = { adaptive: count('adaptive', false), random: count('random', false) }; // no eligible wave was reached: tilts are not observed
-  return { threshold: st.alignmentThreshold, perStyle: alignment, pooled: hypotheses.find((h) => h.id === 'T1') ?? null, tilts, rowsUsed, rowsExcluded };
+  return { threshold: st.alignmentThreshold, perStyle: alignment, note: TILT_NOTE, tilts, rowsUsed, rowsExcluded };
 }
 
 /**
@@ -120,7 +123,7 @@ export function analyze(rows, protocol = PROTOCOL, { set = 'unspecified' } = {})
   const modes = [...protocol.modes];
   const completeness = checkCompleteness(rows, styles, modes);
   const result = { set, n: { seeds: completeness.seeds.length, styles: styles.length, modes: modes.length, rows: rows.length }, completeness, notes: [...NOTES] };
-  if (!completeness.complete) return { ...result, descriptive: null, hypotheses: [], tiltAlignment: null, staticWinRateGuard: null, power: null };
+  if (!completeness.complete) return { ...result, descriptive: null, hypotheses: [], tiltAlignment: null, staticWinRateGuard: null, power: null, contrast: null, earlyEnds: null, sensitivityReached: null };
   const hypotheses = protocol.hypotheses.map((h) => testHypothesis(rows, h, protocol));
   applyHolm(hypotheses);
   const stat = Object.fromEntries(styles.map((s) => [s, r6(mean(rows.filter((r) => r.style === s && r.mode === 'static').map((r) => r.won)))]));
@@ -131,7 +134,8 @@ export function analyze(rows, protocol = PROTOCOL, { set = 'unspecified' } = {})
     power[id] = { sdSeedDiffs: h.sdDiffs, observedEffect: h.meanDiff, nForObservedEffect: eff > 0 ? requiredN({ sd: h.sdDiffs, effect: eff }) : null, nForHalfEffect: eff > 0 ? requiredN({ sd: h.sdDiffs, effect: eff / 2 }) : null };
   }
   return {
-    ...result, descriptive: descriptive(rows, styles, modes), hypotheses, tiltAlignment: tiltSection(rows, protocol, hypotheses),
+    ...result, descriptive: descriptive(rows, styles, modes), hypotheses, tiltAlignment: tiltSection(rows, protocol),
     staticWinRateGuard: { perStyle: stat, mean: r6(mean(Object.values(stat))) }, power,
+    contrast: contrastBlock(rows, protocol), earlyEnds: earlyEnds(rows), sensitivityReached: sensitivityReached(rows, hypotheses, protocol),
   };
 }

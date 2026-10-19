@@ -31,6 +31,12 @@ test('docs/EXPERIMENT.md documents amendment A1 and the planned next steps', () 
   assert.ok(doc.includes('AFTER the tuning-set results had been seen'));
 });
 
+test('docs/EXPERIMENT.md documents amendment A2, the contrast hypotheses, the sensitivity analysis and the reward contrast', () => {
+  for (const w of ['A2', 'ablation', 'contrast', 'reward contrast', 'Reward contrast', 'sensitivity', 'Sensitivity', 'empirical null', 'protocol version 3', 'noFrost', 'Early-ends']) assert.ok(doc.includes(w), w);
+  assert.ok(doc.includes('made after seeing the tuning results of protocol versions 1 and 2 and the Phase 8B diagnostics') || doc.includes('after seeing the tuning results of protocol versions 1 and 2 and the Phase 8B diagnostics, before any held-out run'));
+  assert.ok(doc.includes('A3'));
+});
+
 test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the six figures', () => {
   assert.ok(doc.includes('## Diagnostics'));
   assert.ok(doc.includes('## Figures'));

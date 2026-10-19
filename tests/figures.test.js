@@ -46,8 +46,9 @@ test('every figure is well-formed XML with a title, a description and clean numb
 });
 
 test('data element counts: one row per hypothesis, 25 heatmap cells, 3 bars per group', () => {
-  assert.equal(count(BUILDERS.forest(), 'data-id="'), PROTOCOL.hypotheses.length);
-  for (const h of PROTOCOL.hypotheses) assert.ok(BUILDERS.forest().includes(`data-id="${h.id}"`), h.id);
+  const hyps = syntheticAnalysis().hypotheses; // legacy protocol of the fixtures (see figureFixtures.js)
+  assert.equal(count(BUILDERS.forest(), 'data-id="'), hyps.length);
+  for (const h of hyps) assert.ok(BUILDERS.forest().includes(`data-id="${h.id}"`), h.id);
   assert.equal(count(BUILDERS.heatmap(), 'data-cell="'), 25);
   assert.equal(count(BUILDERS.livesLost(), 'data-bar="'), 6 * 3);
   assert.equal(count(BUILDERS.winRate(), 'data-point="'), 6 * 3);

@@ -151,3 +151,15 @@ test('getBot understands style bots and rejects unknown ones', () => {
   assert.equal(getBot('balanced').name, 'balanced');
   assert.throws(() => getBot('nope'), /unknown bot/);
 });
+
+test('A2: an ablation style never builds its missing tower (10 seeds, whole games) and builds each other type at least once', () => {
+  const missing = { noLance: 'lance', noMortar: 'mortar', noFrost: 'frost', noPoison: 'poison', noSniper: 'sniper' };
+  for (const [style, tower] of Object.entries(missing)) {
+    const built = Object.fromEntries(TOWER_ORDER.map((t) => [t, 0]));
+    for (let seed = 1001; seed <= 1010; seed++) for (const t of play(style, { seed }).game.towers) built[t.type]++;
+    assert.equal(built[tower], 0, `${style} built ${tower}`);
+    for (const t of TOWER_ORDER) if (t !== tower) assert.ok(built[t] > 0, `${style} never built ${t}`);
+    assert.equal(getBot(`style:${style}`).name, `style:${style}`);
+  }
+  assert.throws(() => getBot('style:noWall'), /unknown style bot/);
+});

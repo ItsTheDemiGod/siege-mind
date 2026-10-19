@@ -5,75 +5,113 @@
   "perStyleMin": 0.2,
   "target": 0.7
  },
+ "dropRule": {
+  "dropBelow": 0.1,
+  "minStyles": 4,
+  "mustKeep": [
+   "balancedR"
+  ]
+ },
  "results": [
   {
    "knobs": {
     "tilePool": 1,
     "focusWeight": 0.3,
-    "upgradeAfter": 6
+    "upgradeAfter": 4
    },
    "perStyleWinRate": {
-    "balancedR": 0.5,
-    "lanceHeavy": 0.7,
-    "mortarHeavy": 0.7,
-    "poisonHeavy": 0.9,
-    "sniperHeavy": 0.4
+    "balancedR": 0.6,
+    "noLance": 0.2,
+    "noMortar": 0.6,
+    "noFrost": 0,
+    "noPoison": 0.3,
+    "noSniper": 0.2
    },
    "perStyleLivesLost": {
-    "balancedR": 13.1,
-    "lanceHeavy": 11.3,
-    "mortarHeavy": 10.2,
-    "poisonHeavy": 8.8,
-    "sniperHeavy": 13.4
+    "balancedR": 12.6,
+    "noLance": 17.1,
+    "noMortar": 13.5,
+    "noFrost": 20,
+    "noPoison": 16.5,
+    "noSniper": 16.6
    },
-   "meanWinRate": 0.6399999999999999,
-   "meanLivesLost": 11.359999999999998
+   "meanWinRate": 0.31666666666666665,
+   "meanLivesLost": 16.05
   },
   {
    "knobs": {
     "tilePool": 1,
-    "focusWeight": 0.4,
+    "focusWeight": 0.3,
     "upgradeAfter": 6
    },
    "perStyleWinRate": {
     "balancedR": 0.5,
-    "lanceHeavy": 0.7,
-    "mortarHeavy": 0.6,
-    "poisonHeavy": 0.6,
-    "sniperHeavy": 0.4
+    "noLance": 0.2,
+    "noMortar": 0.7,
+    "noFrost": 0,
+    "noPoison": 0.4,
+    "noSniper": 0.4
    },
    "perStyleLivesLost": {
     "balancedR": 13.1,
-    "lanceHeavy": 8.4,
-    "mortarHeavy": 9.8,
-    "poisonHeavy": 10,
-    "sniperHeavy": 12.9
+    "noLance": 17.2,
+    "noMortar": 11.3,
+    "noFrost": 20,
+    "noPoison": 16,
+    "noSniper": 15.7
    },
-   "meanWinRate": 0.5599999999999999,
-   "meanLivesLost": 10.84
+   "meanWinRate": 0.36666666666666664,
+   "meanLivesLost": 15.549999999999999
   },
   {
    "knobs": {
     "tilePool": 1,
-    "focusWeight": 0.5,
-    "upgradeAfter": 6
+    "focusWeight": 0.3,
+    "upgradeAfter": 8
    },
    "perStyleWinRate": {
     "balancedR": 0.5,
-    "lanceHeavy": 0.7,
-    "mortarHeavy": 0.4,
-    "poisonHeavy": 0.6,
-    "sniperHeavy": 0.2
+    "noLance": 0.2,
+    "noMortar": 0.7,
+    "noFrost": 0,
+    "noPoison": 0.3,
+    "noSniper": 0.4
+   },
+   "perStyleLivesLost": {
+    "balancedR": 13.3,
+    "noLance": 16.8,
+    "noMortar": 12.6,
+    "noFrost": 20,
+    "noPoison": 16.6,
+    "noSniper": 15.5
+   },
+   "meanWinRate": 0.35000000000000003,
+   "meanLivesLost": 15.800000000000002
+  },
+  {
+   "knobs": {
+    "tilePool": 3,
+    "focusWeight": 0.3,
+    "upgradeAfter": 4
+   },
+   "perStyleWinRate": {
+    "balancedR": 0.5,
+    "noLance": 0.1,
+    "noMortar": 0.8,
+    "noFrost": 0.1,
+    "noPoison": 0.3,
+    "noSniper": 0.6
    },
    "perStyleLivesLost": {
     "balancedR": 13.1,
-    "lanceHeavy": 9.2,
-    "mortarHeavy": 14,
-    "poisonHeavy": 14.1,
-    "sniperHeavy": 16.7
+    "noLance": 18.1,
+    "noMortar": 10.8,
+    "noFrost": 18,
+    "noPoison": 14.8,
+    "noSniper": 13.5
    },
-   "meanWinRate": 0.4800000000000001,
-   "meanLivesLost": 13.419999999999998
+   "meanWinRate": 0.39999999999999997,
+   "meanLivesLost": 14.716666666666667
   },
   {
    "knobs": {
@@ -83,66 +121,72 @@
    },
    "perStyleWinRate": {
     "balancedR": 0.5,
-    "lanceHeavy": 0.6,
-    "mortarHeavy": 0.6,
-    "poisonHeavy": 0.8,
-    "sniperHeavy": 0.6
+    "noLance": 0.1,
+    "noMortar": 0.5,
+    "noFrost": 0.1,
+    "noPoison": 0.4,
+    "noSniper": 0.6
    },
    "perStyleLivesLost": {
     "balancedR": 14,
-    "lanceHeavy": 13.7,
-    "mortarHeavy": 10.5,
-    "poisonHeavy": 9.6,
-    "sniperHeavy": 11.4
+    "noLance": 18.6,
+    "noMortar": 13.6,
+    "noFrost": 19.7,
+    "noPoison": 14.6,
+    "noSniper": 12.2
    },
-   "meanWinRate": 0.62,
-   "meanLivesLost": 11.84
+   "meanWinRate": 0.3666666666666667,
+   "meanLivesLost": 15.450000000000001
   },
   {
    "knobs": {
     "tilePool": 3,
-    "focusWeight": 0.4,
-    "upgradeAfter": 6
+    "focusWeight": 0.3,
+    "upgradeAfter": 8
    },
    "perStyleWinRate": {
-    "balancedR": 0.5,
-    "lanceHeavy": 0.9,
-    "mortarHeavy": 0.4,
-    "poisonHeavy": 0.6,
-    "sniperHeavy": 0.3
+    "balancedR": 0.4,
+    "noLance": 0.2,
+    "noMortar": 0.5,
+    "noFrost": 0,
+    "noPoison": 0.3,
+    "noSniper": 0.5
    },
    "perStyleLivesLost": {
-    "balancedR": 14,
-    "lanceHeavy": 9.8,
-    "mortarHeavy": 13.1,
-    "poisonHeavy": 11.3,
-    "sniperHeavy": 15.6
+    "balancedR": 14.2,
+    "noLance": 17.1,
+    "noMortar": 12.6,
+    "noFrost": 20,
+    "noPoison": 17.3,
+    "noSniper": 12.6
    },
-   "meanWinRate": 0.5399999999999999,
-   "meanLivesLost": 12.760000000000002
+   "meanWinRate": 0.3166666666666667,
+   "meanLivesLost": 15.633333333333333
   },
   {
    "knobs": {
-    "tilePool": 3,
-    "focusWeight": 0.5,
-    "upgradeAfter": 6
+    "tilePool": 6,
+    "focusWeight": 0.3,
+    "upgradeAfter": 4
    },
    "perStyleWinRate": {
-    "balancedR": 0.5,
-    "lanceHeavy": 0.6,
-    "mortarHeavy": 0.3,
-    "poisonHeavy": 0.4,
-    "sniperHeavy": 0.3
+    "balancedR": 0.7,
+    "noLance": 0.2,
+    "noMortar": 0.8,
+    "noFrost": 0,
+    "noPoison": 0.5,
+    "noSniper": 0.4
    },
    "perStyleLivesLost": {
-    "balancedR": 14,
-    "lanceHeavy": 10.2,
-    "mortarHeavy": 16.6,
-    "poisonHeavy": 15.5,
-    "sniperHeavy": 17.6
+    "balancedR": 13.2,
+    "noLance": 19,
+    "noMortar": 9.6,
+    "noFrost": 20,
+    "noPoison": 12.4,
+    "noSniper": 14.8
    },
-   "meanWinRate": 0.42000000000000004,
-   "meanLivesLost": 14.780000000000001
+   "meanWinRate": 0.43333333333333335,
+   "meanLivesLost": 14.833333333333334
   },
   {
    "knobs": {
@@ -152,71 +196,56 @@
    },
    "perStyleWinRate": {
     "balancedR": 0.4,
-    "lanceHeavy": 0.5,
-    "mortarHeavy": 0.8,
-    "poisonHeavy": 0.9,
-    "sniperHeavy": 0.4
+    "noLance": 0.1,
+    "noMortar": 0.7,
+    "noFrost": 0,
+    "noPoison": 0.5,
+    "noSniper": 0.4
    },
    "perStyleLivesLost": {
     "balancedR": 15.9,
-    "lanceHeavy": 11.8,
-    "mortarHeavy": 8.2,
-    "poisonHeavy": 10.4,
-    "sniperHeavy": 13.2
+    "noLance": 18.2,
+    "noMortar": 9.7,
+    "noFrost": 20,
+    "noPoison": 12.6,
+    "noSniper": 15.7
    },
-   "meanWinRate": 0.6,
-   "meanLivesLost": 11.9
+   "meanWinRate": 0.35000000000000003,
+   "meanLivesLost": 15.35
   },
   {
    "knobs": {
     "tilePool": 6,
-    "focusWeight": 0.4,
-    "upgradeAfter": 6
+    "focusWeight": 0.3,
+    "upgradeAfter": 8
    },
    "perStyleWinRate": {
-    "balancedR": 0.4,
-    "lanceHeavy": 0.8,
-    "mortarHeavy": 0.7,
-    "poisonHeavy": 0.5,
-    "sniperHeavy": 0.3
+    "balancedR": 0.5,
+    "noLance": 0.3,
+    "noMortar": 0.7,
+    "noFrost": 0,
+    "noPoison": 0.5,
+    "noSniper": 0.3
    },
    "perStyleLivesLost": {
-    "balancedR": 15.9,
-    "lanceHeavy": 6.9,
-    "mortarHeavy": 9.3,
-    "poisonHeavy": 12.7,
-    "sniperHeavy": 15.3
+    "balancedR": 14.2,
+    "noLance": 18.2,
+    "noMortar": 10.4,
+    "noFrost": 20,
+    "noPoison": 13.2,
+    "noSniper": 15.8
    },
-   "meanWinRate": 0.54,
-   "meanLivesLost": 12.02
-  },
-  {
-   "knobs": {
-    "tilePool": 6,
-    "focusWeight": 0.5,
-    "upgradeAfter": 6
-   },
-   "perStyleWinRate": {
-    "balancedR": 0.4,
-    "lanceHeavy": 0.7,
-    "mortarHeavy": 0.3,
-    "poisonHeavy": 0.6,
-    "sniperHeavy": 0.5
-   },
-   "perStyleLivesLost": {
-    "balancedR": 15.9,
-    "lanceHeavy": 7.1,
-    "mortarHeavy": 15.9,
-    "poisonHeavy": 12.8,
-    "sniperHeavy": 12.9
-   },
-   "meanWinRate": 0.5,
-   "meanLivesLost": 12.920000000000002
+   "meanWinRate": 0.3833333333333333,
+   "meanLivesLost": 15.299999999999999
   }
  ],
+ "stage": 3,
+ "droppedStyles": [
+  "noFrost"
+ ],
  "chosen": {
-  "tilePool": 1,
+  "tilePool": 6,
   "focusWeight": 0.3,
-  "upgradeAfter": 6
+  "upgradeAfter": 4
  }
 }

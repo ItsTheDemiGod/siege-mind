@@ -2,17 +2,17 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { config } from '../src/data/config.js';
 import { ENEMY_ORDER } from '../src/data/enemies.js';
-import { TOWER_ORDER } from '../src/data/towers.js';
+import { TOWER_ORDER, TOWERS } from '../src/data/towers.js';
 import { PROTOCOL, seedsOf, styleWeights, protocolHash, hashOf } from '../experiments/protocol.js';
 import { METRIC_COLUMNS } from '../experiments/metrics.js';
 
 test('the protocol is frozen all the way down and has the registered shape', () => {
   const frozen = (o) => Object.isFrozen(o) && Object.values(o).every((v) => (v && typeof v === 'object' ? frozen(v) : true));
   assert.ok(frozen(PROTOCOL));
-  assert.equal(PROTOCOL.version, 2); // approved reversal (Phase 8B): amendment A1 bumped the version
+  assert.equal(PROTOCOL.version, 3); // approved reversal (Phase 9A-1): amendment A2 bumped the version
   assert.equal(PROTOCOL.waves, 15);
   assert.equal(PROTOCOL.startLives, config.game.startLives);
-  assert.deepEqual([...PROTOCOL.styles], ['balancedR', 'lanceHeavy', 'mortarHeavy', 'poisonHeavy', 'sniperHeavy']);
+  assert.deepEqual([...PROTOCOL.styles], ['balancedR', 'noLance', 'noMortar', 'noPoison', 'noSniper']); // approved reversal (A2); noFrost was dropped by calibration stage 3
   assert.deepEqual([...PROTOCOL.modes], ['static', 'adaptive', 'random']);
   assert.equal(PROTOCOL.primaryMetric, 'livesLost');
   assert.deepEqual(PROTOCOL.stats, { seed: 20261019, signFlipResamples: 100000, bootstrapResamples: 10000, exactMaxN: 16, alpha: 0.05, alignmentThreshold: 1.15 });
@@ -36,13 +36,14 @@ test('seed sets have the registered sizes; held-out is disjoint, calibration is 
 
 test('hypotheses: unique ids, known families, metrics exist, modes valid', () => {
   const ids = PROTOCOL.hypotheses.map((h) => h.id);
-  assert.deepEqual(ids, ['P1', 'P2', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'T1', 'C1']);
+  assert.deepEqual(ids, ['P1', 'P2', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'T2', 'T0', 'C1']);
   assert.equal(new Set(ids).size, ids.length);
   for (const h of PROTOCOL.hypotheses) {
     assert.ok(['primary', 'secondary', 'descriptive'].includes(h.family), h.id);
-    assert.ok(METRIC_COLUMNS.includes(h.metric), `${h.id}: ${h.metric}`);
-    assert.ok(PROTOCOL.modes.includes(h.modeA) && PROTOCOL.modes.includes(h.modeB) && h.modeA !== h.modeB);
-    assert.ok(['greater', 'less'].includes(h.direction));
+    assert.ok(['metric', 'contrast'].includes(h.kind), h.id);
+    if (h.kind === 'metric') assert.ok(METRIC_COLUMNS.includes(h.metric), `${h.id}: ${h.metric}`);
+    assert.ok(PROTOCOL.modes.includes(h.modeA) && (h.modeB === null ? h.kind === 'contrast' : PROTOCOL.modes.includes(h.modeB) && h.modeA !== h.modeB));
+    assert.ok((h.id === 'T0' ? ['twosided'] : ['greater', 'less']).includes(h.direction));
     assert.ok(h.label.length > 10);
   }
   assert.deepEqual(PROTOCOL.hypotheses.filter((h) => h.family === 'primary').map((h) => h.id), ['P1', 'P2']);
@@ -58,10 +59,27 @@ test('tilt predictions reference real enemy ids and every style has an entry', (
   }
 });
 
+test('A2: ablation styles have exact weights, predictions equal the strongVs of the missing tower, old styles are unchanged', () => {
+  const missing = { noLance: 'lance', noMortar: 'mortar', noFrost: 'frost', noPoison: 'poison', noSniper: 'sniper' };
+  for (const [style, tower] of Object.entries(missing)) {
+    for (const fw of [0.3, undefined, 'ignored']) { // focusWeight is ignored and not validated
+      const w = styleWeights(style, fw);
+      assert.deepEqual(w, TOWER_ORDER.map((t) => (t === tower ? 0 : 0.25)));
+      assert.equal(w.reduce((a, b) => a + b, 0), 1);
+    }
+    if (PROTOCOL.styles.includes(style)) assert.deepEqual([...PROTOCOL.tiltPredictions[style]], [...TOWERS[tower].strongVs]);
+    else assert.equal(style, 'noFrost'); // dropped by calibration stage 3: its prediction would have been strongVs of frost
+    assert.deepEqual(TOWERS[tower].strongVs.length, 1);
+  }
+  assert.deepEqual(styleWeights('lanceHeavy', 0.3), [0.3, 0.175, 0.175, 0.175, 0.175]); // golden vectors of the archived focus styles
+  assert.deepEqual(styleWeights('sniperHeavy', 0.5), [0.125, 0.125, 0.125, 0.125, 0.5]);
+  assert.deepEqual(styleWeights('balancedR', 0.3), [0.2, 0.2, 0.2, 0.2, 0.2]);
+});
+
 test('styleWeights sums to 1, puts the focus tower on top and validates its input', () => {
   const focus = { lanceHeavy: 'lance', mortarHeavy: 'mortar', poisonHeavy: 'poison', sniperHeavy: 'sniper' };
   for (const fw of [0.2, 0.3, 0.5, 0.7]) {
-    for (const style of PROTOCOL.styles) {
+    for (const style of ['balancedR', 'lanceHeavy', 'mortarHeavy', 'poisonHeavy', 'sniperHeavy']) {
       const w = styleWeights(style, fw);
       assert.equal(w.length, TOWER_ORDER.length);
       assert.ok(Math.abs(w.reduce((a, b) => a + b, 0) - 1) < 1e-12, `${style} ${fw}`);
@@ -93,13 +111,16 @@ test('protocolHash is deterministic and changes with any knob', () => {
 });
 
 test('amendment A1 is registered and is part of the hash', () => {
-  assert.deepEqual(PROTOCOL.amendments.map((a) => a.id), ['A1']);
+  assert.deepEqual(PROTOCOL.amendments.map((a) => a.id), ['A1', 'A2']);
   const a1 = PROTOCOL.amendments[0];
   assert.deepEqual([...a1.affects], ['tilt_*', 'tiltAligned', 'tiltObserved', 'T1']);
   assert.equal(a1.madeAfterSeeingTuningResults, true);
   assert.equal(a1.madeBeforeHeldout, true);
   assert.ok(a1.summary.length > 20);
-  assert.match(PROTOCOL.hypotheses.find((h) => h.id === 'T1').label, /last eligible wave/);
+  assert.equal(PROTOCOL.hypotheses.some((h) => h.id === 'T1'), false); // retired by A2
+  const a2 = PROTOCOL.amendments[1];
+  assert.deepEqual([...a2.affects], ['styles', 'tiltPredictions', 'calibration', 'botKnobs', 'T1', 'T2', 'T0']);
+  assert.equal(a2.madeAfterSeeingTuningResults && a2.madeBeforeHeldout, true);
   const without = JSON.parse(JSON.stringify(PROTOCOL));
   delete without.amendments;
   assert.notEqual(hashOf(without), protocolHash());
