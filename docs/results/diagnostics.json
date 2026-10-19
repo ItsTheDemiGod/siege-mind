@@ -1,0 +1,467 @@
+{
+ "observations": 8730,
+ "baseline1": {
+  "minWave": 1,
+  "allTypesPooledReward": 0.034464,
+  "overall": {
+   "armoredGrunt": {
+    "cells": 1746,
+    "units": 14076,
+    "pooledReward": 0.029613,
+    "ratio": 0.859234
+   },
+   "swarmling": {
+    "cells": 1344,
+    "units": 32168,
+    "pooledReward": 0.043084,
+    "ratio": 1.250112
+   },
+   "fastRunner": {
+    "cells": 1201,
+    "units": 10600,
+    "pooledReward": 0.018964,
+    "ratio": 0.55026
+   },
+   "regenerator": {
+    "cells": 1040,
+    "units": 4931,
+    "pooledReward": 0.042713,
+    "ratio": 1.239356
+   },
+   "shieldedBruiser": {
+    "cells": 805,
+    "units": 3190,
+    "pooledReward": 0.041185,
+    "ratio": 1.195026
+   }
+  },
+  "perStyle": {
+   "balancedR": {
+    "armoredGrunt": {
+     "cells": 296,
+     "units": 2341,
+     "pooledReward": 0.032188,
+     "ratio": 0.931412
+    },
+    "swarmling": {
+     "cells": 219,
+     "units": 5216,
+     "pooledReward": 0.043453,
+     "ratio": 1.257404
+    },
+    "fastRunner": {
+     "cells": 192,
+     "units": 1692,
+     "pooledReward": 0.018189,
+     "ratio": 0.526327
+    },
+    "regenerator": {
+     "cells": 165,
+     "units": 776,
+     "pooledReward": 0.040843,
+     "ratio": 1.181873
+    },
+    "shieldedBruiser": {
+     "cells": 129,
+     "units": 505,
+     "pooledReward": 0.039494,
+     "ratio": 1.142846
+    }
+   },
+   "lanceHeavy": {
+    "armoredGrunt": {
+     "cells": 365,
+     "units": 2959,
+     "pooledReward": 0.028764,
+     "ratio": 0.839601
+    },
+    "swarmling": {
+     "cells": 284,
+     "units": 6808,
+     "pooledReward": 0.041285,
+     "ratio": 1.205088
+    },
+    "fastRunner": {
+     "cells": 255,
+     "units": 2259,
+     "pooledReward": 0.017979,
+     "ratio": 0.524793
+    },
+    "regenerator": {
+     "cells": 222,
+     "units": 1063,
+     "pooledReward": 0.044169,
+     "ratio": 1.289243
+    },
+    "shieldedBruiser": {
+     "cells": 172,
+     "units": 687,
+     "pooledReward": 0.04304,
+     "ratio": 1.256308
+    }
+   },
+   "mortarHeavy": {
+    "armoredGrunt": {
+     "cells": 333,
+     "units": 2624,
+     "pooledReward": 0.028777,
+     "ratio": 0.868494
+    },
+    "swarmling": {
+     "cells": 255,
+     "units": 6064,
+     "pooledReward": 0.043882,
+     "ratio": 1.324361
+    },
+    "fastRunner": {
+     "cells": 226,
+     "units": 1959,
+     "pooledReward": 0.018964,
+     "ratio": 0.57233
+    },
+    "regenerator": {
+     "cells": 190,
+     "units": 886,
+     "pooledReward": 0.039888,
+     "ratio": 1.20384
+    },
+    "shieldedBruiser": {
+     "cells": 144,
+     "units": 566,
+     "pooledReward": 0.036458,
+     "ratio": 1.10032
+    }
+   },
+   "poisonHeavy": {
+    "armoredGrunt": {
+     "cells": 403,
+     "units": 3374,
+     "pooledReward": 0.027529,
+     "ratio": 0.831646
+    },
+    "swarmling": {
+     "cells": 317,
+     "units": 7776,
+     "pooledReward": 0.038534,
+     "ratio": 1.164088
+    },
+    "fastRunner": {
+     "cells": 287,
+     "units": 2615,
+     "pooledReward": 0.018343,
+     "ratio": 0.554126
+    },
+    "regenerator": {
+     "cells": 256,
+     "units": 1250,
+     "pooledReward": 0.042007,
+     "ratio": 1.269011
+    },
+    "shieldedBruiser": {
+     "cells": 204,
+     "units": 822,
+     "pooledReward": 0.042834,
+     "ratio": 1.293992
+    }
+   },
+   "sniperHeavy": {
+    "armoredGrunt": {
+     "cells": 349,
+     "units": 2778,
+     "pooledReward": 0.031666,
+     "ratio": 0.842586
+    },
+    "swarmling": {
+     "cells": 269,
+     "units": 6304,
+     "pooledReward": 0.049565,
+     "ratio": 1.318854
+    },
+    "fastRunner": {
+     "cells": 241,
+     "units": 2075,
+     "pooledReward": 0.021452,
+     "ratio": 0.570817
+    },
+    "regenerator": {
+     "cells": 207,
+     "units": 956,
+     "pooledReward": 0.046154,
+     "ratio": 1.22809
+    },
+    "shieldedBruiser": {
+     "cells": 156,
+     "units": 610,
+     "pooledReward": 0.04266,
+     "ratio": 1.135136
+    }
+   }
+  }
+ },
+ "baseline5": {
+  "minWave": 5,
+  "allTypesPooledReward": 0.032574,
+  "overall": {
+   "armoredGrunt": {
+    "cells": 1168,
+    "units": 11186,
+    "pooledReward": 0.026541,
+    "ratio": 0.814784
+   },
+   "swarmling": {
+    "cells": 1066,
+    "units": 27720,
+    "pooledReward": 0.037274,
+    "ratio": 1.144269
+   },
+   "fastRunner": {
+    "cells": 1066,
+    "units": 10060,
+    "pooledReward": 0.017973,
+    "ratio": 0.551759
+   },
+   "regenerator": {
+    "cells": 1040,
+    "units": 4931,
+    "pooledReward": 0.042713,
+    "ratio": 1.311252
+   },
+   "shieldedBruiser": {
+    "cells": 805,
+    "units": 3190,
+    "pooledReward": 0.041185,
+    "ratio": 1.26435
+   }
+  },
+  "perStyle": {
+   "balancedR": {
+    "armoredGrunt": {
+     "cells": 185,
+     "units": 1786,
+     "pooledReward": 0.025934,
+     "ratio": 0.831337
+    },
+    "swarmling": {
+     "cells": 168,
+     "units": 4400,
+     "pooledReward": 0.035498,
+     "ratio": 1.137907
+    },
+    "fastRunner": {
+     "cells": 168,
+     "units": 1596,
+     "pooledReward": 0.016849,
+     "ratio": 0.540117
+    },
+    "regenerator": {
+     "cells": 165,
+     "units": 776,
+     "pooledReward": 0.040843,
+     "ratio": 1.309249
+    },
+    "shieldedBruiser": {
+     "cells": 129,
+     "units": 505,
+     "pooledReward": 0.039494,
+     "ratio": 1.266015
+    }
+   },
+   "lanceHeavy": {
+    "armoredGrunt": {
+     "cells": 249,
+     "units": 2379,
+     "pooledReward": 0.0258,
+     "ratio": 0.785521
+    },
+    "swarmling": {
+     "cells": 228,
+     "units": 5912,
+     "pooledReward": 0.03712,
+     "ratio": 1.13016
+    },
+    "fastRunner": {
+     "cells": 228,
+     "units": 2151,
+     "pooledReward": 0.017216,
+     "ratio": 0.524158
+    },
+    "regenerator": {
+     "cells": 222,
+     "units": 1063,
+     "pooledReward": 0.044169,
+     "ratio": 1.344777
+    },
+    "shieldedBruiser": {
+     "cells": 172,
+     "units": 687,
+     "pooledReward": 0.04304,
+     "ratio": 1.310423
+    }
+   },
+   "mortarHeavy": {
+    "armoredGrunt": {
+     "cells": 217,
+     "units": 2044,
+     "pooledReward": 0.02595,
+     "ratio": 0.837686
+    },
+    "swarmling": {
+     "cells": 199,
+     "units": 5168,
+     "pooledReward": 0.037129,
+     "ratio": 1.198568
+    },
+    "fastRunner": {
+     "cells": 199,
+     "units": 1851,
+     "pooledReward": 0.01792,
+     "ratio": 0.57848
+    },
+    "regenerator": {
+     "cells": 190,
+     "units": 886,
+     "pooledReward": 0.039888,
+     "ratio": 1.287646
+    },
+    "shieldedBruiser": {
+     "cells": 144,
+     "units": 566,
+     "pooledReward": 0.036458,
+     "ratio": 1.17692
+    }
+   },
+   "poisonHeavy": {
+    "armoredGrunt": {
+     "cells": 283,
+     "units": 2774,
+     "pooledReward": 0.025678,
+     "ratio": 0.809832
+    },
+    "swarmling": {
+     "cells": 257,
+     "units": 6816,
+     "pooledReward": 0.033121,
+     "ratio": 1.044562
+    },
+    "fastRunner": {
+     "cells": 257,
+     "units": 2495,
+     "pooledReward": 0.017324,
+     "ratio": 0.546357
+    },
+    "regenerator": {
+     "cells": 256,
+     "units": 1250,
+     "pooledReward": 0.042007,
+     "ratio": 1.324815
+    },
+    "shieldedBruiser": {
+     "cells": 204,
+     "units": 822,
+     "pooledReward": 0.042834,
+     "ratio": 1.350896
+    }
+   },
+   "sniperHeavy": {
+    "armoredGrunt": {
+     "cells": 234,
+     "units": 2203,
+     "pooledReward": 0.029468,
+     "ratio": 0.818445
+    },
+    "swarmling": {
+     "cells": 214,
+     "units": 5424,
+     "pooledReward": 0.044239,
+     "ratio": 1.228675
+    },
+    "fastRunner": {
+     "cells": 214,
+     "units": 1967,
+     "pooledReward": 0.020587,
+     "ratio": 0.571774
+    },
+    "regenerator": {
+     "cells": 207,
+     "units": 956,
+     "pooledReward": 0.046154,
+     "ratio": 1.281856
+    },
+    "shieldedBruiser": {
+     "cells": 156,
+     "units": 610,
+     "pooledReward": 0.04266,
+     "ratio": 1.184833
+    }
+   }
+  }
+ },
+ "variance": {
+  "armoredGrunt": {
+   "cells": 1746,
+   "etaStyle": 0.015363,
+   "etaWave": 0.286746
+  },
+  "swarmling": {
+   "cells": 1344,
+   "etaStyle": 0.010126,
+   "etaWave": 0.494158
+  },
+  "fastRunner": {
+   "cells": 1201,
+   "etaStyle": 0.006092,
+   "etaWave": 0.546039
+  },
+  "regenerator": {
+   "cells": 1040,
+   "etaStyle": 0.007868,
+   "etaWave": 0.536208
+  },
+  "shieldedBruiser": {
+   "cells": 805,
+   "etaStyle": 0.014255,
+   "etaWave": 0.557489
+  }
+ },
+ "noise": {
+  "perType": {
+   "armoredGrunt": {
+    "groups": 75,
+    "medianSd": 0.009105
+   },
+   "swarmling": {
+    "groups": 60,
+    "medianSd": 0.017766
+   },
+   "fastRunner": {
+    "groups": 55,
+    "medianSd": 0.005435
+   },
+   "regenerator": {
+    "groups": 50,
+    "medianSd": 0.009067
+   },
+   "shieldedBruiser": {
+    "groups": 40,
+    "medianSd": 0.008775
+   }
+  },
+  "spread": {
+   "minWave": 5,
+   "value": 0.02474
+  },
+  "ratio": {
+   "armoredGrunt": 0.368031,
+   "swarmling": 0.718115,
+   "fastRunner": 0.219703,
+   "regenerator": 0.366503,
+   "shieldedBruiser": 0.354681
+  }
+ },
+ "notes": [
+  "These are static-mode measurements: no Director influenced the games.",
+  "A type ratio above 1 means the reward formula favors that type regardless of the Director.",
+  "A low etaStyle means the reward mostly reflects the enemy type and the wave, not the player's defense.",
+  "The table is diagnostic only and is used by no code in this phase."
+ ]
+}

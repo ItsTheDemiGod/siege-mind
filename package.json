@@ -18,7 +18,8 @@
     "experiment": "node experiments/runExperimentCli.js",
     "analyze": "node experiments/analyzeCli.js",
     "calibrate": "node experiments/calibrateCli.js",
-    "amendment-report": "node experiments/amendmentReport.js"
+    "amendment-report": "node experiments/amendmentReport.js",
+    "diagnose": "node experiments/diagnoseCli.js"
   },
   "engines": {
     "node": ">=22"
