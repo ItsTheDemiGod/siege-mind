@@ -10,6 +10,8 @@ Experiment outputs, committed here (experiments/results stays git-ignored for sc
 | tuning.csv, tuning.rows.json | The 450 tuning-set games (30 seeds x 5 styles x 3 modes: static, adaptive with Director v1, random) under protocol version 3 (amendment A2, ablation styles) | `npm run experiment -- --set=tuning` | exploratory; the "before" for Director v2 |
 | tuning-summary.json, tuning-summary.md | The pre-registered analysis of those rows (P1, P2, S1-S8, T2, T0, C1, contrast, early ends, reached-wave-5 sensitivity) | `npm run analyze -- --in=docs/results/tuning.rows.json --out=docs/results/tuning-summary` | exploratory |
 | diagnostics.json, diagnostics.md | Static-mode diagnostics of the reward signal for the ablation styles: baselines, variance decomposition, noise floor, reward contrast | `npm run diagnose` | exploratory |
+| firstlook-train.rows.json, firstlook-train.csv | 500 games on the TRAIN seeds 1001-1020 (5 styles x 5 modes: static, random, adaptive, adaptive2, counter), protocol version 3 | `npm run experiment -- --set=tuning --split=train --modes=static,random,adaptive,adaptive2,counter --base=firstlook-train` | exploratory; nothing tuned; the static, random and adaptive rows equal the committed tuning rows except for the added `tiltByWave` field |
+| firstlook-train-summary.json, firstlook-train-summary.md | The first look: population (static game reached wave 5), descriptive tables, paired mode differences (not adjusted), fixed-wave style contrast with coverage, early-ends check | `npm run first-look -- --in=docs/results/firstlook-train.rows.json --out=docs/results/firstlook-train-summary` | exploratory |
 | archive/ | Superseded outputs, see below | kept for the record | superseded |
 
 ## archive/

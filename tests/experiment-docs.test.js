@@ -37,6 +37,11 @@ test('docs/EXPERIMENT.md documents amendment A2, the contrast hypotheses, the se
   assert.ok(doc.includes('A3'));
 });
 
+test('docs/EXPERIMENT.md documents the first look at the new arms and the plan for the next phase', () => {
+  for (const w of ['First look', 'fixed-wave', 'validation', 'validation.lock.json', 'adaptive2', 'counter', 'Nothing was tuned', 'exactly 0 by construction', 'alpha in {0.35, 0.5, 0.7}', 'amendment A3']) assert.ok(doc.includes(w), w);
+  assert.ok(doc.includes('before any validation or held-out run'));
+});
+
 test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the six figures', () => {
   assert.ok(doc.includes('## Diagnostics'));
   assert.ok(doc.includes('## Figures'));

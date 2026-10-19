@@ -97,6 +97,23 @@ The figures below were built for protocol version 2 and are regenerated for the 
 
 On the 30 tuning seeds (archived in docs/results/archive/tuning-a1-focus-summary.md): P1 mean difference +1.48 lives (95% CI 0.85 to 2.15, Holm p 0.0002); P2 +0.06 (95% CI -0.65 to 0.75, Holm p 0.89); T1 is reversed (the random control leans toward the predicted types more often than the Director: -0.31). These are exploratory numbers, not the confirmatory evaluation.
 
+## First look at the new arms (exploratory, training seeds)
+
+**What was run.** Phase 9A-2a added two research arms next to the unchanged static, adaptive (v1) and random modes: `adaptive2` (Director v2: rewards divided by a static baseline, advantages shrunk for types with few units) and `counter` (an informed arm that reads the tower loadout; a ceiling, not a fair competitor); see docs/DIRECTOR.md. All five modes were played on the TRAIN seeds 1001-1020 (the first 20 tuning seeds) with the protocol styles and knobs (500 games, docs/results/firstlook-train.rows.json) and analyzed with `npm run first-look` (docs/results/firstlook-train-summary.md). **Nothing was tuned:** every parameter of the new arms has the initial value given in config.js, and the results were reported as printed. The 300 static, random and adaptive (v1) rows are identical in every column to the committed tuning rows (only the new JSON-only field `tiltByWave` is added).
+
+**Chronology.** The arms were designed after seeing the protocol version 3 tuning results, before any validation or held-out run. The validation seeds (1021-1030) were not run for the new arms; `--split=validation` goes through its own lock (`experiments/validation.lock.json`, the same rules as the held-out lock) and has never been executed. PROTOCOL is unchanged (version 3): the new modes are allowed for the tuning set only.
+
+**Population rule.** Comparisons use the units (style, seed) whose STATIC game reached wave 5 or later, a pre-treatment condition (waves 1-4 are identical in every mode, and the same units end early in every mode; the first-look output checks this across all five modes). Seed-level paired differences are averaged over the population styles of each seed; bootstrap intervals and sign-flip p-values use the protocol resample settings and are **not adjusted**.
+
+**Fixed-wave contrast.** The final-tilt contrast of the protocol depends on how far each game got. The first look therefore also takes, for each wave W in 5, 7, 9, 11, 12, 13, 14, 15, the applied tilt of that wave (the JSON-only `tiltByWave`), computes the same style contrast as `contrastPerSeed` (a style's weight on its predicted type minus the other styles', same seed and mode) and reports the coverage (observed units over population units) next to it. The random control's tilts depend only on the seed and the wave, so they are identical across styles and **its fixed-wave contrast is exactly 0 by construction**; it is shown as a check of the statistic, not as a sampled null.
+
+### Planned next steps (written before the next phase)
+
+Phase 9A-2b will:
+1. tune Director v2 on the TRAIN seeds only with this exact bounded grid: alpha in {0.35, 0.5, 0.7} x beta in {1, 1.5} x shrinkK in {2, 6} (12 combinations, adaptive2 mode only, all other parameters fixed), selecting the combination with the largest adaptive2-minus-random mean lives lost on the population among those whose fixed-wave contrast at the pre-chosen wave is positive;
+2. run the validation seeds (1021-1030) ONCE through the validation lock for the chosen configuration, v1 and the counter arm;
+3. write amendment A3 with the confirmatory hypotheses, the primary population (units whose static game reached wave 5), the fixed-wave contrast wave chosen by a coverage rule on the training data, and a held-out size of 150 seeds, before any held-out run.
+
 ## Reproduction
 
 ```
