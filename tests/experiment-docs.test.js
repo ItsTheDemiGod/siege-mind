@@ -50,6 +50,14 @@ test('docs/EXPERIMENT.md documents the six-mode first look, the attribution chai
   for (const w of ['Six-mode first look', 'attribution', 'fixed-wave', 'prior', 'before any validation or held-out run', 'metRule', 'protocol version 4', 'no tuning of any arm']) assert.ok(doc.includes(w), w);
 });
 
+test('docs/EXPERIMENT.md pre-registers amendment A3: hypotheses, estimands, procedure, interpretation guide and the freeze', () => {
+  const low = doc.toLowerCase();
+  for (const w of ['Amendment A3', 'Freeze', 'runIndex', 'estimand', 'interpretation', 'no-tuning', 'not pristine', 'A4', 'plan-heldout', 'dryrun', 'unlocked-only', 'incomplete data']) assert.ok(low.includes(w.toLowerCase()), w);
+  for (const h of PROTOCOL.confirmatory.hypotheses) assert.ok(doc.includes(`**${h.id}**`), `hypothesis ${h.id}`);
+  assert.ok(doc.includes('2001-2150') && doc.includes('4500 games') && doc.includes('phase-9a2b2-complete'));
+  assert.ok(doc.includes('was NOT met'));
+});
+
 test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the six figures', () => {
   assert.ok(doc.includes('## Diagnostics'));
   assert.ok(doc.includes('## Figures'));
