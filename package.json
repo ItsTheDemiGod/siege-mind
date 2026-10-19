@@ -24,7 +24,9 @@
     "early-losses": "node experiments/earlyLosses.js",
     "contrast": "node experiments/contrast.js",
     "baseline": "node experiments/makeBaseline.js",
-    "first-look": "node experiments/firstLookCli.js"
+    "first-look": "node experiments/firstLookCli.js",
+    "confirm": "node experiments/confirmCli.js",
+    "plan-heldout": "node experiments/heldoutPlan.js"
   },
   "engines": {
     "node": ">=22"
