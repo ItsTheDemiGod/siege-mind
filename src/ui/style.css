@@ -219,6 +219,7 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .radio-blurb { font-size: 12px; color: var(--muted); }
 .radio[aria-checked="true"] { border-color: var(--defense-primary); background: color-mix(in srgb, var(--defense-primary) 14%, var(--bg1)); }
 .radio[aria-checked="true"] .radio-label { color: var(--defense-primary); }
+.radio[aria-checked="true"] .radio-blurb { color: var(--text); } /* the muted blurb is 4.2:1 on the selected tint, below AA */
 .radio[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
 .radio[aria-disabled="true"] .radio-label::after { content: " (locked)"; font-size: 12px; font-weight: 500; color: var(--muted); }
 

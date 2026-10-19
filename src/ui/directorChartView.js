@@ -25,10 +25,10 @@ function marker(shape, x, y, filled, type) {
   }
 }
 
-/** Pattern definitions, one per enemy type (ids are `${prefix}-${type}`). */
-function patternDefs(prefix) {
+/** Pattern definitions, one per enemy type or only for `only` (ids are `${prefix}-${type}`; a legend swatch defines just its own so ids stay unique). */
+function patternDefs(prefix, only = ENEMY_ORDER) {
   const defs = svg('defs');
-  for (const type of ENEMY_ORDER) {
+  for (const type of [].concat(only)) {
     const p = svg('pattern', { id: `${prefix}-${type}`, width: 6, height: 6, patternUnits: 'userSpaceOnUse' });
     const cls = `pat pat-${type}`;
     const kind = PATTERNS[type];
@@ -133,7 +133,7 @@ export function renderCompositionStrip(root, entries, { width, height, totalWave
 export function renderPatternLegend(root) {
   const prefix = uid();
   root.replaceChildren(h('ul', { class: 'chart-legend' }, ENEMY_ORDER.map((type) => {
-    const swatch = svg('svg', { width: 22, height: 14, viewBox: '0 0 22 14', 'aria-hidden': 'true' }, [patternDefs(prefix), svg('rect', { class: 'strip-seg', x: 0, y: 0, width: 22, height: 14, fill: `url(#${prefix}-${type})` })]);
+    const swatch = svg('svg', { width: 22, height: 14, viewBox: '0 0 22 14', 'aria-hidden': 'true' }, [patternDefs(prefix, type), svg('rect', { class: 'strip-seg', x: 0, y: 0, width: 22, height: 14, fill: `url(#${prefix}-${type})` })]);
     return h('li', {}, [swatch, h('span', { text: ENEMIES[type].name })]);
   })));
 }
