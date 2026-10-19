@@ -22,7 +22,8 @@
     "diagnose": "node experiments/diagnoseCli.js",
     "figures": "node experiments/figuresCli.js",
     "early-losses": "node experiments/earlyLosses.js",
-    "contrast": "node experiments/contrast.js"
+    "contrast": "node experiments/contrast.js",
+    "baseline": "node experiments/makeBaseline.js"
   },
   "engines": {
     "node": ">=22"

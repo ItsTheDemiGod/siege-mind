@@ -37,9 +37,9 @@ export function runUnit({ style, mode, seed, waves = PROTOCOL.waves, knobs = PRO
 }
 
 /** @returns {{style: string, mode: string, seed: number, waves: number}[]} in the stable order seed, then style, then mode */
-export function unitsFor({ set, styles = PROTOCOL.styles, modes = PROTOCOL.modes, waves = PROTOCOL.waves }) {
+export function unitsFor({ set, styles = PROTOCOL.styles, modes = PROTOCOL.modes, waves = PROTOCOL.waves, seeds = seedsOf(set) }) {
   const units = [];
-  for (const seed of seedsOf(set)) for (const style of styles) for (const mode of modes) units.push({ style, mode, seed, waves });
+  for (const seed of seeds) for (const style of styles) for (const mode of modes) units.push({ style, mode, seed, waves });
   return units;
 }
 

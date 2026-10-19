@@ -135,3 +135,18 @@ test('parseExperimentArgs: defaults, every flag and every rejection', () => {
   assert.throws(() => parseExperimentArgs(['--set=heldout', '--styles=noLance']), /not allowed/);
   assert.throws(() => parseExperimentArgs(['--set=heldout', '--modes=static']), /not allowed/);
 });
+
+test('parseExperimentArgs: --split only for the tuning set, validated, and a split never takes the default full-set file name', () => {
+  assert.equal(parseExperimentArgs(['--set=tuning']).split, undefined);
+  assert.deepEqual([parseExperimentArgs(['--set=tuning', '--split=train']).split, parseExperimentArgs(['--set=tuning', '--split=train']).base], ['train', 'tuning-train']);
+  assert.equal(parseExperimentArgs(['--set=tuning', '--split=validation', '--base=x']).base, 'x');
+  assert.equal(parseExperimentArgs(['--set=tuning', '--split=all']).base, 'tuning');
+  assert.throws(() => parseExperimentArgs(['--set=heldout', '--split=train']), /only allowed with --set=tuning/);
+  assert.throws(() => parseExperimentArgs(['--set=calibration', '--split=train']), /only allowed with --set=tuning/);
+  assert.throws(() => parseExperimentArgs(['--set=tuning', '--split=nope']), RangeError);
+});
+
+test('unitsFor takes an explicit seed list (a split) and keeps the stable order', () => {
+  const u = unitsFor({ set: 'tuning', seeds: [1001, 1002], styles: ['balancedR'], modes: ['static', 'random'] });
+  assert.deepEqual(u.map((x) => `${x.seed}/${x.mode}`), ['1001/static', '1001/random', '1002/static', '1002/random']);
+});

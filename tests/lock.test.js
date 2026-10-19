@@ -55,3 +55,20 @@ test('inputs are not mutated, allowDirty records the dirty state, hashes are cop
   assert.equal(dirty.nextLock.protocolHash, protocolHash());
   assert.equal(dirty.nextLock.createdAt, NOW);
 });
+
+test('validation lock: same refusals with their own wording, kind recorded, held-out lock unchanged', () => {
+  const v = (over = {}) => decideHeldoutRun({ existingLock: null, args: ok, identity, now: NOW, kind: 'validation', ...over });
+  for (const [over, re] of [[{ args: { ...ok, final: false } }, /validation seeds.*--final/], [{ args: { ...ok, yes: false } }, /validation seeds.*--yes/], [{ identity: { ...identity, gitDirty: true } }, /uncommitted changes/],
+    [{ identity: { ...identity, gitCommit: 'unknown' } }, /commit is unknown/], [{ existingLock: { runIndex: 1, previous: [] } }, /validation seeds was already run.*--new-lock/]]) {
+    const d = v(over);
+    assert.equal(d.allowed, false);
+    assert.match(d.reason, re);
+  }
+  const first = v();
+  assert.equal(first.allowed, true);
+  assert.equal(first.nextLock.kind, 'validation');
+  assert.match(first.reason, /validation run/);
+  assert.equal(v({ existingLock: first.nextLock, args: { ...ok, newLock: true } }).nextLock.previous[0].kind, 'validation');
+  assert.ok(!('kind' in decide().nextLock), 'the held-out lock has no kind field (unchanged)');
+  assert.throws(() => v({ kind: 'nope' }), RangeError);
+});

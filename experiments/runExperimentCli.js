@@ -6,18 +6,20 @@ import { config } from '../src/data/config.js';
 import { PROTOCOL, seedsOf } from './protocol.js';
 import { runExperiment, unitsFor, writeResults, identityOf } from './runExperiment.js';
 import { decideHeldoutRun } from './lock.js';
+import { splitSeeds } from './splits.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const LOCK_PATH = resolve(ROOT, 'experiments/heldout.lock.json');
-const FLAGS = ['set', 'waves', 'styles', 'modes', 'out', 'base'];
+export const VALIDATION_LOCK_PATH = resolve(ROOT, 'experiments/validation.lock.json');
+const FLAGS = ['set', 'waves', 'styles', 'modes', 'out', 'base', 'split'];
 const SWITCHES = { '--final': 'final', '--yes': 'yes', '--new-lock': 'newLock', '--allow-dirty': 'allowDirty' };
 
 /**
- * @param {string[]} argv @returns {{set: string, waves: number, styles: string[], modes: string[], out: string, base: string, final: boolean, yes: boolean, newLock: boolean, allowDirty: boolean}}
+ * @param {string[]} argv @returns {{set: string, split: string, waves: number, styles: string[], modes: string[], out: string, base: string, final: boolean, yes: boolean, newLock: boolean, allowDirty: boolean}}
  * @throws {Error} with a clear message for unknown flags or values; subsets of styles and modes are not allowed for the held-out set
  */
 export function parseExperimentArgs(argv) {
-  const out = { set: null, waves: PROTOCOL.waves, styles: null, modes: null, out: 'docs/results', base: null, final: false, yes: false, newLock: false, allowDirty: false };
+  const out = { set: null, waves: PROTOCOL.waves, styles: null, modes: null, out: 'docs/results', base: null, split: null, final: false, yes: false, newLock: false, allowDirty: false };
   for (const arg of argv) {
     if (arg in SWITCHES) { out[SWITCHES[arg]] = true; continue; }
     const m = /^--([a-z-]+)=(.*)$/s.exec(arg);
@@ -38,9 +40,13 @@ export function parseExperimentArgs(argv) {
   if (!out.set) throw new Error('--set is required (calibration, tuning or heldout)');
   seedsOf(out.set); // validates the name (RangeError)
   if (out.set === 'heldout' && (out.styles || out.modes)) throw new Error('the held-out set always runs every style and mode: --styles and --modes are not allowed');
+  if (out.split !== null && out.set !== 'tuning') throw new Error('--split is only allowed with --set=tuning');
+  if (out.split === null) delete out.split; // absent means 'all'; the key is only present when given
+  else splitSeeds(out.split); // validates the name (RangeError)
   out.styles ??= [...PROTOCOL.styles];
   out.modes ??= [...PROTOCOL.modes];
-  out.base ??= out.waves === PROTOCOL.waves ? out.set : `${out.set}-w${out.waves}`;
+  const stem = out.split && out.split !== 'all' ? `${out.set}-${out.split}` : out.set; // a split never overwrites the full-set files by default
+  out.base ??= out.waves === PROTOCOL.waves ? stem : `${stem}-w${out.waves}`;
   return out;
 }
 
@@ -49,15 +55,17 @@ async function main() {
   try { a = parseExperimentArgs(process.argv.slice(2)); } catch (e) { console.error(e.message); return 2; }
   const identity = identityOf();
   let extra = {};
-  if (a.set === 'heldout') {
-    const existingLock = existsSync(LOCK_PATH) ? JSON.parse(readFileSync(LOCK_PATH, 'utf8')) : null;
-    const decision = decideHeldoutRun({ existingLock, args: a, identity, now: new Date().toISOString() });
+  const kind = a.set === 'heldout' ? 'heldout' : a.split === 'validation' ? 'validation' : null;
+  if (kind) {
+    const path = kind === 'heldout' ? LOCK_PATH : VALIDATION_LOCK_PATH;
+    const existingLock = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : null;
+    const decision = decideHeldoutRun({ existingLock, args: a, identity, now: new Date().toISOString(), kind });
     if (!decision.allowed) { console.error(`refused: ${decision.reason}`); return 1; }
-    writeFileSync(LOCK_PATH, `${JSON.stringify(decision.nextLock, null, 2)}\n`); // the lock is written BEFORE any game is played
-    console.log(`held-out lock written (runIndex ${decision.nextLock.runIndex}); ${decision.reason}`);
+    writeFileSync(path, `${JSON.stringify(decision.nextLock, null, 2)}\n`); // the lock is written BEFORE any game is played
+    console.log(`${kind} lock written (runIndex ${decision.nextLock.runIndex}); ${decision.reason}`);
     extra = { runIndex: decision.nextLock.runIndex };
   }
-  const units = unitsFor({ set: a.set, styles: a.styles, modes: a.modes, waves: a.waves });
+  const units = unitsFor({ set: a.set, styles: a.styles, modes: a.modes, waves: a.waves, seeds: a.set === 'tuning' ? splitSeeds(a.split ?? 'all') : undefined });
   console.log(`experiment: set ${a.set}, ${units.length} games (${a.waves} waves), knobs ${JSON.stringify(PROTOCOL.botKnobs)}`);
   const t0 = performance.now();
   let tenth = 0;
