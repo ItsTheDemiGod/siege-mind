@@ -42,6 +42,10 @@ test('docs/EXPERIMENT.md documents the first look at the new arms and the plan f
   assert.ok(doc.includes('before any validation or held-out run'));
 });
 
+test('docs/EXPERIMENT.md records the validation-split incident', () => {
+  for (const w of ['Incident log', 'not pristine', 'tests/cli-lock.test.js']) assert.ok(doc.includes(w), w);
+});
+
 test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the six figures', () => {
   assert.ok(doc.includes('## Diagnostics'));
   assert.ok(doc.includes('## Figures'));

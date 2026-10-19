@@ -51,32 +51,47 @@ export function parseExperimentArgs(argv) {
   return out;
 }
 
-async function main() {
+const lockPathOf = (kind) => (kind === 'heldout' ? LOCK_PATH : VALIDATION_LOCK_PATH);
+const REAL_DEPS = {
+  runExperiment, unitsFor, writeResults, identityOf,
+  readLock: (kind) => (existsSync(lockPathOf(kind)) ? JSON.parse(readFileSync(lockPathOf(kind), 'utf8')) : null),
+  writeLock: (kind, lock) => writeFileSync(lockPathOf(kind), `${JSON.stringify(lock, null, 2)}
+`),
+  now: () => new Date().toISOString(), log: (m) => console.log(m), error: (m) => console.error(m), clock: () => performance.now(),
+};
+
+/**
+ * The CLI body. The lock gate (which runs need a lock, the decision, the refusal, writing the lock) runs BEFORE any game is played.
+ * @param {string[]} argv @param {Partial<typeof REAL_DEPS>} [deps] injectable for tests (tests never call the real runner for locked sets)
+ * @returns {Promise<number>} the process exit code
+ */
+export async function main(argv, deps = {}) {
+  const d = { ...REAL_DEPS, ...deps };
   let a;
-  try { a = parseExperimentArgs(process.argv.slice(2)); } catch (e) { console.error(e.message); return 2; }
-  const identity = identityOf();
+  try { a = parseExperimentArgs(argv); } catch (e) { d.error(e.message); return 2; }
+  const identity = d.identityOf();
   let extra = {};
   const kind = a.set === 'heldout' ? 'heldout' : a.split === 'validation' ? 'validation' : null;
   if (kind) {
-    const path = kind === 'heldout' ? LOCK_PATH : VALIDATION_LOCK_PATH;
-    const existingLock = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : null;
-    const decision = decideHeldoutRun({ existingLock, args: a, identity, now: new Date().toISOString(), kind });
-    if (!decision.allowed) { console.error(`refused: ${decision.reason}`); return 1; }
-    writeFileSync(path, `${JSON.stringify(decision.nextLock, null, 2)}\n`); // the lock is written BEFORE any game is played
-    console.log(`${kind} lock written (runIndex ${decision.nextLock.runIndex}); ${decision.reason}`);
+    const decision = decideHeldoutRun({ existingLock: d.readLock(kind), args: a, identity, now: d.now(), kind });
+    if (!decision.allowed) { d.error(`refused: ${decision.reason}`); return 1; }
+    d.writeLock(kind, decision.nextLock); // the lock is written BEFORE any game is played
+    d.log(`${kind} lock written (runIndex ${decision.nextLock.runIndex}); ${decision.reason}`);
     extra = { runIndex: decision.nextLock.runIndex };
   }
-  const units = unitsFor({ set: a.set, styles: a.styles, modes: a.modes, waves: a.waves, seeds: a.set === 'tuning' ? splitSeeds(a.split ?? 'all') : undefined });
-  console.log(`experiment: set ${a.set}, ${units.length} games (${a.waves} waves), knobs ${JSON.stringify(PROTOCOL.botKnobs)}`);
-  const t0 = performance.now();
+  const units = d.unitsFor({ set: a.set, styles: a.styles, modes: a.modes, waves: a.waves, seeds: a.set === 'tuning' ? splitSeeds(a.split ?? 'all') : undefined });
+  d.log(`experiment: set ${a.set}, ${units.length} games (${a.waves} waves), knobs ${JSON.stringify(PROTOCOL.botKnobs)}`);
+  const t0 = d.clock();
   let tenth = 0;
-  const rows = runExperiment({
+  const rows = d.runExperiment({
     units,
-    onProgress: (done, total) => { if (Math.floor((done / total) * 10) > tenth) { tenth = Math.floor((done / total) * 10); console.log(`  ${tenth * 10}% (${done}/${total})`); } },
+    onProgress: (done, total) => { if (Math.floor((done / total) * 10) > tenth) { tenth = Math.floor((done / total) * 10); d.log(`  ${tenth * 10}% (${done}/${total})`); } },
   });
-  const paths = writeResults({ dir: resolve(a.out), base: a.base, rows, identity, set: a.set, waves: a.waves, knobs: PROTOCOL.botKnobs, extra });
-  console.log(`wrote ${paths.json}\nwrote ${paths.csv}\nelapsed ${((performance.now() - t0) / 1000).toFixed(1)} s`);
+  const paths = d.writeResults({ dir: resolve(a.out), base: a.base, rows, identity, set: a.set, waves: a.waves, knobs: PROTOCOL.botKnobs, extra });
+  d.log(`wrote ${paths.json}
+wrote ${paths.csv}
+elapsed ${((d.clock() - t0) / 1000).toFixed(1)} s`);
   return 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().then((c) => process.exit(c));
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main(process.argv.slice(2)).then((c) => process.exit(c));

@@ -114,6 +114,10 @@ Phase 9A-2b will:
 2. run the validation seeds (1021-1030) ONCE through the validation lock for the chosen configuration, v1 and the counter arm;
 3. write amendment A3 with the confirmatory hypotheses, the primary population (units whose static game reached wave 5), the fixed-wave contrast wave chosen by a coverage rule on the training data, and a held-out size of 150 seeds, before any held-out run.
 
+## Incident log
+
+- **2026-10-19, validation split run without a lock.** During Phase 9A-2a the command `node experiments/runExperimentCli.js --set=tuning --split=validation` was run once before the lock was wired into the CLI, so it executed the whole tuning set (450 games) without a lock. The output files were deleted without being read and no results were seen; the new arms were not run on those seeds. **Consequence:** seeds 1021-1030 were already part of the tuning set whose results were read in Phase 9A-1, so they are **not pristine**; the held-out seeds 2001+ are untouched and are the only confirmatory data. The lock path (gate before any game, lock written before the runner, refusals, dirty tree, existing lock, research arms refused for the held-out set) is now covered by tests/cli-lock.test.js with stubbed dependencies.
+
 ## Reproduction
 
 ```

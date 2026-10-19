@@ -846,6 +846,7 @@ Implemented; awaiting user check, then tag phase-9a2a-complete.
 - Tests do not cover the counter arm in the browser beyond the smoke page (overlay title and HUD); the preview refresh on tower events is tested through its pure key only.
 - tests/figures use an explicit legacy protocol and npm run figures is still not regenerated for version 3 (Phase 9B).
 - During this phase `node experiments/runExperimentCli.js --set=tuning --split=validation` was run once while main() did not yet consult the lock, so it executed the whole tuning set (450 games, base tuning-validation) with no lock; the two output files were deleted without being read. Seeds 1021-1030 had already been run as part of the committed 9A-1 tuning set, and the new arms were NOT run on them. The CLI now refuses without --final, --yes and a clean tree and is covered by tests.
+- Incident (recorded in Phase 9A-2b-1, see docs/EXPERIMENT.md Incident log): the validation split was run once without a lock in Phase 9A-2a (whole tuning set, 450 games, outputs deleted unread, new arms not run on it). Seeds 1021-1030 were already read as part of the tuning set in 9A-1, so they are not pristine; only the held-out seeds 2001+ are confirmatory. The lock gate is covered by tests/cli-lock.test.js.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
