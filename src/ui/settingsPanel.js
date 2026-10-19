@@ -1,7 +1,6 @@
-// Settings modal: bound to the settings store; opening pauses the game, closing restores the previous paused state.
+// Settings modal: bound to the settings store; while open it holds the 'settings' pause lock.
 import { h } from './dom.js';
-
-const FOCUSABLE = 'button, select, input, [tabindex]:not([tabindex="-1"])';
+import { trapTab } from './focusTrap.js';
 
 /** Switch row: <button role="switch" aria-checked>. */
 function switchRow(label, hint, onToggle) {
@@ -12,12 +11,11 @@ function switchRow(label, hint, onToggle) {
 }
 
 /**
- * @param {{root: HTMLElement, settings: object, game: {isPaused: () => boolean, setPaused: (p: boolean) => void}}} o
+ * @param {{root: HTMLElement, settings: object, pause: {lock: (r: string) => void, unlock: (r: string) => void}}} o
  * @returns {{open: () => void, close: () => void, readonly isOpen: boolean}}
  */
-export function createSettingsPanel({ root, settings, game }) {
+export function createSettingsPanel({ root, settings, pause }) {
   let backdrop = null;
-  let wasPaused = false;
   let opener = null;
   const refs = {};
 
@@ -56,15 +54,8 @@ export function createSettingsPanel({ root, settings, game }) {
       ]),
     ]);
     const node = h('div', { class: 'modal-backdrop' }, [panel]);
-    node.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { e.preventDefault(); close(); return; }
-      if (e.key !== 'Tab') return;
-      const items = [...panel.querySelectorAll(FOCUSABLE)];
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    });
+    node.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } });
+    node.addEventListener('keydown', trapTab(panel));
     node.addEventListener('pointerdown', (e) => { if (e.target === node) close(); });
     return node;
   };
@@ -72,8 +63,7 @@ export function createSettingsPanel({ root, settings, game }) {
   function open() {
     if (backdrop) return;
     opener = document.activeElement;
-    wasPaused = game.isPaused();
-    game.setPaused(true);
+    pause.lock('settings');
     backdrop = build();
     root.append(backdrop);
     sync();
@@ -84,7 +74,7 @@ export function createSettingsPanel({ root, settings, game }) {
     if (!backdrop) return;
     backdrop.remove();
     backdrop = null;
-    game.setPaused(wasPaused);
+    pause.unlock('settings');
     if (opener && opener.isConnected) opener.focus();
   }
 

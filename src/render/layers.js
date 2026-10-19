@@ -1,7 +1,7 @@
 // Layered scene pieces: cached static background plus cheap per-frame dynamic layers (path flow, portal, core, motes).
 import { THEME } from './theme.js';
 import { mixHex, withAlpha } from './color.js';
-import { dashedArc, polygonPath } from './shapes.js';
+import { dashedArc } from './shapes.js';
 
 const TAU = Math.PI * 2;
 const C = THEME.colors;
@@ -218,34 +218,6 @@ export function drawSpawnPortal(ctx, glow, x, y, time) {
     dashedArc(ctx, 12 + i * 8, 0);
     ctx.restore();
   }
-  ctx.restore();
-}
-
-/** Base core: holographic hex with counter-rotating rings and a gentle pulse in Defense primary. */
-export function drawBaseCore(ctx, glow, x, y, time, hit = 0) {
-  const pulse = 1 + 0.06 * Math.sin(time * 2.4) + hit * 0.35; // `hit` 0..1: leak feedback
-  if (glow) {
-    ctx.globalCompositeOperation = 'lighter';
-    glow.draw(ctx, C.primary, 44 * pulse, x, y, Math.min(1, 0.5 + hit * 0.4));
-    ctx.globalCompositeOperation = 'source-over';
-  }
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.strokeStyle = C.primary;
-  ctx.lineWidth = 2;
-  ctx.save();
-  ctx.rotate(time * 0.5);
-  polygonPath(ctx, 14 * pulse, 6, 0);
-  ctx.globalAlpha = 0.25;
-  ctx.fillStyle = C.primary;
-  ctx.fill();
-  ctx.globalAlpha = 1;
-  ctx.stroke();
-  ctx.restore();
-  ctx.globalAlpha = 0.7;
-  ctx.save(); ctx.rotate(time * 0.8); dashedArc(ctx, 22, 0); ctx.restore();
-  ctx.globalAlpha = 0.5;
-  ctx.save(); ctx.rotate(-time * 0.6); dashedArc(ctx, 28, 0); ctx.restore();
   ctx.restore();
 }
 

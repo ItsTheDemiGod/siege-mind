@@ -69,6 +69,7 @@ siege-mind/
     galleryStatic.js         <- gallery sections: palette, type, enemies, icons, UI kit, colorblind
     galleryEnemies.js        <- gallery: enemy states grid + sim-event effect buttons
     galleryTowers.js         <- gallery: 15 live towers, silhouettes, effect buttons
+    galleryScreens.js        <- gallery 4b: core states, wave banner, end screens (real modules, fake data)
     sim/                     <- PURE logic, runs in Node
       rng.js
       game.js                <- top-level game state + step()
@@ -100,6 +101,7 @@ siege-mind/
       towers.js              <- 5 towers, upgrades, target modes
       towerVisuals.js        <- per-tower animation/trail/impact parameters
       debugTools.js          <- debug tool/key table (Phase 2)
+      menuText.js            <- main menu and how-to-play text (frozen, length-tested)
     render/                  <- canvas drawing only
       theme.js               <- palette, tokens, durations, fonts, cssVariables()
       color.js               <- hex/mix/contrast/deltaE, colorblind simulation (Machado 2009)
@@ -130,6 +132,7 @@ siege-mind/
       hash.js                <- pure integer hash for deterministic visuals
       overlays.js            <- placement ghost and selection overlays
       fit.js                 <- canvas fit to window, DPR + backing-pixel budget
+      coreRenderer.js        <- base core in four states (shape-based), destroyed and victory animation
     ui/                      <- HUD, menus, overlays, analytics panel
       style.css              <- CSS variables mirroring theme.js (parity tested)
       dom.js                 <- tiny element helper
@@ -155,6 +158,21 @@ siege-mind/
       towerPanel.js          <- selected-tower panel
       towerInfo.js           <- tooltip/panel text helpers (pure)
       keys.js                <- dev keyboard controls
+      pauseState.js          <- pure pause model: user flag + named locks
+      escapeResolver.js      <- pure: what Esc does, by priority (single Esc handler in main.js)
+      confirmClick.js        <- pure two-click confirmation (Restart, Quit)
+      menuState.js           <- pure: seed parsing, shouldShowMenu, play/menu URLs
+      bannerState.js         <- pure view models for the wave banner and preview
+      compositionItems.js    <- pure ordered composition list; compositionChips.js builds the DOM chips
+      coreIntegrity.js       <- pure: lives -> ring segments and core state
+      waveSummary.js         <- pure: end-screen wave strip and texts; endModel.js builds the whole end model
+      focusTrap.js           <- Tab trap shared by every dialog; radioGroup.js accessible radio buttons
+      mainMenu.js            <- main menu dialog (mode, length, seed, start)
+      howToPlay.js           <- how-to-play dialog
+      pauseMenu.js           <- pause menu (Esc)
+      waveBanner.js          <- wave start banner (live region)
+      wavePreview.js         <- incoming-wave preview above the wave control
+      endScreenView.js       <- end-screen DOM from a plain model (also used by the gallery)
     audio/
       synth.js               <- WebAudio procedural SFX
   tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, trayState, waves-data, lives, stats, waveRunner, balance, waveControlState, format, restart, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
@@ -180,6 +198,10 @@ siege-mind/
 **Map:** one fixed winding path on a tile grid. Logical canvas 1280x720; a HUD strip is reserved at the top (80 px); the map grid is 20 columns x 10 rows of 64 px tiles = 1280x640, drawn below the HUD strip. The sim's world coordinates have their origin at the top-left corner of the MAP (not the canvas); only the renderer adds the 80 px HUD offset. Spawn tile (0,1), exit tile (19,7), path waypoints (in tile coordinates) (0,1) -> (17,1) -> (17,4) -> (2,4) -> (2,7) -> (19,7), an S-shaped path with two hairpin turns (total length 3520 world units). Blocked (non-buildable decor) tiles: (8,2) (9,2) (10,5) (11,5) (5,9) (6,9). Everything else is buildable. Towers are placed only on buildable tiles. Single entry, single base.
 
 **Economy and lives (initial values, tunable in `config.js`):** start gold 150, lives 20, kill reward per enemy type (in data), 2 upgrade levels per tower, sell refund 70% of everything paid. Tower prices grow with the number owned: `price = round(base * (1 + towerCostGrowth * towersOwned))` with towerCostGrowth 0.03 (upgrades are not scaled); the cap is 60 towers. Clear bonus per wave 13 + 6w gold. Gold, prices, upgrades and selling are Phase 3A; lives, waves and win/lose are Phase 4A.
+
+**Game length (Phase 4B):** the menu offers Quick (15 waves, about 19 game minutes for the balanced bot, the default) and Full (30 waves, about 43 minutes, the research setting). Both use the same 30-wave script, HP curve and economy: Quick simply ends after wave 15 (`game.totalWaves`, allowed values in `config.game.allowedTotals`). The 30-wave results are unchanged. Wave 10 is the only set piece inside a Quick game; it has no special finale.
+
+**Menu and URL flow (Phase 4B):** the menu shows unless the URL has `play` or `debug`. Start navigates to `?seed=..&mode=static&waves=15|30&play=1` (a clean boot); Restart and "Retry same seed" reload with the same seed; "New seed" picks a random one; "Quit to menu" and "Main menu" drop `play` and the debug parameters. `?waves=` other than 15 or 30 falls back to 30 with a toast. Adaptive is shown but locked until Phase 6.
 
 **Towers** (initial values from src/data/towers.js; upgrade multipliers are absolute per level; Phase 9 retunes everything)
 
@@ -365,7 +387,7 @@ Implemented; awaiting user visual/gameplay check, then tag phase-3a-complete. (N
 **Done when:** each tower is recognizable by silhouette alone, every shot has feedback, and 40 towers plus 150 enemies hold 60 FPS.
 Implemented; awaiting user visual check, then tag phase-3b-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
 
-### [~] Phase 4A — Rules and wave system (functional UI)
+### [x] Phase 4A — Rules and wave system (functional UI)
 - [x] Auto-spawner is debug-only (?debug=1&spawn=N)
 - [x] Lives, leaks costing lives, defeat; clearing wave 30 wins; game freeze on game over
 - [x] 30-wave static script with a threat-budget curve and a pure builder (STATIC_THREAT for the future Director)
@@ -374,9 +396,9 @@ Implemented; awaiting user visual check, then tag phase-3b-complete. (Not run in
 - [x] Functional wave control (Start Wave / Enter), HUD lives and wave, functional end screen with retry and new seed
 - [x] Bots (none, balanced), headless playthrough, difficulty calibration with tests T1/T2
 **Done when:** a human can play wave 1 to 30 in Static Mode start to finish with a real win/lose.
-Implemented; awaiting user playtest, then tag phase-4a-complete. (Not run in a real browser by Claude: the Chrome extension was not connected.)
+Done (tagged phase-4a-complete). (Not run in a real browser by Claude: the Chrome extension was not connected.)
 
-### [~] Phase 4A.2 — Difficulty rework
+### [x] Phase 4A.2 — Difficulty rework
 - [x] Enemy HP and shield scale with the wave (exponential or polynomial curve, plain-arithmetic table); armor, rewards, threat costs stay flat
 - [x] Regeneration heals a fraction of BASE HP (approved reversal of the scaled-HP rule)
 - [x] Tower prices grow with towers owned; cap 60; getTowerCost used by placement, bots and the tray
@@ -384,14 +406,19 @@ Implemented; awaiting user playtest, then tag phase-4a-complete. (Not run in a r
 - [x] Calibration against the ladder (tests/balance.test.js T1-T4, T5', T6, T7')
 - [x] UI: price in the tray (pure trayState), HP multiplier in the wave control and debug panel
 **Done when:** the ladder test passes and the opening/mid game is playable.
-Implemented; awaiting user playtest, then tag phase-4a-complete (covers 4A and 4A.2).
+Done (covered by the phase-4a-complete tag).
 
-### [ ] Phase 4B — Presentation
-- [ ] Styled main menu: mode select (Adaptive shown disabled until Phase 6), seed entry, how to play
-- [ ] Animated wave banner with composition icons; between-wave countdown ring; incoming-wave preview
-- [ ] Base core with damage states
-- [ ] Animated victory and defeat screens with a wave-by-wave summary; pause menu
+### [~] Phase 4B — Presentation
+- [x] Part 0: test tightening (original T7 and T5 with 3 loss waves restored; passes at the current config)
+- [x] Quick game option (15 waves, game.totalWaves / maxLives / waveLog, getWavePreview), 30-wave results unchanged
+- [x] Styled main menu: mode select (Adaptive shown locked until Phase 6), game length, seed entry, how to play
+- [x] Pause menu (Esc) with two-click Restart and Quit; single Escape resolver; pause locks
+- [x] Animated wave banner with composition icons; countdown ring; incoming-wave preview
+- [x] Base core with four damage states, destroyed and victory animations
+- [x] Animated victory and defeat screens with a wave-by-wave strip
+- [x] Gallery section 4b (core states, banner, end screens)
 **Done when:** the game feels finished from first screen to last.
+Implemented; awaiting user playtest, then tag phase-4b-complete. Checked in headless Chrome (screenshots and scripted interaction), not by a human.
 
 ### [ ] Phase 5 — Telemetry layer
 - [ ] Event-bus subscribers collecting per-enemy, per-tower, per-wave data (Section 8)
@@ -426,6 +453,10 @@ Implemented; awaiting user playtest, then tag phase-4a-complete (covers 4A and 4
 - [ ] Final visual tuning in the gallery
 - [ ] Tutorial/tooltips
 - [ ] Settings screen
+- [ ] Late-game gold sink (for example a third upgrade tier): the balanced bot ends 30-wave games with thousands of unspent gold
+- [ ] Separate early and late HP-curve slopes (lives are only lost in waves 2-10 today)
+- [ ] Quick-mode finale wave (wave 15 is an ordinary wave in a Quick game)
+- [ ] Re-check the 60% worst-wave-share clause of T5 that Phase 4A.2 dropped
 **Done when:** the game feels good to play for 15+ minutes and balance data supports it.
 
 ### [ ] Phase 10 — Docs, deployment, and demo
@@ -536,6 +567,18 @@ Implemented; awaiting user playtest, then tag phase-4a-complete (covers 4A and 4
 - 2026-10-18 | 1A/1B | Phase 1 split into 1A engine and 1B visual foundation | Visual quality is built in from the start, not bolted on in Phase 9
 - 2026-10-18 | 1B | Visual bar: no placeholder visuals after Phase 1B | Keeps every later phase on-style
 
+- 2026-10-19 | 4B | (a) Quick game = 15 waves of the same script (config.game.quickTotal), default in the menu; Full 30 stays the research setting | A 43-minute first game is too long for a class demo; the sim, curve and economy are untouched
+- 2026-10-19 | 4B | (b) The only sim changes: createGame option totalWaves, game.maxLives, game.waveLog, getWavePreview | The UI needs them; 30-wave playthroughs are identical to 4A.2 (balanced seed 1 wins with 8 lives in 43.4 min; none loses at wave 3, weak at wave 10)
+- 2026-10-19 | 4B | (c) Pause is a pure model: a user flag plus named locks (menu, howto, pause-menu, settings); the renderer is told "paused" only for the user pause and locks, never after game over or behind the menu | Menus freeze the sim without freezing the end-of-game and menu-backdrop animation
+- 2026-10-19 | 4B | (d) One Escape handler in main.js driven by the pure resolveEscape priority table; dialogs that handle Escape themselves call preventDefault | No dialog can steal or double-handle Esc
+- 2026-10-19 | 4B | (e) Start, Restart, New seed and Quit are page navigations through pure URL builders | A clean boot is the simplest correct reset; the whole URL is the game's setup
+- 2026-10-19 | 4B | (f) The core's state is shape-based (missing ring segments, cracks, shards), thresholds and durations in config.fx | Readable without color; tunable without code changes
+- 2026-10-19 | 4B | (g) End screen split into endModel.js (pure), endScreenView.js (DOM from a model) and endScreen.js (adapter with delays) | The gallery renders the real screen from fake data
+- 2026-10-19 | 4B | (h) The wave preview and countdown ring refresh on short timers (4 Hz and 10 Hz, about 3 Hz under reduced motion) with key de-duplication | The wave phase flips after WAVE_ENDED is emitted, so events alone would show stale state
+- 2026-10-19 | 4B | (i) z tokens added: banner 12, menu 58 (theme.js and style.css, parity tested); settings modal (60) stays above the menu | The banner sits above the HUD but below dialogs
+- 2026-10-19 | 4B | (j) Part 0 restored the original T7 and T5 (3 loss waves) in tests/balance.test.js; they pass at the current config with no config change; only the 60% share clause stays dropped (printed) | Phase 4A.2's relaxed targets were not needed
+- 2026-10-19 | 4B | (k) Verification used a real headless Chrome driven over the DevTools protocol (Node built-ins only; scripts kept out of the repo): menu, pause menu, how-to, banner, defeat screen and gallery rendered and read; interaction (Esc layering, two-click confirm, seed error, end-screen focus) scripted | Earlier phases only had stub-canvas checks
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -557,6 +600,11 @@ Implemented; awaiting user playtest, then tag phase-4a-complete (covers 4A and 4
 - Phase 2 was NOT run in a real browser by Claude (extension not connected): only the stub-canvas smoke tests, node --check and file serving were verified. Visual feel, 60 FPS with ~600 enemies, and click targeting need the user's check.
 - The placeholder auto-spawner (random enemy every 90 ticks) is temporary; the wave runner replaces it in Phase 4. Enemies that reach the base only emit ENEMY_LEAKED (no lives are subtracted until Phase 4).
 - Headless sim cost with 600 enemies: about 26k steps/s (roughly 0.04 ms per step); the render side at 600 enemies is unmeasured.
+- Phase 4B was verified in headless Chrome with software rendering (no GPU, no human): screenshots were read and key flows scripted, but feel, animation smoothness, audio-less pacing and real-GPU frame rate need the user's playtest. Stress mode (40 towers, spawn every 3 ticks) averaged 21 ms per frame in that setup, identical to the commit before Phase 4B.
+- Quick mode has no special finale: wave 15 is an ordinary wave (Phase 9 item). The 30-wave game still ends with 4816 unspent gold for the balanced bot.
+- The wave control subtitle ("Place towers, then start (Enter) - Enemy HP x1.0") wraps to two lines inside the 300 px control next to the countdown ring; legible, but cramped.
+- Digit-only seeds such as "007" become the number 7 (text seeds keep their exact text).
+- The gallery core canvases draw the core only (no particles or darkening); the particle and screen effects of the fall and the victory are only visible in the live game.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -570,3 +618,4 @@ Implemented; awaiting user playtest, then tag phase-4a-complete (covers 4A and 4
 - 2026-10-18 | Phase 3B | UI overlap fix (own commit), tower art/shapes/paths/animations, projectile trails and arcing shells, impact effects, sell ghosts and build-in, status overlays, stress mode, gallery towers; 424 tests pass; no real-browser run | User checks the visuals and the 40-tower performance (stress mode), then Phase 4
 - 2026-10-18 | Phase 4A | Lives, 30-wave static script with pure builder, wave runner, win/lose, stats, wave control and end screen, bots, playthrough and calibration (budgetScale 3.6); 488 tests pass; no real-browser run | User playtests, then Phase 4B
 - 2026-10-19 | Phase 4A.2 | Wave HP scaling (polynomial), base-HP regeneration, tower price growth and cap 60, weak bot, bot ladder calibration (Stage C), price in the tray and HP multiplier in the wave control; 512 tests pass; no real-browser run | User playtests, then Phase 4B
+- 2026-10-19 | Phase 4B | Test tightening, Quick game (15 waves), waveLog and wave preview in the sim, main menu, how-to, pause menu, wave banner, wave preview, countdown ring, four core states with destroyed and victory animations, animated end screens with wave strip, pause locks and a single Escape handler, gallery 4b; 615 tests pass; verified in headless Chrome | User playtests, then tag phase-4b-complete; Phase 5 only when the user says so

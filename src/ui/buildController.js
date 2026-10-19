@@ -66,6 +66,5 @@ export function createBuildController({ game, canvas, renderer, buildState, toas
   });
   extraKeys.Delete = sellKey;
   extraKeys.Backspace = sellKey;
-  extraKeys.Escape = guard(() => buildState.cancel());
   return { extraKeys, actions };
 }

@@ -20,10 +20,22 @@ set PORT=9000 && npm start
 PORT=9000 npm start
 ```
 
+## How to play
+
+Open the game, pick **Quick** (15 waves, about 20 minutes) or **Full** (30 waves, about 45 minutes), optionally type a seed, and press **Start**. Stop the enemies reaching your base: build towers (**A S D F G** or the tray at the top), click a tower to upgrade (**U**) or sell (**Delete**) it, press **Enter** to start a wave, **1 2 3** for speed, **Space** to pause, **Esc** for the pause menu. The "How to play" button in the menu and the pause menu explains the five enemies.
+
+## Game modes
+
+- **Static** (available): fixed, hand-authored waves, the same every run. The control group.
+- **Adaptive** (shown, locked): the Director AI re-weights each wave against your towers. Arrives in Phase 6.
+- Game length is Quick (15 waves) or Full (30 waves); the wave script, HP curve and economy are identical, Quick just ends after wave 15.
+- A game is set up by its URL: `?seed=..&mode=static&waves=15|30&play=1` (without `play` or `debug` the menu opens first).
+
 ## Controls (dev)
 
 | Key | Action |
 |---|---|
+| Esc | Cancel placing / deselect, otherwise open the pause menu |
 | Space | Pause / resume |
 | 1 / 2 / 3 | Game speed x1 / x2 / x3 |
 | N | Single step (while paused) |
@@ -40,7 +52,7 @@ More dev controls:
 
 ### Building towers (Phase 3A)
 
-- Hotkeys: **A** Lance, **S** Mortar, **D** Frost, **F** Poison, **G** Sniper arm a tower (or click it in the HUD tray); click a free tile to build; pressing the same key again or **Esc** / right click stops placing.
+- Hotkeys: **A** Lance, **S** Mortar, **D** Frost, **F** Poison, **G** Sniper arm a tower (or click it in the HUD tray); click a free tile to build; pressing the same key again, **Esc** or right click stops placing.
 - Click a tower to select it: **U** upgrades, **Delete** / **Backspace** sells (70% of everything invested), the panel has targeting (First / Strongest / Closest) and shows its damage and kills.
 - Placement works while paused. `npm run matchups` prints the tower-vs-enemy matchup table (also written to experiments/results/matchups.json).
 
@@ -55,10 +67,10 @@ More dev controls:
 
 ### Waves and the end of the game (Phase 4A)
 
-- A wave control at the bottom centre shows the wave state. **Enter** (or its button) starts the next wave; wave 1 waits for you, later waves start automatically after a 20 s intermission (starting early is allowed and pays no bonus). Clearing a wave pays 20 + 4 x wave gold.
-- Leaks cost lives; at 0 lives, or after clearing wave 30, a results card appears with **Retry same seed** and **New seed** (it reloads the page with `?seed=`). Esc hides it; "Show results" brings it back.
+- A wave control at the bottom centre shows the wave state. **Enter** (or its button) starts the next wave; wave 1 waits for you, later waves start automatically after a 12 s intermission (shown as a countdown ring; starting early is allowed and pays no bonus). Clearing a wave pays 13 + 6 x wave gold. A banner announces each wave and, between waves, a preview above the wave control shows what is coming.
+- Leaks cost lives; at 0 lives, or after clearing the last wave (15 or 30), an animated results screen appears with a wave-by-wave strip and **Retry same seed**, **New seed** and **Main menu**. Esc hides it; "Show results" brings it back.
 - `?debug=1&wave=N` starts at wave N, `?debug=1&startlives=N` sets the lives, `?mode=` accepts only `static` (anything else shows a toast; Adaptive arrives in Phase 6).
-- `npm run playthrough -- --bot=balanced --seed=1` plays a full headless game with a bot and prints a per-wave table (bots: `none`, `weak`, `balanced`; the table also shows the enemy HP multiplier and seconds per wave).
+- `npm run playthrough -- --bot=balanced --seed=1 --waves=15|30` plays a full headless game with a bot and prints a per-wave table (bots: `none`, `weak`, `balanced`; the table also shows the enemy HP multiplier and seconds per wave).
 
 ### Difficulty knobs (Phase 4A.2)
 

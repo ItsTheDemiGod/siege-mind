@@ -24,7 +24,17 @@ import { createTowerPanel } from './ui/towerPanel.js';
 import { applyStress } from './ui/stress.js';
 import { createWaveControl } from './ui/waveControl.js';
 import { createEndScreen } from './ui/endScreen.js';
-import { TOTAL_WAVES, hpMultiplierForWave } from './data/waves.js';
+import { hpMultiplierForWave } from './data/waves.js';
+import { createPauseState } from './ui/pauseState.js';
+import { resolveEscape } from './ui/escapeResolver.js';
+import { shouldShowMenu, buildMenuUrl } from './ui/menuState.js';
+import { buildRestartUrl } from './ui/restart.js';
+import { createMainMenu } from './ui/mainMenu.js';
+import { createHowToPlay } from './ui/howToPlay.js';
+import { createPauseMenu } from './ui/pauseMenu.js';
+import { createWaveBanner } from './ui/waveBanner.js';
+import { createWavePreview } from './ui/wavePreview.js';
+import { describeBanner } from './ui/bannerState.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -36,7 +46,7 @@ const params = new URLSearchParams(location.search);
 // ?debug=1 unlocks the debug keys, click tools and the test effect; ?gold=N (debug only) overrides the starting gold.
 const seedParam = params.get('seed');
 const seed = seedParam === null ? crypto.getRandomValues(new Uint32Array(1))[0]
-  : /^-?\d+$/.test(seedParam) ? Number(seedParam) : seedParam;
+  : /^\d+$/.test(seedParam) ? Number(seedParam) : seedParam;
 const spawnParam = Number.parseInt(params.get('spawn') ?? '', 10);
 const debug = params.get('debug') === '1';
 const stress = debug && params.get('stress') === '1'; // ?debug=1&stress=1: 40 towers and a spawn every 3 ticks
@@ -45,7 +55,11 @@ const STRESS_GOLD = 1e6;
 const debugSpawnEveryTicks = debug && Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : stress ? STRESS_SPAWN_TICKS : undefined; // debug-only
 const modeParam = params.get('mode'); // static only until Phase 6
 const waveParam = Number.parseInt(params.get('wave') ?? '', 10); // debug only: start at wave N
-const startWave = debug && Number.isInteger(waveParam) && waveParam >= 1 && waveParam <= TOTAL_WAVES ? waveParam : undefined;
+const wavesParam = params.get('waves'); // 15 (Quick) or 30 (Full); anything else falls back to Full with a notice
+const wavesValid = wavesParam === null || config.game.allowedTotals.includes(Number(wavesParam));
+const totalWaves = wavesParam !== null && wavesValid ? Number(wavesParam) : config.game.totalWaves;
+const startWave = debug && Number.isInteger(waveParam) && waveParam >= 1 && waveParam <= totalWaves ? waveParam : undefined;
+const menuOpenAtBoot = shouldShowMenu(params);
 const livesParam = Number.parseInt(params.get('startlives') ?? '', 10); // debug only
 const startLives = debug && Number.isInteger(livesParam) && livesParam >= 1 ? livesParam : undefined;
 const goldParam = Number.parseInt(params.get('gold') ?? '', 10);
@@ -57,7 +71,7 @@ const settings = createSettings({ storage, prefersReducedMotion: window.matchMed
 const applyReduced = () => document.documentElement.classList.toggle('reduced-motion', settings.get('reducedMotion'));
 applyReduced();
 
-const game = createGame({ seed, debugSpawnEveryTicks, startGold, startLives, startWave });
+const game = createGame({ seed, totalWaves, debugSpawnEveryTicks, startGold, startLives, startWave });
 startGame(game);
 const stressTowers = stress ? applyStress(game) : 0;
 const stepper = createStepper();
@@ -65,41 +79,48 @@ const quality = createQualityController({ tier: settings.get('quality'), auto: s
 const buildState = createBuildState();
 const renderer = createRenderer({ canvas, ctx, game, settings, quality, seed, buildState });
 
-const state = { paused: false, speed: 1, steps: 0 };
+const state = { speed: 1, steps: 0 };
+const pause = createPauseState();
 const tickMeter = createRateMeter();
 const frameStats = createFrameStats();
 const toaster = createToaster({ root: uiRoot });
 createTooltip({ root: uiRoot });
 const debugPanel = createDebugPanel({ root: uiRoot, visible: config.debug.showHud });
 const debugTools = debug && config.debug.tools ? createDebugTools({ game, fx: renderer.fx, toaster }) : null;
+const reducedMotion = () => settings.get('reducedMotion');
+const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
 
-const control = {
-  togglePause() { control.setPaused(!state.paused); },
-  setPaused(p) {
-    if (state.paused && !p) { tickMeter.reset(); quality.reset(); } // do not judge or average the paused time
-    state.paused = p;
-    hud.setPaused(p);
-  },
-  isPaused: () => state.paused,
-  setSpeed(n) { state.speed = n; hud.setSpeed(n); },
-};
-const panel = createSettingsPanel({ root: uiRoot, settings, game: control });
+let menu = null; let howTo = null; let pauseMenu = null; let endScreen = null; // assigned below; only read from event handlers
+const panel = createSettingsPanel({ root: uiRoot, settings, pause });
+const anyDialog = () => Boolean(menu.isOpen || howTo.isOpen || pauseMenu.isOpen || panel.isOpen || endScreen.isOpen);
 const hud = createHud({
   root: uiRoot,
-  handlers: { togglePause: control.togglePause, setSpeed: control.setSpeed, openSettings: () => panel.open() },
+  handlers: { togglePause: () => { if (!anyDialog()) pause.toggleUser(); }, setSpeed: (n) => { state.speed = n; hud.setSpeed(n); }, openSettings: () => panel.open() },
 });
-hud.set({ gold: game.gold, lives: game.lives, wave: game.waves.current, waveTotal: TOTAL_WAVES });
+hud.set({ gold: game.gold, lives: game.lives, wave: game.waves.current, waveTotal: game.totalWaves });
 hud.setSpeed(state.speed);
-hud.setPaused(state.paused);
 game.events.on(EVENT_TYPES.GOLD_CHANGED, (ev) => hud.set({ gold: ev.gold }));
 game.events.on(EVENT_TYPES.LIVES_CHANGED, (ev) => hud.set({ lives: ev.lives }));
 game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => hud.set({ wave: ev.wave, waveTotal: ev.total }));
-if (modeParam !== null && modeParam !== 'static') toaster.show('Adaptive mode arrives in Phase 6'); // falls back to static
+if (modeParam !== null && modeParam !== 'static') toaster.show('Adaptive mode arrives in a later phase'); // falls back to static
+if (!wavesValid) toaster.show('Unknown game length, using the full 30 waves');
 
-const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
-const endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed });
-const waveControl = createWaveControl({ root: uiRoot, game, toaster });
-const blocked = () => panel.isOpen || endScreen.isOpen || game.over; // build and wave hotkeys are off while a dialog is open or the game ended
+const banner = createWaveBanner({ root: uiRoot, reducedMotion });
+game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => banner.show(describeBanner(ev, game.totalWaves)));
+game.events.on(EVENT_TYPES.GAME_OVER, () => banner.hide());
+endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed, reducedMotion });
+const waveControl = createWaveControl({ root: uiRoot, game, toaster, reducedMotion });
+createWavePreview({ root: uiRoot, game, controlRect: waveControl.rect });
+howTo = createHowToPlay({ root: uiRoot, pause });
+pauseMenu = createPauseMenu({
+  root: uiRoot, pause, openSettings: () => panel.open(), openHowTo: () => howTo.open(),
+  onRestart: () => window.location.assign(buildRestartUrl(window.location.href, { seed: game.seed })),
+  onQuit: () => window.location.assign(buildMenuUrl(window.location.href)),
+});
+menu = createMainMenu({ root: uiRoot, pause, params, randomSeed, openHowTo: () => howTo.open(), openSettings: () => panel.open() });
+if (menuOpenAtBoot) menu.open();
+
+const blocked = () => anyDialog() || game.over; // build and wave hotkeys are off while a dialog is open or the game ended
 const build = createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen: blocked });
 createBuildTray({ bar: hud.bar, game, buildState, toaster });
 createTowerPanel({ root: uiRoot, game, buildState, actions: build.actions });
@@ -129,20 +150,38 @@ settings.subscribe((key, value) => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { control.setPaused(true); last = null; } // never auto-resume
+  if (document.hidden) { pause.setUser(true); last = null; } // never auto-resume
 });
 
 const extraKeys = { ...build.extraKeys, Enter: () => { if (!blocked()) waveControl.start(); } };
-if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) extraKeys[k] = (e) => { if (!panel.isOpen) fn(e); };
+if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) extraKeys[k] = (e) => { if (!anyDialog()) fn(e); };
 bindKeys({
-  togglePause: () => { if (!panel.isOpen) control.togglePause(); },
-  setSpeed: (n) => { if (!panel.isOpen) control.setSpeed(n); },
-  singleStep: () => { if (state.paused && !panel.isOpen) stepper.requestSingleStep(); },
+  togglePause: () => { if (!anyDialog()) pause.toggleUser(); },
+  setSpeed: (n) => { if (!anyDialog()) { state.speed = n; hud.setSpeed(n); } },
+  singleStep: () => { if (pause.user && !anyDialog() && !game.over) stepper.requestSingleStep(); },
   toggleHud: () => debugPanel.toggle(),
 }, extraKeys);
 
+// The one Escape handler: the pure resolver picks exactly one action. Dialogs that handle Escape themselves call preventDefault first.
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || e.defaultPrevented || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  const action = resolveEscape({
+    menuOpen: menu.isOpen, howToOpen: howTo.isOpen, pauseMenuOpen: pauseMenu.isOpen, endScreenOpen: endScreen.isOpen, settingsOpen: panel.isOpen,
+    buildMode: buildState.state.mode, gameOver: game.over,
+  });
+  if (action === 'none') return;
+  e.preventDefault();
+  if (action === 'close-howto') howTo.close();
+  else if (action === 'close-pause-menu') pauseMenu.close();
+  else if (action === 'hide-end-screen') endScreen.hide();
+  else if (action === 'cancel-placing') buildState.cancel();
+  else if (action === 'clear-selection') buildState.clearSelection();
+  else if (action === 'open-pause-menu') pauseMenu.open();
+});
+
 let last = null;
 let animTime = 0;
+let wasPaused = false;
 let panelClock = 0;
 
 function frame(now) {
@@ -150,29 +189,37 @@ function frame(now) {
   last = now;
   if (dt > 0) frameStats.push(dt * 1000);
 
-  state.steps = stepper.advance(dt, state.speed, state.paused);
+  const paused = pause.paused();
+  if (paused !== wasPaused) { // do not judge or average the paused time
+    if (!paused) { tickMeter.reset(); quality.reset(); }
+    hud.setPaused(paused);
+    wasPaused = paused;
+  }
+  state.steps = stepper.advance(dt, state.speed, paused);
   for (let i = 0; i < state.steps; i++) stepGame(game);
-  if (!state.paused) {
-    animTime += dt;
+  if (!paused) {
     quality.update(dt);
     tickMeter.tick(now / 1000, state.steps); // every frame, so gaps decay the rate
   }
+  // The scene keeps animating behind the menu and after the game ends; any other pause freezes it.
+  const drawPaused = paused && !game.over && !menu.isOpen;
+  if (!drawPaused) animTime += dt;
 
-  renderer.draw(game, game.over ? 0 : stepper.alpha, dt, animTime, state.paused); // alpha 0 once the game ended so nothing flickers
+  renderer.draw(game, game.over ? 0 : stepper.alpha, dt, animTime, drawPaused); // alpha 0 once the game ended so nothing flickers
 
   panelClock += dt;
   if (panelClock >= 0.25) { // text is rebuilt 4x per second, not per frame
     panelClock = 0;
-    const tps = state.paused ? 0 : tickMeter.rate;
+    const tps = paused ? 0 : tickMeter.rate;
     const s = renderer.stats;
     debugPanel.update(
       `FPS ${frameStats.fps.toFixed(0)}  frame avg ${frameStats.avgMs.toFixed(1)} / p95 ${frameStats.p95Ms.toFixed(1)} / max ${frameStats.maxMs.toFixed(1)} ms\n`
       + `ticks/s ${tps.toFixed(0)}  sim speed ${(tps * config.sim.stepSeconds).toFixed(2)}x  tick ${game.tick}  time ${game.time.toFixed(1)}s\n`
-      + `speed x${state.speed}  paused ${state.paused}  quality ${quality.tier}  particles ${s.particles}/${s.particleLimit}\n`
+      + `speed x${state.speed}  paused ${paused}  quality ${quality.tier}  particles ${s.particles}/${s.particleLimit}\n`
       + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}  debug ${debug}\n`
       + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}${stress ? `  stress mode: towers ${stressTowers}` : ''}\n`
       + `fx: particles ${s.particles}  ghosts ${s.ghosts}  beams ${s.beams}  decals ${s.decals}\n`
-      + `mode ${game.mode}  phase ${game.waves.phase}  wave ${game.waves.current}/${TOTAL_WAVES}  lives ${game.lives}  countdown ${getWaveCountdownSeconds(game).toFixed(1)}s  remaining ${enemiesRemaining(game)}\n`
+      + `mode ${game.mode}  phase ${game.waves.phase}  wave ${game.waves.current}/${game.totalWaves}  lives ${game.lives}  countdown ${getWaveCountdownSeconds(game).toFixed(1)}s  remaining ${enemiesRemaining(game)}\n`
       + `enemy HP x${hpMultiplierForWave(game.waves.current).toFixed(2)} (next x${hpMultiplierForWave(game.waves.nextWave).toFixed(2)})  tower price x${priceMultiplier(game).toFixed(2)}\n`
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);
   }

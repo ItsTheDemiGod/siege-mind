@@ -150,7 +150,7 @@ export function uiSection(el) {
   createTooltip({ root: zone });
   const toaster = createToaster({ root: zone });
   const settingsStub = { get: () => 'high', set() {}, subscribe: () => () => {}, reset() {} };
-  const panel = createSettingsPanel({ root: zone, settings: settingsStub, game: { isPaused: () => false, setPaused() {} } });
+  const panel = createSettingsPanel({ root: zone, settings: settingsStub, pause: { lock() {}, unlock() {} } });
   zone.append(h('div', { class: 'g-row' }, [
     h('button', { type: 'button', class: 'btn', text: 'Tooltip (hover)', 'data-tooltip-title': 'Lance', 'data-tooltip': 'Piercing shot that ignores armor. Strong vs Armored Grunt, weak vs Swarmling.' }),
     h('button', { type: 'button', class: 'btn', text: 'Toast', onclick: () => toaster.show('Wave 4 incoming: 12 enemies') }),

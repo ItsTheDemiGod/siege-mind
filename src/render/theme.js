@@ -40,7 +40,7 @@ export const THEME = Object.freeze({
     space: Object.freeze([4, 8, 12, 16, 24, 32]),
     borderWidth: 1,
     glowBorderAlpha: 0.35,
-    z: Object.freeze({ canvas: 0, hud: 10, debug: 20, panel: 30, tooltip: 40, toast: 50, overlay: 55, modal: 60 }), // layering of DOM over the canvas
+    z: Object.freeze({ canvas: 0, hud: 10, banner: 12, debug: 20, panel: 30, tooltip: 40, toast: 50, overlay: 55, menu: 58, modal: 60 }), // layering of DOM over the canvas
   }),
   durations: Object.freeze({ fast: config.ui.durFast, normal: config.ui.durNormal, slow: config.ui.durSlow }),
   fonts: Object.freeze({

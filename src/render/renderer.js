@@ -2,6 +2,7 @@
 // Reads sim state only; never mutates it. Visual randomness comes from createRng(seed).fork('fx').
 import { config } from '../data/config.js';
 import { DEFAULT_MAP } from '../data/map.js';
+import { EVENT_TYPES } from '../sim/events.js';
 import { THEME } from './theme.js';
 import { createRng } from '../sim/rng.js';
 import { createGlowCache } from './glow.js';
@@ -14,12 +15,14 @@ import { bindFxEvents } from './fxEvents.js';
 import { drawTowers, drawTowerGhost } from './towerRenderer.js';
 import { drawProjectiles } from './projectileRenderer.js';
 import { createFxApi } from './fxApi.js';
+import { drawBaseCore } from './coreRenderer.js';
+import { coreIntegrity } from '../ui/coreIntegrity.js';
 import { createTowerView } from './towerView.js';
 import { createGhostPool } from './ghosts.js';
 import { createBeamPool, createDecalPool } from './effectPools.js';
 import { drawPlacementOverlay, drawSelectionOverlay } from './overlays.js';
 import {
-  buildStaticLayer, shouldRebuild, drawPathFlow, drawSpawnPortal, drawBaseCore,
+  buildStaticLayer, shouldRebuild, drawPathFlow, drawSpawnPortal,
   createAmbientMotes, updateAmbientMotes, drawAmbientMotes,
 } from './layers.js';
 
@@ -28,6 +31,10 @@ const FLASH_DECAY = 3; // intensity per second
 const SCAN_SECONDS = 0.9;
 const SCAN_SLICES = 10;
 const CORE_PULSE_DECAY = 2.5; // per second
+const STATE_INDEX = { healthy: 0, damaged: 1, critical: 2, destroyed: 3 };
+const DARKEN_ALPHA = 0.35; // end-of-game darkening after the core falls
+const DARKEN_SECONDS = 1.5;
+const SPARK_EVERY = 0.35; // critical core sparks, seconds
 
 /**
  * @param {{canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, game: object, settings: object, quality: object, seed: number|string, buildState?: object}} o
@@ -52,7 +59,7 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
   const spawnPos = map.path.positionAt(0, { x: 0, y: 0, angle: 0 });
   const corePos = map.path.positionAt(map.path.totalLength, { x: 0, y: 0, angle: 0 });
   const info = { tick: 0, alpha: 0, stepSeconds: config.sim.stepSeconds, params: null, reducedMotion: false }; // reused every frame
-  const overlay = { flashColor: THEME.colors.danger, flashAlpha: 0, scan: -1, corePulse: 0 }; // tweened/decayed values
+  const overlay = { flashColor: THEME.colors.danger, flashAlpha: 0, scan: -1, corePulse: 0, destroyClock: -1, victoryClock: -1, dark: 0, victoryAcc: 0 }; // tweened/decayed values
 
   let motes = createAmbientMotes(0, rng, map.width, map.height);
   let staticLayer = null;
@@ -87,6 +94,16 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
   const decals = createDecalPool();
   let clock = 0;
   const flags = { glow: true, reducedMotion: false }; // reused every frame
+  const coreView = { segments: config.fx.coreSegments, state: 0, pulse: 0, destroyT: 0, victoryT: 0 };
+  let sparkAcc = 0;
+  // The integrity is recomputed only when lives change (never per frame).
+  const refreshCore = () => {
+    const c = coreIntegrity(game.lives, game.maxLives, config.fx);
+    coreView.segments = c.segments;
+    coreView.state = STATE_INDEX[c.state];
+  };
+  refreshCore();
+  game.events.on(EVENT_TYPES.LIVES_CHANGED, refreshCore);
   const fx = createFxApi({ particles, floatText, shake, rng, colorIds, overlay, tweens, beams, decals, ghosts, view, corePos, clock: () => clock });
 
   // 'document' is fine here: the renderer is browser-only (src/render is not sim).
@@ -157,6 +174,23 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       if (!reduced) updateAmbientMotes(motes, step);
       if (overlay.flashAlpha > 0) overlay.flashAlpha = Math.max(0, overlay.flashAlpha - FLASH_DECAY * step);
       if (overlay.corePulse > 0) overlay.corePulse = Math.max(0, overlay.corePulse - CORE_PULSE_DECAY * step);
+      if (overlay.destroyClock >= 0) {
+        overlay.destroyClock += step;
+        coreView.destroyT = Math.min(1, overlay.destroyClock / config.fx.coreDestroySeconds);
+        overlay.dark = reduced ? DARKEN_ALPHA : DARKEN_ALPHA * Math.min(1, overlay.destroyClock / DARKEN_SECONDS);
+      }
+      if (overlay.victoryClock >= 0) {
+        overlay.victoryClock += step;
+        coreView.victoryT = overlay.victoryClock / config.fx.coreVictorySeconds;
+        if (overlay.victoryClock <= config.fx.coreVictorySeconds) {
+          overlay.victoryAcc += step;
+          if (overlay.victoryAcc >= config.fx.coreVictoryRingEverySeconds) { overlay.victoryAcc = 0; fx.victoryPulse(); }
+        }
+      }
+      if (coreView.state === 2 && step > 0 && !reduced) { // critical core throws sparks at a low, time-driven rate
+        sparkAcc += step;
+        if (sparkAcc >= SPARK_EVERY) { sparkAcc = 0; fx.burst(corePos.x, corePos.y, { count: 2, speed: 90, life: 0.35, size0: 3, color: colorIds.danger }); }
+      }
 
       // 1. static layer (rebuilt at most every 150 ms; otherwise the previous canvas is scaled)
       const now = performance.now();
@@ -177,7 +211,8 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       drawPathFlow(ctx, g, map, time, p, reduced, scratch);
       drawAmbientMotes(ctx, motes);
       drawSpawnPortal(ctx, g, spawnPos.x, spawnPos.y, time);
-      drawBaseCore(ctx, g, corePos.x, corePos.y, time, overlay.corePulse);
+      coreView.pulse = overlay.corePulse;
+      drawBaseCore(ctx, g, corePos.x, corePos.y, time, coreView, p, reduced);
       decals.draw(ctx, THEME.tower.mortar);
       drawTowers(ctx, g, gameState, time, step, alpha, view, flags, buildState && buildState.state.mode === 'selected' ? buildState.state.towerId : null);
       for (let i = 0; i < ghosts.slots.length; i++) if (ghosts.slots[i].active) drawTowerGhost(ctx, g, ghosts.slots[i], time, flags);
@@ -201,6 +236,12 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       ctx.restore();
 
       // 6. overlays
+      if (overlay.dark > 0) {
+        ctx.globalAlpha = overlay.dark;
+        ctx.fillStyle = THEME.colors.bg0;
+        ctx.fillRect(0, 0, width, height);
+        ctx.globalAlpha = 1;
+      }
       if (overlay.flashAlpha > 0) {
         ctx.globalAlpha = overlay.flashAlpha * 0.4;
         ctx.fillStyle = overlay.flashColor;

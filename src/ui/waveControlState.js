@@ -3,6 +3,11 @@ import { config } from '../data/config.js';
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
+/** SVG stroke-dashoffset for a ring: the full ring at progress 1, empty at 0. */
+export function ringDashOffset(progress, circumference) {
+  return circumference * (1 - clamp01(progress));
+}
+
 /**
  * @param {{phase: string, nextWave: number, current: number}} waves game.waves
  * @param {{enemiesRemaining: number, countdownSeconds: number, totalWaves: number, nextWaveName: string|null, hpMultNext: number}} derived

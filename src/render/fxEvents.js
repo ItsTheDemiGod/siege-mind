@@ -74,6 +74,11 @@ export function bindFxEvents({ game, fx, settings, quality, theme }) {
       fx.floatText(`+${ev.reward}`, ev.x, ev.y - d.radius - 6, { color: theme.colors.gold, size: 20 });
     }),
 
+    bus.on(EVENT_TYPES.GAME_OVER, (ev) => {
+      if (ev.result === 'lost') fx.coreDestroy();
+      else fx.coreVictory();
+    }),
+
     bus.on(EVENT_TYPES.ENEMY_LEAKED, (ev) => {
       fx.corePulse();
       fx.flash(theme.colors.danger, reduced() ? 0.3 : 0.8);

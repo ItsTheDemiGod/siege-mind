@@ -1,0 +1,60 @@
+// Pause menu (opened with Esc): Resume, Settings, How to play, and Restart / Quit which need a second click.
+import { config } from '../data/config.js';
+import { h } from './dom.js';
+import { trapTab } from './focusTrap.js';
+import { createConfirmClick } from './confirmClick.js';
+
+/**
+ * @param {{root: HTMLElement, pause: {lock: Function, unlock: Function}, onRestart: () => void, onQuit: () => void,
+ *   openSettings: () => void, openHowTo: () => void, now?: () => number}} o
+ * @returns {{open: () => void, close: () => void, readonly isOpen: boolean}}
+ */
+export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, openHowTo, now = () => performance.now() / 1000 }) {
+  let backdrop = null;
+  let opener = null;
+  const timers = [];
+
+  function close() {
+    if (!backdrop) return;
+    timers.splice(0).forEach(clearTimeout);
+    backdrop.remove();
+    backdrop = null;
+    pause.unlock('pause-menu');
+    if (opener && opener.isConnected) opener.focus();
+  }
+
+  /** A button that needs two clicks within the confirm window; its label says so while armed. */
+  function confirmButton(label, action) {
+    const gate = createConfirmClick(config.ui.confirmWindowSeconds);
+    const b = h('button', { type: 'button', class: 'btn btn--danger', text: label });
+    b.addEventListener('click', () => {
+      if (gate.click(now()) === 'confirm') { action(); return; }
+      b.textContent = 'Click again to confirm';
+      timers.push(setTimeout(() => { b.textContent = label; gate.reset(); }, config.ui.confirmWindowSeconds * 1000));
+    });
+    return b;
+  }
+
+  function open() {
+    if (backdrop) return;
+    opener = document.activeElement;
+    pause.lock('pause-menu');
+    const resume = h('button', { type: 'button', class: 'btn btn--primary', text: 'Resume', onclick: close });
+    const card = h('div', { class: 'panel modal pause-card', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'pause-title' }, [
+      h('h2', { id: 'pause-title', text: 'Paused' }),
+      h('div', { class: 'pause-list' }, [
+        resume,
+        h('button', { type: 'button', class: 'btn', text: 'Settings', onclick: () => openSettings() }),
+        h('button', { type: 'button', class: 'btn', text: 'How to play', onclick: () => openHowTo() }),
+        confirmButton('Restart', onRestart),
+        confirmButton('Quit to menu', onQuit),
+      ]),
+    ]);
+    backdrop = h('div', { class: 'modal-backdrop' }, [card]);
+    backdrop.addEventListener('keydown', trapTab(card));
+    root.append(backdrop);
+    resume.focus();
+  }
+
+  return { open, close, get isOpen() { return backdrop !== null; } };
+}

@@ -11,7 +11,7 @@
   html, body { height: auto; overflow: auto; display: block; }
   body { padding-bottom: var(--space-6); }
   #g-nav { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-2) var(--space-5);
-    background: color-mix(in srgb, var(--bg0) 92%, transparent); border-bottom: var(--border-width) solid var(--grid-line); backdrop-filter: blur(6px); }
+    background: color-mix(in srgb, var(--bg0) 96%, transparent); border-bottom: var(--border-width) solid var(--grid-line); }
   #g-nav a { color: var(--defense-primary); text-decoration: none; font-family: var(--font-display); font-weight: 600; }
   #g-nav a:hover { color: var(--white-hot); }
   #g-content { max-width: 1000px; margin: 0 auto; padding: 0 var(--space-5); }
@@ -31,6 +31,11 @@
   .g-icon .sizes { display: flex; align-items: flex-end; gap: var(--space-3); }
   .g-stage { position: relative; display: inline-block; border: var(--border-width) solid var(--grid-line); border-radius: var(--radius-md); overflow: hidden; line-height: 0; }
   .g-stage canvas { display: block; }
+  .g-cell { margin: 0; text-align: center; }
+  .g-cell canvas { display: block; background: var(--bg1); border: var(--border-width) solid var(--grid-line); border-radius: var(--radius-md); }
+  .g-banner-host { position: relative; width: 100%; height: 320px; background: var(--bg1); border: var(--border-width) solid var(--grid-line); border-radius: var(--radius-md); overflow: hidden; }
+  .g-scaler { position: relative; width: 100%; overflow: hidden; }
+  .g-end-stage { position: relative; width: 1280px; height: 720px; transform-origin: 0 0; background: var(--bg1); }
   .g-hud { width: 100%; height: 60px; overflow: hidden; position: relative; background: var(--bg0); border-radius: var(--radius-md); }
   .g-hud-inner { position: absolute; left: 0; top: 0; width: 1280px; height: 80px; transform: scale(0.75); transform-origin: 0 0; }
   .g-hud-inner .hud { position: absolute; }

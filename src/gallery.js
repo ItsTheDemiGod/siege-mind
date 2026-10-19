@@ -12,12 +12,13 @@ import { createSettings } from './ui/settings.js';
 import { h } from './ui/dom.js';
 import { enemyStatesSection, fxEventButtons } from './galleryEnemies.js';
 import { towersSection } from './galleryTowers.js';
+import { screensSection } from './galleryScreens.js';
 import {
   paletteSection, typographySection, enemiesSection, iconsSection, uiSection, colorblindSection,
 } from './galleryStatic.js';
 
 const SECTIONS = [
-  ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['states', '3b Enemy states'], ['towers', '3c Towers'], ['icons', '4 Icons'], ['fx', '5 Effects'],
+  ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['states', '3b Enemy states'], ['towers', '3c Towers'], ['icons', '4 Icons'], ['screens', '4b Core and screens'], ['fx', '5 Effects'],
   ['ui', '6 UI'], ['map', '7 Map'], ['cvd', '8 Colorblind'], ['quality', '9 Quality'],
 ];
 const seed = 'gallery';
@@ -83,6 +84,10 @@ const statesHost = h('div');
 els.states.append(statesHost);
 enemyStatesSection(statesHost, isVisible(els.states));
 iconsSection(els.icons);
+screensSection(els.screens, isVisible(els.screens), {
+  reducedMotion: () => settings.get('reducedMotion'),
+  setReducedMotion: (v) => { settings.set('reducedMotion', v); document.documentElement.classList.toggle('reduced-motion', v); },
+});
 uiSection(els.ui);
 
 // 5. Effects lab (auto-spawner off)

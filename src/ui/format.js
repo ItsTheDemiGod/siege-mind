@@ -1,6 +1,7 @@
 // Pure formatting helpers for the end screen.
 import { config } from '../data/config.js';
 import { TOTAL_WAVES } from '../data/waves.js';
+import { lengthLabel } from './waveSummary.js';
 
 /**
  * @param {number} ticks @param {number} stepSeconds
@@ -22,7 +23,9 @@ export function endScreenRows(game) {
   const s = game.stats;
   return [
     { label: 'Result', value: game.result === 'won' ? 'Victory' : 'Defeat' },
-    { label: 'Waves cleared', value: `${s.wavesCleared} of ${TOTAL_WAVES}` },
+    { label: 'Mode', value: `Static · ${lengthLabel(game.totalWaves ?? TOTAL_WAVES)}` },
+    { label: 'Seed', value: String(game.seed) },
+    { label: 'Waves cleared', value: `${s.wavesCleared} of ${game.totalWaves ?? TOTAL_WAVES}` },
     { label: 'Lives left', value: String(game.lives) },
     { label: 'Enemies defeated', value: String(s.kills) },
     { label: 'Enemies leaked', value: String(s.leaks) },

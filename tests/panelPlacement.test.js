@@ -64,3 +64,17 @@ test('the wave control never overlaps the bottom tower panels or the HUD strip',
   for (const p of panels) assert.equal(intersects(wave, p), false);
   for (const r of [wave, ...panels]) assert.ok(r.top >= hudH && r.left >= 0 && r.left + r.w <= stageW && r.top + r.h <= stageH);
 });
+
+test('the wave preview sits above the wave control and never overlaps it, the HUD strip or the bottom tower panels', () => {
+  const { waveControlWidth: cw, waveControlHeight: ch, waveControlBottomMargin: bottom, wavePreviewWidth: pw, wavePreviewHeight: ph, wavePreviewGap: gap } = config.ui;
+  const control = { left: (stageW - cw) / 2, top: stageH - bottom - ch, w: cw, h: ch };
+  const preview = { left: (stageW - pw) / 2, top: control.top - gap - ph, w: pw, h: ph };
+  const panels = [
+    { left: margin, top: stageH - margin - panelH, w: panelW, h: panelH },
+    { left: stageW - margin - panelW, top: stageH - margin - panelH, w: panelW, h: panelH },
+  ];
+  assert.equal(intersects(preview, control), false);
+  assert.equal(preview.top + preview.h + gap, control.top);
+  for (const p of panels) assert.equal(intersects(preview, p), false);
+  assert.ok(preview.top >= hudH && preview.left >= 0 && preview.left + preview.w <= stageW);
+});

@@ -38,6 +38,29 @@ export function createFxApi(d) {
     colors: colorIds,
     color: (hex) => particles.registerColor(hex),
     corePulse() { overlay.corePulse = 1; },
+    /** The core falls: shockwaves, a danger flash, a shake and the darkening/shard timers (driven by the renderer). */
+    coreDestroy() {
+      overlay.destroyClock = 0;
+      for (let i = 0; i < 3; i++) particles.ring(corePos.x, corePos.y, { color: colorIds.danger, size0: 10, size1: 90 + i * 50, life: 0.7 + i * 0.25 });
+      particles.burst(corePos.x, corePos.y, { count: 40, speed: 260, life: 0.9, size0: 5, color: colorIds.danger });
+      overlay.flashColor = THEME.colors.danger;
+      overlay.flashAlpha = 1;
+      shake.add(0.9);
+    },
+    /** The defense holds: a defense-colored flash; rings and spark arcs follow from the renderer's victory timer. */
+    coreVictory() {
+      overlay.victoryClock = 0;
+      overlay.victoryAcc = 0;
+      overlay.flashColor = THEME.colors.primary;
+      overlay.flashAlpha = 0.6;
+    },
+    /** One victory beat: an expanding ring plus sparks arcing upward. */
+    victoryPulse() {
+      particles.ring(corePos.x, corePos.y, { color: colorIds.primary, size0: 12, size1: 120, life: 0.9 });
+      for (let i = 0; i < 6; i++) {
+        particles.emit(KIND.SPARK, corePos.x, corePos.y, (rng.next() - 0.5) * 120, -90 - rng.next() * 90, 1.1, 5, 1, colorIds.white, 0.6);
+      }
+    },
     corePos,
     clear() { particles.clear(); floatText.clear(); beams.clear(); decals.clear(); ghosts.clear(); },
 

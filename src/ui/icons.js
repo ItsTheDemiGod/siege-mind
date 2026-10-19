@@ -42,3 +42,6 @@ export function iconSvg(name, size = 20) {
   if (body === undefined) throw new Error(`Unknown icon: ${name}`);
   return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
 }
+
+/** @param {string} enemyId camelCase enemy id @returns {string} icon name, e.g. armoredGrunt -> enemy-armored-grunt */
+export const enemyIconName = (enemyId) => `enemy-${enemyId.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`;

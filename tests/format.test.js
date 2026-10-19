@@ -16,11 +16,13 @@ test('formatDuration boundaries', () => {
 
 test('endScreenRows for a hand-built game', () => {
   const game = {
-    result: 'won', lives: 7, tick: 3725,
+    result: 'won', lives: 7, tick: 3725, seed: 4242, totalWaves: 30,
     stats: { wavesCleared: 30, kills: 412, leaks: 13, goldFromKills: 5000, goldFromBonus: 700, towersBuilt: 31 },
   };
   assert.deepEqual(endScreenRows(game), [
     { label: 'Result', value: 'Victory' },
+    { label: 'Mode', value: 'Static · Full (30 waves)' },
+    { label: 'Seed', value: '4242' },
     { label: 'Waves cleared', value: '30 of 30' },
     { label: 'Lives left', value: '7' },
     { label: 'Enemies defeated', value: '412' },
@@ -31,6 +33,10 @@ test('endScreenRows for a hand-built game', () => {
   ]);
   const lost = endScreenRows({ ...game, result: 'lost', lives: 0, stats: { ...game.stats, wavesCleared: 12 } });
   assert.equal(lost[0].value, 'Defeat');
-  assert.equal(lost[1].value, '12 of 30');
-  assert.equal(lost[2].value, '0');
+  assert.equal(lost[3].value, '12 of 30');
+  assert.equal(lost[4].value, '0');
+  const quick = endScreenRows({ ...game, totalWaves: 15, seed: 'abc' });
+  assert.equal(quick[1].value, 'Static · Quick (15 waves)');
+  assert.equal(quick[2].value, 'abc');
+  assert.equal(quick[3].value, '30 of 15');
 });
