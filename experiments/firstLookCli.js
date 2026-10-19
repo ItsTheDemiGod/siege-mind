@@ -29,7 +29,9 @@ function main() {
     mkdirSync(dirname(resolve(a.out)), { recursive: true });
     writeFileSync(`${resolve(a.out)}.json`, `${JSON.stringify(result, null, 1)}\n`);
     writeFileSync(`${resolve(a.out)}.md`, firstLookToMarkdown(result));
-    console.log(`wrote ${resolve(a.out)}.json and .md`);
+    if (result.fixedWaveRule) writeFileSync(`${resolve(a.out)}.fixedwave.json`, `${JSON.stringify(result.fixedWaveRule, null, 1)}
+`);
+    console.log(`wrote ${resolve(a.out)}.json, .md${result.fixedWaveRule ? ' and .fixedwave.json' : ''}`);
   }
   return 0;
 }
