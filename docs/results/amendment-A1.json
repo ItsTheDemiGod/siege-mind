@@ -1,0 +1,316 @@
+{
+ "randomRowsAllTiltsOne": {
+  "total": 42,
+  "perStyle": {
+   "balancedR": 10,
+   "lanceHeavy": 7,
+   "mortarHeavy": 12,
+   "poisonHeavy": 4,
+   "sniperHeavy": 9
+  },
+  "randomRows": 150
+ },
+ "t1PerStyle": {
+  "lanceHeavy": {
+   "predictedTypes": [
+    "swarmling"
+   ],
+   "legacy": {
+    "adaptive": {
+     "n": 30,
+     "rate": 0.166667,
+     "wilson": [
+      0.073365,
+      0.335644
+     ]
+    },
+    "random": {
+     "n": 30,
+     "rate": 0.466667,
+     "wilson": [
+      0.302324,
+      0.638577
+     ]
+    }
+   },
+   "a1": {
+    "adaptive": {
+     "n": 27,
+     "rate": 0.148148,
+     "wilson": [
+      0.059159,
+      0.324787
+     ]
+    },
+    "random": {
+     "n": 27,
+     "rate": 0.666667,
+     "wilson": [
+      0.478248,
+      0.813567
+     ]
+    }
+   }
+  },
+  "mortarHeavy": {
+   "predictedTypes": [
+    "fastRunner"
+   ],
+   "legacy": {
+    "adaptive": {
+     "n": 30,
+     "rate": 0,
+     "wilson": [
+      0,
+      0.113513
+     ]
+    },
+    "random": {
+     "n": 30,
+     "rate": 0.433333,
+     "wilson": [
+      0.273775,
+      0.608027
+     ]
+    }
+   },
+   "a1": {
+    "adaptive": {
+     "n": 27,
+     "rate": 0,
+     "wilson": [
+      0,
+      0.124555
+     ]
+    },
+    "random": {
+     "n": 27,
+     "rate": 0.777778,
+     "wilson": [
+      0.592431,
+      0.893928
+     ]
+    }
+   }
+  },
+  "poisonHeavy": {
+   "predictedTypes": [
+    "fastRunner",
+    "shieldedBruiser"
+   ],
+   "legacy": {
+    "adaptive": {
+     "n": 30,
+     "rate": 0.733333,
+     "wilson": [
+      0.55552,
+      0.858173
+     ]
+    },
+    "random": {
+     "n": 30,
+     "rate": 0.833333,
+     "wilson": [
+      0.664356,
+      0.926635
+     ]
+    }
+   },
+   "a1": {
+    "adaptive": {
+     "n": 30,
+     "rate": 0.666667,
+     "wilson": [
+      0.487801,
+      0.807695
+     ]
+    },
+    "random": {
+     "n": 30,
+     "rate": 0.966667,
+     "wilson": [
+      0.833296,
+      0.994091
+     ]
+    }
+   }
+  },
+  "sniperHeavy": {
+   "predictedTypes": [
+    "swarmling",
+    "fastRunner"
+   ],
+   "legacy": {
+    "adaptive": {
+     "n": 30,
+     "rate": 0.2,
+     "wilson": [
+      0.095051,
+      0.373057
+     ]
+    },
+    "random": {
+     "n": 30,
+     "rate": 0.6,
+     "wilson": [
+      0.423204,
+      0.754094
+     ]
+    }
+   },
+   "a1": {
+    "adaptive": {
+     "n": 27,
+     "rate": 0.259259,
+     "wilson": [
+      0.131704,
+      0.446786
+     ]
+    },
+    "random": {
+     "n": 27,
+     "rate": 0.888889,
+     "wilson": [
+      0.719422,
+      0.96148
+     ]
+    }
+   }
+  }
+ },
+ "t1Pooled": {
+  "legacy": {
+   "seeds": 30,
+   "meanDiff": -0.308333,
+   "ci95": [
+    -0.416667,
+    -0.2
+   ]
+  },
+  "a1": {
+   "seeds": 30,
+   "meanDiff": -0.555556,
+   "ci95": [
+    -0.647222,
+    -0.463889
+   ]
+  }
+ },
+ "tiltObservedZeroRows": {
+  "static": 150,
+  "adaptive": 15,
+  "random": 15
+ },
+ "meanFinalWeights": {
+  "balancedR": {
+   "armoredGrunt": {
+    "legacy": 0.756691,
+    "a1": 0.681211
+   },
+   "swarmling": {
+    "legacy": 0.839597,
+    "a1": 0.82893
+   },
+   "fastRunner": {
+    "legacy": 0.644489,
+    "a1": 0.568126
+   },
+   "regenerator": {
+    "legacy": 1.192721,
+    "a1": 1.24371
+   },
+   "shieldedBruiser": {
+    "legacy": 1.187916,
+    "a1": 1.236369
+   }
+  },
+  "lanceHeavy": {
+   "armoredGrunt": {
+    "legacy": 0.658983,
+    "a1": 0.63816
+   },
+   "swarmling": {
+    "legacy": 0.827064,
+    "a1": 0.824444
+   },
+   "fastRunner": {
+    "legacy": 0.546157,
+    "a1": 0.517677
+   },
+   "regenerator": {
+    "legacy": 1.295969,
+    "a1": 1.328752
+   },
+   "shieldedBruiser": {
+    "legacy": 1.245377,
+    "a1": 1.247909
+   }
+  },
+  "mortarHeavy": {
+   "armoredGrunt": {
+    "legacy": 0.676623,
+    "a1": 0.659769
+   },
+   "swarmling": {
+    "legacy": 0.835763,
+    "a1": 0.843005
+   },
+   "fastRunner": {
+    "legacy": 0.560994,
+    "a1": 0.53011
+   },
+   "regenerator": {
+    "legacy": 1.273963,
+    "a1": 1.2955
+   },
+   "shieldedBruiser": {
+    "legacy": 1.222686,
+    "a1": 1.203954
+   }
+  },
+  "poisonHeavy": {
+   "armoredGrunt": {
+    "legacy": 0.634941,
+    "a1": 0.65189
+   },
+   "swarmling": {
+    "legacy": 0.730473,
+    "a1": 0.740698
+   },
+   "fastRunner": {
+    "legacy": 0.542585,
+    "a1": 0.554519
+   },
+   "regenerator": {
+    "legacy": 1.307292,
+    "a1": 1.302285
+   },
+   "shieldedBruiser": {
+    "legacy": 1.300568,
+    "a1": 1.27137
+   }
+  },
+  "sniperHeavy": {
+   "armoredGrunt": {
+    "legacy": 0.698353,
+    "a1": 0.671058
+   },
+   "swarmling": {
+    "legacy": 0.897512,
+    "a1": 0.892631
+   },
+   "fastRunner": {
+    "legacy": 0.559492,
+    "a1": 0.518994
+   },
+   "regenerator": {
+    "legacy": 1.283135,
+    "a1": 1.328819
+   },
+   "shieldedBruiser": {
+    "legacy": 1.140268,
+    "a1": 1.153512
+   }
+  }
+ }
+}
