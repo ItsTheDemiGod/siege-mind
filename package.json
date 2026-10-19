@@ -22,6 +22,7 @@
     "diagnose": "node experiments/diagnoseCli.js",
     "figures": "node experiments/figuresCli.js",
     "figures:final": "node experiments/figuresV4Cli.js",
+    "results-doc": "node experiments/resultsDocCli.js",
     "early-losses": "node experiments/earlyLosses.js",
     "contrast": "node experiments/contrast.js",
     "baseline": "node experiments/makeBaseline.js",
