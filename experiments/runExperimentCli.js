@@ -7,7 +7,7 @@ import { PROTOCOL, seedsOf } from './protocol.js';
 import { runExperiment, unitsFor, writeResults, identityOf } from './runExperiment.js';
 import { decideHeldoutRun } from './lock.js';
 import { splitSeeds } from './splits.js';
-import { modesAllowedFor } from './modes.js';
+import { allowedModesFor } from './modes.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const LOCK_PATH = resolve(ROOT, 'experiments/heldout.lock.json');
@@ -32,7 +32,7 @@ export function parseExperimentArgs(argv) {
       out.waves = Number(value);
     } else if (name === 'styles' || name === 'modes') {
       const list = value.split(',');
-      const allowed = name === 'styles' ? PROTOCOL.styles : modesAllowedFor(argv.find((x) => x.startsWith('--set='))?.slice(6));
+      const allowed = name === 'styles' ? PROTOCOL.styles : allowedModesFor(argv.find((x) => x.startsWith('--set='))?.slice(6) ?? 'calibration');
       const bad = list.find((x) => !allowed.includes(x));
       if (bad) throw new Error(`unknown ${name.slice(0, -1)}: ${bad} (have: ${allowed.join(', ')})`);
       out[name] = list;
@@ -45,7 +45,7 @@ export function parseExperimentArgs(argv) {
   if (out.split === null) delete out.split; // absent means 'all'; the key is only present when given
   else splitSeeds(out.split); // validates the name (RangeError)
   out.styles ??= [...PROTOCOL.styles];
-  out.modes ??= [...PROTOCOL.modes];
+  out.modes ??= out.set === 'heldout' ? [...PROTOCOL.confirmatory.modes] : [...PROTOCOL.modes];
   const stem = out.split && out.split !== 'all' ? `${out.set}-${out.split}` : out.set; // a split never overwrites the full-set files by default
   out.base ??= out.waves === PROTOCOL.waves ? stem : `${stem}-w${out.waves}`;
   return out;

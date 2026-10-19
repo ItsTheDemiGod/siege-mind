@@ -1,0 +1,132 @@
+[
+  {
+    "id": "P1",
+    "family": "primary",
+    "kind": "metric",
+    "metric": "livesLost",
+    "modeA": "adaptive",
+    "modeB": "static",
+    "direction": "greater",
+    "label": "Adaptive costs the player more lives than static"
+  },
+  {
+    "id": "P2",
+    "family": "primary",
+    "kind": "metric",
+    "metric": "livesLost",
+    "modeA": "adaptive",
+    "modeB": "random",
+    "direction": "greater",
+    "label": "Adaptive costs the player more lives than the random control"
+  },
+  {
+    "id": "S1",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "won",
+    "modeA": "adaptive",
+    "modeB": "static",
+    "direction": "less",
+    "label": "Adaptive wins less often than static"
+  },
+  {
+    "id": "S2",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "won",
+    "modeA": "adaptive",
+    "modeB": "random",
+    "direction": "less",
+    "label": "Adaptive wins less often than the random control"
+  },
+  {
+    "id": "S3",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "leakFraction",
+    "modeA": "adaptive",
+    "modeB": "static",
+    "direction": "greater",
+    "label": "A larger fraction of threat leaks under adaptive than static"
+  },
+  {
+    "id": "S4",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "leakFraction",
+    "modeA": "adaptive",
+    "modeB": "random",
+    "direction": "greater",
+    "label": "A larger fraction of threat leaks under adaptive than random"
+  },
+  {
+    "id": "S5",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "penetration",
+    "modeA": "adaptive",
+    "modeB": "static",
+    "direction": "greater",
+    "label": "Enemies get further along the path under adaptive than static"
+  },
+  {
+    "id": "S6",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "penetration",
+    "modeA": "adaptive",
+    "modeB": "random",
+    "direction": "greater",
+    "label": "Enemies get further along the path under adaptive than random"
+  },
+  {
+    "id": "S7",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "finalWave",
+    "modeA": "adaptive",
+    "modeB": "static",
+    "direction": "less",
+    "label": "The final wave reached is lower under adaptive than static"
+  },
+  {
+    "id": "S8",
+    "family": "secondary",
+    "kind": "metric",
+    "metric": "finalWave",
+    "modeA": "adaptive",
+    "modeB": "random",
+    "direction": "less",
+    "label": "The final wave reached is lower under adaptive than random"
+  },
+  {
+    "id": "T2",
+    "family": "secondary",
+    "kind": "contrast",
+    "metric": "tiltContrast",
+    "modeA": "adaptive",
+    "modeB": "random",
+    "direction": "greater",
+    "label": "The final weights separate defenses in the predicted direction more under adaptive than under the random control"
+  },
+  {
+    "id": "T0",
+    "family": "descriptive",
+    "kind": "contrast",
+    "metric": "tiltContrast",
+    "modeA": "random",
+    "modeB": null,
+    "direction": "twosided",
+    "label": "Null check: the random control shows no style contrast"
+  },
+  {
+    "id": "C1",
+    "family": "descriptive",
+    "kind": "metric",
+    "metric": "livesLost",
+    "modeA": "random",
+    "modeB": "static",
+    "direction": "greater",
+    "label": "Composition variability alone (random versus static) costs lives"
+  }
+]

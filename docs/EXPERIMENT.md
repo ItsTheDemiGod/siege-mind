@@ -18,7 +18,7 @@ The earlier bots are deterministic and could not support an experiment (one layo
 
 - **calibration**: seeds 1001-1010 (static mode only, used for the bot knobs).
 - **tuning**: seeds 1001-1030. Exploratory: used to look at results and to tune the Director in Phase 9.
-- **held-out**: seeds 2001-2060, disjoint from every other set. Run once, at the end, through the lock (below).
+- **held-out**: seeds 2001-2150 (150 seeds since amendment A3), disjoint from every other set. Run once, at the end, through the lock (below).
 
 Seeds 1-5 belong to earlier balance tests and are in no set. A game is the unit "style x mode x seed" (Quick, 15 waves); the full design is 5 styles x 3 modes x seeds (450 games for tuning, 900 for held-out; protocol versions 1 and 2 had five different styles, protocol version 3 has the five listed above).
 

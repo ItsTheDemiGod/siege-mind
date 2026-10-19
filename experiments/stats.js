@@ -2,7 +2,7 @@
 // resampling through createRng so results are identical on every machine.
 import { createRng } from '../src/sim/rng.js';
 
-const Z_ALPHA = { 0.05: 1.959964 };
+const Z_ALPHA = { 0.05: 1.959964, 0.016667: 2.394 }; // 0.016667 = 0.05 / 3, the Holm level of the smallest of three p-values
 const Z_BETA = { 0.8: 0.841621, 0.9: 1.281552 };
 const EPS = 1e-12; // tolerance when comparing sums of floats in the permutation test
 
@@ -141,7 +141,7 @@ export function wilson(successes, n, z = 1.959964) {
 
 /** Seeds needed to detect `effect` with standard deviation `sd` of the seed-level differences. */
 export function requiredN({ sd: sigma, effect, alpha = 0.05, power = 0.8 }) {
-  if (!(alpha in Z_ALPHA)) throw new RangeError(`alpha must be 0.05, got ${String(alpha)}`);
+  if (!(alpha in Z_ALPHA)) throw new RangeError(`alpha must be 0.05 or 0.016667, got ${String(alpha)}`);
   if (!(power in Z_BETA)) throw new RangeError(`power must be 0.8 or 0.9, got ${String(power)}`);
   if (!(effect > 0)) throw new RangeError(`effect must be > 0, got ${String(effect)}`);
   const k = ((Z_ALPHA[alpha] + Z_BETA[power]) * sigma) / effect;

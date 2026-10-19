@@ -31,7 +31,7 @@ test('identical calls give deep-equal rows', () => {
 test('unitsFor: counts, stable order and subsets', () => {
   const tuning = unitsFor({ set: 'tuning' });
   assert.equal(tuning.length, 30 * PROTOCOL.styles.length * 3);
-  assert.equal(unitsFor({ set: 'heldout' }).length, 60 * PROTOCOL.styles.length * 3);
+  assert.equal(unitsFor({ set: 'heldout' }).length, 150 * PROTOCOL.styles.length * 6);
   assert.equal(unitsFor({ set: 'calibration', modes: ['static'] }).length, 10 * PROTOCOL.styles.length);
   assert.equal(unitsFor({ set: 'tuning', styles: ['noLance'], modes: ['static', 'adaptive'] }).length, 60);
   assert.deepEqual(tuning.slice(0, 4).map((u) => `${u.seed}/${u.style}/${u.mode}`), ['1001/balancedR/static', '1001/balancedR/adaptive', '1001/balancedR/random', '1001/noLance/static']);
@@ -122,7 +122,7 @@ test('parseExperimentArgs: defaults, every flag and every rejection', () => {
   const all = parseExperimentArgs(['--set=calibration', '--styles=noLance,balancedR', '--modes=static', '--out=tmp', '--base=b', '--final', '--yes', '--new-lock', '--allow-dirty']);
   assert.deepEqual([all.styles, all.modes, all.out, all.base, all.final, all.yes, all.newLock, all.allowDirty], [['noLance', 'balancedR'], ['static'], 'tmp', 'b', true, true, true, true]);
   const held = parseExperimentArgs(['--set=heldout', '--final', '--yes']);
-  assert.deepEqual([held.base, held.final, held.yes, held.styles.length, held.modes.length], ['heldout', true, true, PROTOCOL.styles.length, 3]);
+  assert.deepEqual([held.base, held.final, held.yes, held.styles.length, held.modes.length], ['heldout', true, true, PROTOCOL.styles.length, 6]);
   assert.equal(parseExperimentArgs(['--set=heldout', '--waves=30']).base, 'heldout-w30');
   assert.throws(() => parseExperimentArgs([]), /--set is required/);
   assert.throws(() => parseExperimentArgs(['--set=nope']), RangeError);
@@ -156,7 +156,7 @@ test('9A-2a: the research arms are allowed for the tuning set only; defaults sta
   assert.deepEqual([...PROTOCOL_MODES], [...PROTOCOL.modes]);
   assert.deepEqual([...EXTRA_MODES], ['adaptive2', 'counter', 'prior']); // approved reversal (9A-2b-1)
   assert.deepEqual([...ALL_MODES], ['static', 'adaptive', 'random', 'adaptive2', 'counter', 'prior']);
-  assert.deepEqual([...modesAllowedFor('heldout')], [...PROTOCOL.modes]);
+  assert.deepEqual([...modesAllowedFor('heldout')], [...PROTOCOL.confirmatory.modes]); // approved reversal (A3): the six confirmatory modes
   assert.deepEqual(parseExperimentArgs(['--set=tuning', '--modes=static,adaptive2,counter']).modes, ['static', 'adaptive2', 'counter']);
   assert.deepEqual(parseExperimentArgs(['--set=tuning']).modes, [...PROTOCOL.modes]);
   assert.throws(() => parseExperimentArgs(['--modes=adaptive2', '--set=calibration']), /unknown mode: adaptive2/);

@@ -9,7 +9,7 @@ import { METRIC_COLUMNS } from '../experiments/metrics.js';
 test('the protocol is frozen all the way down and has the registered shape', () => {
   const frozen = (o) => Object.isFrozen(o) && Object.values(o).every((v) => (v && typeof v === 'object' ? frozen(v) : true));
   assert.ok(frozen(PROTOCOL));
-  assert.equal(PROTOCOL.version, 3); // approved reversal (Phase 9A-1): amendment A2 bumped the version
+  assert.equal(PROTOCOL.version, 4); // approved reversal (Phase 9A-2b-2): amendment A3 bumped the version
   assert.equal(PROTOCOL.waves, 15);
   assert.equal(PROTOCOL.startLives, config.game.startLives);
   assert.deepEqual([...PROTOCOL.styles], ['balancedR', 'noLance', 'noMortar', 'noPoison', 'noSniper']); // approved reversal (A2); noFrost was dropped by calibration stage 3
@@ -23,14 +23,14 @@ test('seed sets have the registered sizes; held-out is disjoint, calibration is 
   const cal = seedsOf('calibration');
   const tun = seedsOf('tuning');
   const held = seedsOf('heldout');
-  assert.deepEqual([cal.length, tun.length, held.length], [10, 30, 60]);
+  assert.deepEqual([cal.length, tun.length, held.length], [10, 30, 150]);
   assert.ok(cal.every((s) => tun.includes(s)));
   assert.ok(held.every((s) => !tun.includes(s)));
   for (const set of [cal, tun, held]) {
     assert.equal(new Set(set).size, set.length);
     assert.ok(set.every((s) => Number.isInteger(s) && s > 5), 'seeds 1..5 belong to the balance tests');
   }
-  assert.deepEqual([tun[0], tun.at(-1), held[0], held.at(-1)], [1001, 1030, 2001, 2060]);
+  assert.deepEqual([tun[0], tun.at(-1), held[0], held.at(-1)], [1001, 1030, 2001, 2150]);
   for (const bad of ['nope', '', undefined, 'Tuning']) assert.throws(() => seedsOf(bad), RangeError);
 });
 
@@ -111,7 +111,7 @@ test('protocolHash is deterministic and changes with any knob', () => {
 });
 
 test('amendment A1 is registered and is part of the hash', () => {
-  assert.deepEqual(PROTOCOL.amendments.map((a) => a.id), ['A1', 'A2']);
+  assert.deepEqual(PROTOCOL.amendments.map((a) => a.id), ['A1', 'A2', 'A3']);
   const a1 = PROTOCOL.amendments[0];
   assert.deepEqual([...a1.affects], ['tilt_*', 'tiltAligned', 'tiltObserved', 'T1']);
   assert.equal(a1.madeAfterSeeingTuningResults, true);

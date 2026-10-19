@@ -10,7 +10,7 @@ import { playGame } from './playthrough.js';
 import { createStyleBot } from './styleBots.js';
 import { metricsFromRun, tiltAlignedOf, METRIC_COLUMNS } from './metrics.js';
 import { PROTOCOL, seedsOf, protocolHash } from './protocol.js';
-import { modesAllowedFor } from './modes.js';
+import { allowedModesFor } from './modes.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CODE_FILES = ['experiments/styleBots.js', 'experiments/runExperiment.js', 'experiments/metrics.js', 'experiments/protocol.js', 'experiments/bots.js'];
@@ -39,9 +39,11 @@ export function runUnit({ style, mode, seed, waves = PROTOCOL.waves, knobs = PRO
 }
 
 /** @returns {{style: string, mode: string, seed: number, waves: number}[]} in the stable order seed, then style, then mode */
-export function unitsFor({ set, styles = PROTOCOL.styles, modes = PROTOCOL.modes, waves = PROTOCOL.waves, seeds = seedsOf(set) }) {
-  const bad = modes.find((m) => !modesAllowedFor(set).includes(m));
+export function unitsFor({ set, styles = PROTOCOL.styles, modes = set === 'heldout' ? PROTOCOL.confirmatory.modes : PROTOCOL.modes, waves = PROTOCOL.waves, seeds = seedsOf(set) }) {
+  const bad = modes.find((m) => !allowedModesFor(set).includes(m));
   if (bad) throw new RangeError(`mode ${bad} is not allowed for the ${set} set`);
+  if (set === 'heldout' && (modes.length !== PROTOCOL.confirmatory.modes.length || modes.some((m, i) => m !== PROTOCOL.confirmatory.modes[i]))) throw new RangeError('the held-out run uses exactly the six confirmatory modes, in protocol order');
+  if (set === 'heldout' && (styles.length !== PROTOCOL.styles.length || styles.some((x, i) => x !== PROTOCOL.styles[i]))) throw new RangeError('the held-out run uses exactly the protocol styles');
   const units = [];
   for (const seed of seeds) for (const style of styles) for (const mode of modes) units.push({ style, mode, seed, waves });
   return units;

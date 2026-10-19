@@ -7,4 +7,15 @@ export const EXTRA_MODES = Object.freeze(['adaptive2', 'counter', 'prior']);
 export const ALL_MODES = Object.freeze([...PROTOCOL_MODES, ...EXTRA_MODES]);
 
 /** @param {string} set 'calibration'|'tuning'|'heldout' @returns {readonly string[]} the modes the runner accepts for that set */
-export const modesAllowedFor = (set) => (set === 'tuning' ? ALL_MODES : PROTOCOL_MODES);
+export const modesAllowedFor = allowedModesFor;
+
+/**
+ * The modes the runner accepts per set. The held-out run uses EXACTLY the six confirmatory modes (no subsets). Calibration keeps the protocol modes.
+ * @param {'calibration'|'tuning'|'heldout'} set @returns {readonly string[]} @throws {RangeError} for an unknown set
+ */
+export function allowedModesFor(set) {
+  if (set === 'tuning') return ALL_MODES;
+  if (set === 'calibration') return PROTOCOL_MODES;
+  if (set === 'heldout') return PROTOCOL.confirmatory.modes;
+  throw new RangeError(`unknown seed set: ${String(set)}`);
+}

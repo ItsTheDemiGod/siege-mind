@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { analyze, formatAnalysis, analysisToMarkdown } from './analyze.js';
-import { protocolHash } from './protocol.js';
+import { protocolHash, PROTOCOL_PREVIOUS_HASHES } from './protocol.js';
 
 /** @param {string[]} argv @returns {{in: string, out: string|null, allowHashMismatch: boolean}} @throws {Error} for unknown or missing arguments */
 export function parseAnalyzeArgs(argv) {
@@ -18,6 +18,19 @@ export function parseAnalyzeArgs(argv) {
   return a;
 }
 
+/**
+ * Decide whether rows may be analyzed under the current protocol. Pure.
+ * @param {string} rowsHash the protocolHash recorded in the rows file @param {string} currentHash @param {Record<number, string>} previousHashes version -> hash
+ * @param {boolean} allowMismatch the --allow-hash-mismatch switch
+ * @returns {{ok: boolean, note: string|null}} ok when the hash is current, a known earlier version (with a note), or the mismatch is allowed
+ */
+export function checkProtocolHash(rowsHash, currentHash, previousHashes, allowMismatch) {
+  if (rowsHash === currentHash) return { ok: true, note: null };
+  const version = Object.keys(previousHashes).find((v) => previousHashes[v] === rowsHash);
+  if (version !== undefined) return { ok: true, note: `rows were produced under protocol version ${version}` };
+  return { ok: Boolean(allowMismatch), note: null };
+}
+
 function main() {
   let a;
   try { a = parseAnalyzeArgs(process.argv.slice(2)); } catch (e) { console.error(e.message); return 2; }
@@ -26,9 +39,13 @@ function main() {
   let file;
   try { file = JSON.parse(text); } catch (e) { console.error(`${a.in} is not valid JSON: ${e.message}`); return 1; }
   if (!Array.isArray(file.rows)) { console.error(`${a.in} has no rows array`); return 1; }
-  if (file.protocolHash !== protocolHash()) {
-    console.error(`protocol hash mismatch:\n  file    ${file.protocolHash}\n  current ${protocolHash()}`);
-    if (!a.allowHashMismatch) { console.error('the rows were produced under a different protocol; pass --allow-hash-mismatch to analyze them anyway'); return 1; }
+  const check = checkProtocolHash(file.protocolHash, protocolHash(), PROTOCOL_PREVIOUS_HASHES, a.allowHashMismatch);
+  if (check.note) console.log(check.note);
+  else if (file.protocolHash !== protocolHash()) {
+    console.error(`protocol hash mismatch:
+  file    ${file.protocolHash}
+  current ${protocolHash()}`);
+    if (!check.ok) { console.error('the rows were produced under a different protocol; pass --allow-hash-mismatch to analyze them anyway'); return 1; }
   }
   const result = analyze(file.rows, undefined, { set: file.set });
   console.log(formatAnalysis(result));
