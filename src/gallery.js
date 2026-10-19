@@ -14,13 +14,14 @@ import { enemyStatesSection, fxEventButtons } from './galleryEnemies.js';
 import { towersSection } from './galleryTowers.js';
 import { screensSection } from './galleryScreens.js';
 import { directorSection } from './galleryDirector.js';
+import { audioSection } from './galleryAudio.js';
 import {
   paletteSection, typographySection, enemiesSection, iconsSection, uiSection, colorblindSection,
 } from './galleryStatic.js';
 
 const SECTIONS = [
   ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['states', '3b Enemy states'], ['towers', '3c Towers'], ['icons', '4 Icons'], ['screens', '4b Core and screens'], ['fx', '5 Effects'],
-  ['ui', '6 UI'], ['director', '7 Director'], ['map', '7 Map'], ['cvd', '8 Colorblind'], ['quality', '9 Quality'],
+  ['ui', '6 UI'], ['director', '7 Director'], ['map', '7 Map'], ['cvd', '8 Colorblind'], ['audio', '8 Sound'], ['quality', '9 Quality'],
 ];
 const seed = 'gallery';
 const content = document.getElementById('g-content');
@@ -141,6 +142,9 @@ const preview = makeStage(els.map, { spawnEvery: 45 });
 
 // 8. Colorblind filters over the whole page content
 colorblindSection(els.cvd, content);
+
+// 8. Sound lab
+audioSection(els.audio, { settings });
 
 // 9. Quality tiers
 const tierRow = h('div', { class: 'g-row', role: 'radiogroup', 'aria-label': 'Quality tier' });

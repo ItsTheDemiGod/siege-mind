@@ -16,6 +16,8 @@ const ICONS = {
   quality: '<path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/>',
   shake: '<path d="M2 12l3-5 3 10 3-10 3 10 3-10 3 5"/>',
   motion: '<path d="M4 8h8M4 12h12M4 16h6M17 7l4 5-4 5"/>',
+  'sound-on': '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',
+  'sound-off': '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/>',
   director: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   'tower-lance': '<path d="M8 21l-2-3 2-3h8l2 3-2 3z"/><path d="M12 8l2.2 5L12 17l-2.2-4z"/><path d="M10.5 2v8M13.5 2v8"/>',
   'tower-mortar': '<path d="M8 21l-3-3v-4l3-3h8l3 3v4l-3 3z"/><path d="M9 12V4.5h6V12"/><circle cx="12" cy="16" r="2"/>',

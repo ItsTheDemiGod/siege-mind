@@ -44,6 +44,9 @@ import { createDirectorOverlay } from './ui/directorOverlay.js';
 import { createReportController } from './ui/reportController.js';
 import { directionByType } from './ui/directorView.js';
 import { formatDirectorLine } from './ui/format.js';
+import { createAudioEngine } from './audio/engine.js';
+import { bindUnlock } from './audio/unlock.js';
+import { MAPPED_EVENTS } from './audio/eventMap.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -86,6 +89,14 @@ startGame(game);
 const stressTowers = stress ? applyStress(game) : 0;
 const stepper = createStepper();
 const quality = createQualityController({ tier: settings.get('quality'), auto: settings.get('autoQuality') });
+// Audio: inert until the first user gesture; it only reads sim events and can never throw into the sim.
+const audio = createAudioEngine({ AudioContextCtor: window.AudioContext || window.webkitAudioContext, settings, nowMs: () => performance.now() });
+bindUnlock({ target: window, onUnlock: () => audio.unlock() });
+for (const type of MAPPED_EVENTS) {
+  game.events.on(type, (payload) => {
+    try { audio.handleEvent(type, payload, { mode: game.mode, tick: game.tick }); } catch { /* audio must never break the game */ }
+  });
+}
 const buildState = createBuildState();
 const renderer = createRenderer({ canvas, ctx, game, settings, quality, seed, buildState });
 
@@ -115,11 +126,12 @@ const exportRun = (kind) => {
 let menu = null; let howTo = null; let pauseMenu = null; let endScreen = null; let overlay = null; let report = null; // assigned below; only read from event handlers
 const decisionLog = createDecisionLog();
 game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => decisionLog.push(ev.director)); // registered before the overlay so it always sees the new entry
-const panel = createSettingsPanel({ root: uiRoot, settings, pause });
+const panel = createSettingsPanel({ root: uiRoot, settings, pause, audioAvailable: () => audio.status().available });
 const anyDialog = () => Boolean(menu.isOpen || howTo.isOpen || pauseMenu.isOpen || panel.isOpen || endScreen.isOpen || report.isOpen);
+const changeSpeed = (n) => { if (n !== state.speed) { state.speed = n; hud.setSpeed(n); audio.play('speedChange'); } };
 const hud = createHud({
   root: uiRoot,
-  handlers: { togglePause: () => { if (!anyDialog()) pause.toggleUser(); }, setSpeed: (n) => { state.speed = n; hud.setSpeed(n); }, openSettings: () => panel.open(), toggleDirector: game.mode === 'static' ? undefined : () => overlay.toggle() },
+  handlers: { togglePause: () => { if (!anyDialog()) pause.toggleUser(); }, setSpeed: changeSpeed, openSettings: () => panel.open(), toggleDirector: game.mode === 'static' ? undefined : () => overlay.toggle() },
 });
 hud.set({ gold: game.gold, lives: game.lives, wave: game.waves.current, waveTotal: game.totalWaves });
 hud.setSpeed(state.speed);
@@ -145,12 +157,23 @@ pauseMenu = createPauseMenu({
   root: uiRoot, pause, openSettings: () => panel.open(), openHowTo: () => howTo.open(), onDownload: () => exportRun('json'),
   onRestart: () => window.location.assign(buildRestartUrl(window.location.href, { seed: game.seed })),
   onQuit: () => window.location.assign(buildMenuUrl(window.location.href)),
+  isMuted: () => settings.get('muted'), toggleMute: () => settings.set('muted', !settings.get('muted')),
 });
 menu = createMainMenu({ root: uiRoot, pause, params, randomSeed, openHowTo: () => howTo.open(), openSettings: () => panel.open() });
 if (menuOpenAtBoot) menu.open();
 
 const blocked = () => anyDialog() || game.over; // build and wave hotkeys are off while a dialog is open or the game ended
-const build = createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen: blocked });
+const build = createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen: blocked, onDeny: () => audio.play('uiDeny') });
+let lastSelected = null;
+buildState.subscribe(() => { // selecting a tower (not clearing) has a sound
+  const id = buildState.state.mode === 'selected' ? buildState.state.towerId : null;
+  if (id !== null && id !== lastSelected) audio.play('towerSelect');
+  lastSelected = id;
+});
+uiRoot.addEventListener('click', (e) => { // a soft tick for every button except the ones with their own sound
+  const b = e.target instanceof Element ? e.target.closest('button') : null;
+  if (b && !b.matches('[aria-label^="Speed"], [aria-label="Pause"], [aria-label="Resume"]')) audio.play('uiClick');
+});
 createBuildTray({ bar: hud.bar, game, buildState, toaster });
 createTowerPanel({ root: uiRoot, game, buildState, actions: build.actions });
 
@@ -179,14 +202,16 @@ settings.subscribe((key, value) => {
 });
 
 document.addEventListener('visibilitychange', () => {
+  audio.setVisible(!document.hidden);
   if (document.hidden) { pause.setUser(true); last = null; } // never auto-resume
 });
 
-const extraKeys = { ...build.extraKeys, Enter: () => { if (!blocked()) waveControl.start(); }, i: () => { if (!anyDialog()) overlay.toggle(); } };
+const toggleMuteKey = () => { settings.set('muted', !settings.get('muted')); toaster.show(settings.get('muted') ? 'Sound off' : 'Sound on'); };
+const extraKeys = { ...build.extraKeys, Enter: () => { if (!blocked()) waveControl.start(); }, i: () => { if (!anyDialog()) overlay.toggle(); }, m: () => { if (!anyDialog()) toggleMuteKey(); } };
 if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) extraKeys[k] = (e) => { if (!anyDialog()) fn(e); };
 bindKeys({
   togglePause: () => { if (!anyDialog()) pause.toggleUser(); },
-  setSpeed: (n) => { if (!anyDialog()) { state.speed = n; hud.setSpeed(n); } },
+  setSpeed: (n) => { if (!anyDialog()) changeSpeed(n); },
   singleStep: () => { if (pause.user && !anyDialog() && !game.over) stepper.requestSingleStep(); },
   toggleHud: () => debugPanel.toggle(),
 }, extraKeys);
@@ -224,6 +249,7 @@ function frame(now) {
   if (paused !== wasPaused) { // do not judge or average the paused time
     if (!paused) { tickMeter.reset(); quality.reset(); }
     hud.setPaused(paused);
+    audio.play(paused ? 'pauseOn' : 'pauseOff');
     wasPaused = paused;
   }
   state.steps = stepper.advance(dt, state.speed, paused);

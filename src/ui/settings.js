@@ -1,5 +1,7 @@
 // Persisted user settings. The only module (besides the one line in main.js) that touches storage, via an injectable object.
 
+import { audioConfig } from '../audio/audioConfig.js';
+
 const STORAGE_KEY = 'siegeMind.settings.v1';
 const TIERS = ['low', 'medium', 'high'];
 
@@ -15,6 +17,11 @@ export function createSettings({ storage = null, prefersReducedMotion = false } 
     reducedMotion: prefersReducedMotion,
     particleDensity: 1,
     damageNumbers: false,
+    muted: audioConfig.defaults.muted,
+    masterVolume: audioConfig.defaults.masterVolume,
+    sfxVolume: audioConfig.defaults.sfxVolume,
+    tutorialHints: true,
+    tutorialStep: 0,
   });
   // Each key: coerce a candidate value to a valid one, or return undefined to reject it.
   const validators = {
@@ -23,6 +30,11 @@ export function createSettings({ storage = null, prefersReducedMotion = false } 
     screenShake: (v) => (typeof v === 'boolean' ? v : undefined),
     reducedMotion: (v) => (typeof v === 'boolean' ? v : undefined),
     damageNumbers: (v) => (typeof v === 'boolean' ? v : undefined),
+    muted: (v) => (typeof v === 'boolean' ? v : undefined),
+    masterVolume: (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : undefined),
+    sfxVolume: (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : undefined),
+    tutorialHints: (v) => (typeof v === 'boolean' ? v : undefined),
+    tutorialStep: (v) => (Number.isInteger(v) ? Math.min(99, Math.max(0, v)) : undefined),
     particleDensity: (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0.25, v)) : undefined),
   };
 

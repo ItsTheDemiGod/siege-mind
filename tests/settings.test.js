@@ -10,6 +10,7 @@ const fakeStorage = () => {
 test('defaults', () => {
   assert.deepEqual(createSettings().getAll(), {
     quality: 'high', autoQuality: true, screenShake: true, reducedMotion: false, particleDensity: 1, damageNumbers: false,
+    muted: false, masterVolume: 0.6, sfxVolume: 0.8, tutorialHints: true, tutorialStep: 0,
   });
 });
 
@@ -98,4 +99,30 @@ test('damageNumbers: default false, boolean-validated, persisted', () => {
   assert.equal(a.get('damageNumbers'), false);
   a.set('damageNumbers', true);
   assert.equal(createSettings({ storage: st }).get('damageNumbers'), true);
+});
+
+test('audio and hint settings: defaults fill in for old stored settings, values are clamped, corrupt values fall back', () => {
+  const st = fakeStorage();
+  st.setItem('siegeMind.settings.v1', JSON.stringify({ quality: 'low', screenShake: false })); // an old save without the new keys
+  const s = createSettings({ storage: st });
+  assert.equal(s.get('quality'), 'low');
+  assert.deepEqual([s.get('muted'), s.get('masterVolume'), s.get('sfxVolume'), s.get('tutorialHints'), s.get('tutorialStep')], [false, 0.6, 0.8, true, 0]);
+  s.set('masterVolume', 3);
+  s.set('sfxVolume', -1);
+  assert.deepEqual([s.get('masterVolume'), s.get('sfxVolume')], [1, 0]);
+  s.set('masterVolume', NaN);
+  s.set('muted', 'yes');
+  s.set('tutorialStep', 2.5);
+  s.set('tutorialStep', 500);
+  assert.equal(s.get('masterVolume'), 1);
+  assert.equal(s.get('muted'), false);
+  assert.equal(s.get('tutorialStep'), 99);
+  s.set('tutorialHints', false);
+  s.set('muted', true);
+  const again = createSettings({ storage: st });
+  assert.deepEqual([again.get('tutorialHints'), again.get('muted'), again.get('masterVolume')], [false, true, 1]);
+  const bad = fakeStorage();
+  bad.setItem('siegeMind.settings.v1', JSON.stringify({ masterVolume: 'loud', sfxVolume: null, tutorialStep: 'x', muted: 1, tutorialHints: 'no' }));
+  const c = createSettings({ storage: bad });
+  assert.deepEqual([c.get('masterVolume'), c.get('sfxVolume'), c.get('tutorialStep'), c.get('muted'), c.get('tutorialHints')], [0.6, 0.8, 0, false, true]);
 });

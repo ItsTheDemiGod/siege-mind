@@ -4,7 +4,7 @@ import { ICONS, iconSvg } from '../src/ui/icons.js';
 
 const REQUIRED = [
   'gold', 'lives', 'wave', 'play', 'pause', 'step', 'speed1', 'speed2', 'speed3', 'settings', 'close', 'info', 'quality',
-  'shake', 'motion', 'director', 'tower-lance', 'tower-mortar', 'tower-frost', 'tower-poison', 'tower-sniper',
+  'shake', 'motion', 'director', 'sound-on', 'sound-off', 'tower-lance', 'tower-mortar', 'tower-frost', 'tower-poison', 'tower-sniper',
   'enemy-armored-grunt', 'enemy-swarmling', 'enemy-fast-runner', 'enemy-regenerator', 'enemy-shielded-bruiser',
 ];
 
@@ -31,4 +31,9 @@ test('iconSvg applies size and throws on unknown names', () => {
   assert.match(iconSvg('gold', 32), /width="32" height="32"/);
   assert.match(iconSvg('gold'), /width="20"/);
   assert.throws(() => iconSvg('nope'));
+});
+
+test('the sound icons exist and differ from each other', async () => {
+  assert.ok('sound-on' in ICONS && 'sound-off' in ICONS);
+  assert.notEqual(ICONS['sound-on'], ICONS['sound-off']);
 });

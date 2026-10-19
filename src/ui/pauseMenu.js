@@ -6,10 +6,10 @@ import { createConfirmClick } from './confirmClick.js';
 
 /**
  * @param {{root: HTMLElement, pause: {lock: Function, unlock: Function}, onRestart: () => void, onQuit: () => void,
- *   openSettings: () => void, openHowTo: () => void, onDownload?: () => void, now?: () => number}} o
+ *   openSettings: () => void, openHowTo: () => void, onDownload?: () => void, now?: () => number, isMuted?: () => boolean, toggleMute?: () => void}} o isMuted/toggleMute add the Sound toggle
  * @returns {{open: () => void, close: () => void, readonly isOpen: boolean}}
  */
-export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, openHowTo, onDownload, now = () => performance.now() / 1000 }) {
+export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, openHowTo, onDownload, now = () => performance.now() / 1000, isMuted, toggleMute }) {
   let backdrop = null;
   let opener = null;
   const timers = [];
@@ -39,6 +39,12 @@ export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, 
     if (backdrop) return;
     opener = document.activeElement;
     pause.lock('pause-menu');
+    let soundBtn = null;
+    if (isMuted && toggleMute) {
+      const label = () => (isMuted() ? 'Sound: off' : 'Sound: on');
+      soundBtn = h('button', { type: 'button', class: 'btn', text: label(), 'aria-pressed': String(!isMuted()) });
+      soundBtn.addEventListener('click', () => { toggleMute(); soundBtn.textContent = label(); soundBtn.setAttribute('aria-pressed', String(!isMuted())); }); // the menu stays open
+    }
     const resume = h('button', { type: 'button', class: 'btn btn--primary', text: 'Resume', onclick: close });
     const card = h('div', { class: 'panel modal pause-card', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'pause-title' }, [
       h('h2', { id: 'pause-title', text: 'Paused' }),
@@ -46,6 +52,7 @@ export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, 
         resume,
         h('button', { type: 'button', class: 'btn', text: 'Settings', onclick: () => openSettings() }),
         h('button', { type: 'button', class: 'btn', text: 'How to play', onclick: () => openHowTo() }),
+        soundBtn ?? '',
         onDownload ? h('button', { type: 'button', class: 'btn', text: 'Download run data', 'aria-label': 'Download run data as JSON', onclick: () => onDownload() }) : '',
         confirmButton('Restart', onRestart),
         confirmButton('Quit to menu', onQuit),

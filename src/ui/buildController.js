@@ -5,10 +5,10 @@ import { reasonText } from './towerInfo.js';
 
 /**
  * @param {{game: object, canvas: HTMLCanvasElement, renderer: object, buildState: object, toaster: {show: Function},
- *   debugTools: object|null, isModalOpen: () => boolean}} o
+ *   debugTools: object|null, isModalOpen: () => boolean, onDeny?: () => void}} o onDeny runs when a placement is refused (the UI plays a deny sound)
  * @returns {{extraKeys: Record<string, Function>, actions: object}}
  */
-export function createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen }) {
+export function createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen, onDeny }) {
   const world = { x: 0, y: 0 };
   const { map } = game;
   const tileOf = (e) => {
@@ -45,7 +45,7 @@ export function createBuildController({ game, canvas, renderer, buildState, toas
     if (action === 'place') {
       if (!tile) return;
       const r = placeTower(game, buildState.state.typeId, tile.col, tile.row);
-      if (!r.ok) toaster.show(reasonText(r.reason));
+      if (!r.ok) { toaster.show(reasonText(r.reason)); if (onDeny) onDeny(); }
     } else if (action === 'select') {
       buildState.selectTower(found.id);
     } else {

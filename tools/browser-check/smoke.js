@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { inspectPage, isClean } from './page.js';
 import { startLocalServer } from './check.js';
 
-const GALLERY_SECTIONS = ['palette', 'type', 'enemies', 'states', 'towers', 'icons', 'screens', 'fx', 'ui', 'director', 'map', 'cvd', 'quality'];
+const GALLERY_SECTIONS = ['palette', 'type', 'enemies', 'states', 'towers', 'icons', 'screens', 'fx', 'ui', 'director', 'map', 'cvd', 'audio', 'quality'];
 
 // Each expression returns {ok, detail}; they run inside the page.
 const CHECKS = [
@@ -63,6 +63,35 @@ const CHECKS = [
       const toast = [...document.querySelectorAll('.toast')].map((t) => t.textContent).join('|');
       const parts = { noButton: !document.querySelector('button[aria-label="Director overlay (I)"]'), toast, noOverlay: !document.querySelector('[data-director-overlay]:not([hidden])') };
       return { ok: parts.noButton && toast.includes('The Director overlay is available in Adaptive mode') && parts.noOverlay, detail: JSON.stringify(parts) };
+    })()`,
+  },
+  {
+    name: 'mute key (M) toggles sound with toasts', path: '/?seed=1&play=1&waves=15&mode=static', wait: 2500, shot: 'smoke-mute.png',
+    expr: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const press = () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'm', code: 'KeyM' }));
+      const toasts = () => [...document.querySelectorAll('.toast')].map((t) => t.textContent);
+      press(); await sleep(300);
+      const off = toasts().includes('Sound off');
+      press(); await sleep(300);
+      const on = toasts().includes('Sound on');
+      return { ok: off && on, detail: JSON.stringify({ off, on }) };
+    })()`,
+  },
+  {
+    name: 'sound lab: every sound passes the offline analysis', path: '/gallery.html#audio', wait: 2500, shot: 'smoke-sound-lab.png',
+    expr: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const section = document.getElementById('audio');
+      const count = Number(section.dataset.soundCount);
+      [...section.querySelectorAll('button')].find((b) => b.textContent === 'Analyze all').click();
+      for (let i = 0; i < 100 && !/sounds OK/.test(section.querySelector('[data-id="audio-summary"]').textContent); i++) await sleep(200);
+      const summary = section.querySelector('[data-id="audio-summary"]').textContent;
+      const rows = [...section.querySelectorAll('tbody tr')];
+      const bad = rows.filter((r) => r.dataset.verdict !== 'OK').map((r) => r.dataset.id + ': ' + r.lastChild.textContent);
+      const m = /^(\\d+) of (\\d+) sounds OK$/.exec(summary);
+      const parts = { summary, rows: rows.length, count, bad };
+      return { ok: !!m && Number(m[1]) === count && Number(m[2]) === count && rows.length === count && bad.length === 0, detail: JSON.stringify(parts) };
     })()`,
   },
   {
