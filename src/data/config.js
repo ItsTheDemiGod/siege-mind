@@ -26,6 +26,14 @@ export const config = Object.freeze({
     quickTotal: 15,
     mode: 'static',
   }),
+  telemetry: Object.freeze({
+    schemaVersion: 1,
+    detail: 'full', // 'full' keeps one record per enemy; 'summary' keeps aggregates only
+    allowedDetails: Object.freeze(['full', 'summary']),
+    floatDigits: 6, // JSON
+    csvFloatDigits: 4,
+    maxEnemyRecords: 20000,
+  }),
   quality: Object.freeze({
     low: Object.freeze({ name: 'low', particleCap: 300, floatTextCap: 16, ambientMotes: 0, maxDpr: 1, pathPulseSpacing: 192, glow: false }),
     medium: Object.freeze({ name: 'medium', particleCap: 800, floatTextCap: 32, ambientMotes: 24, maxDpr: 1.5, pathPulseSpacing: 128, glow: true }),
@@ -55,6 +63,7 @@ export const config = Object.freeze({
     ringSize: 44,
     ringStroke: 4,
     menuWidth: 560,
+    downloadButtonHeight: 32,
     waveControlWidth: 300,
     waveControlHeight: 64,
     waveControlBottomMargin: 16,
