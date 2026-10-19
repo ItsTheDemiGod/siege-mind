@@ -5,6 +5,7 @@ import { TOWERS } from '../src/data/towers.js';
 import { placeTower, upgradeTower, towerAt, getTowerCost } from '../src/sim/towers.js';
 import { startNextWave } from '../src/sim/waveRunner.js';
 import { rankBuildableTiles } from './tiles.js';
+import { createStyleBot } from './styleBots.js';
 
 const BUILD_ORDER = ['lance', 'mortar', 'frost', 'poison', 'sniper', 'lance', 'mortar', 'poison', 'frost', 'sniper'];
 const TILE_RANGE = 150; // rank tiles by path coverage within the Lance's range
@@ -123,8 +124,11 @@ export const BOT_NAMES = Object.keys(FACTORIES);
 /** The bot ladder, weakest to strongest. */
 export const BOTS = Object.freeze(Object.fromEntries(BOT_NAMES.map((n) => [n, FACTORIES[n]()])));
 
-/** @param {string} name @returns {{name: string, act: (game: object) => void}} throws on an unknown name */
+/** @param {string} name a name in BOTS, or 'style:<style>' for an experiment style bot @returns {{name: string, act: (game: object) => void}} throws on an unknown name */
 export function getBot(name) {
+  if (name.startsWith('style:')) {
+    try { return createStyleBot(name.slice('style:'.length)); } catch { throw new Error(`unknown style bot: ${name}`); }
+  }
   const bot = BOTS[name];
   if (!bot) throw new Error(`unknown bot: ${name} (have: ${BOT_NAMES.join(', ')})`);
   return bot;

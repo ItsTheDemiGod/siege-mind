@@ -14,7 +14,10 @@
     "browser-check": "node tools/browser-check/check.js",
     "smoke:browser": "node tools/browser-check/smoke.js",
     "compare": "node experiments/directorCompare.js",
-    "fixture:demo": "node experiments/makeFixture.js"
+    "fixture:demo": "node experiments/makeFixture.js",
+    "experiment": "node experiments/runExperimentCli.js",
+    "analyze": "node experiments/analyzeCli.js",
+    "calibrate": "node experiments/calibrateCli.js"
   },
   "engines": {
     "node": ">=22"
