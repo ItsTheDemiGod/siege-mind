@@ -94,3 +94,7 @@ Dev-only tools that drive a local headless Chrome, Chromium or Edge over the Dev
 
 - `npm run smoke:browser` loads the menu, a game, the gallery and the 40-tower stress mode, checks each page came up, and saves screenshots into `tools/browser-check/out/` (git-ignored).
 - `npm run browser-check -- --url=/?seed=1&play=1 --wait=3000 --shot=game.png --eval="document.title"` loads one page (a path uses a built-in static server) and exits 1 on any console error, exception or failed request.
+
+## Experiments
+
+The comparison of the three modes is pre-registered in [docs/EXPERIMENT.md](docs/EXPERIMENT.md). `npm run calibrate` chooses the style bots' knobs (static mode only), `npm run experiment -- --set=tuning` plays the 450 tuning games into `docs/results/`, and `npm run analyze -- --in=docs/results/tuning.rows.json --out=docs/results/tuning-summary` prints and writes the analysis. The held-out seed set is run once, at the end, through a lock (`experiments/heldout.lock.json`).

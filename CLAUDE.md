@@ -205,6 +205,16 @@ siege-mind/
     playthrough.js           <- headless full-game playthrough (npm run playthrough; --telemetry=full|summary writes JSON/CSV)
     summarize.js             <- plain-text tables from a run JSON (npm run summarize)
     makeFixture.js           <- writes docs/fixtures/demo-adaptive-w15.json (npm run fixture:demo)
+    protocol.js              <- the frozen pre-registered experiment protocol, seed sets, style weights, protocolHash
+    styleBots.js             <- five style bots with their own seeded random stream
+    metrics.js               <- per-game metrics from a telemetry run (METRIC_COLUMNS)
+    runExperiment.js         <- batch runner, result files, identityOf (code hash, git commit)
+    runExperimentCli.js      <- npm run experiment (the held-out set goes through the lock first)
+    lock.js                  <- pure held-out lock decision (experiments/heldout.lock.json is written by the CLI)
+    stats.js                 <- mean/sd/quantile, sign-flip test, cluster bootstrap, Holm, Wilson, required n
+    analyze.js               <- the pre-registered analysis (analyzeFormat.js renders text and markdown)
+    analyzeCli.js            <- npm run analyze
+    calibrate.js             <- bot calibration grid and chooseKnobs (static mode only); calibrateCli.js is npm run calibrate
     directorCompare.js       <- Static vs Adaptive vs Random over bots and seeds, report-only hypotheses (npm run compare)
     run.js                   <- headless batch runner (Phase 8)
     matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
@@ -213,6 +223,8 @@ siege-mind/
   docs/
     TELEMETRY.md             <- telemetry schema, attribution rules, CSV tables
     DIRECTOR.md              <- the Director algorithm, config keys, decision record, controls, overlay and report
+    EXPERIMENT.md            <- the pre-registered experiment protocol
+    results/                 <- committed experiment outputs (calibration.*, tuning.csv, tuning.rows.json, tuning-summary.*)
     fixtures/                <- demo-adaptive-w15.json: a recorded adaptive run for the gallery and tests
     DEMO_SCRIPT.md
     REPORT_NOTES.md
@@ -325,15 +337,14 @@ Full reference: docs/TELEMETRY.md. Observation only: `attachTelemetry(game, { de
 - **per tower:** build wave and phase, upgrades, sold data, damage dealt, kills, shots, damage and kills by enemy type. **Per enemy:** spawn, outcome, progress, damage by source, killer.
 - Exports: JSON and four CSV tables (waves, wavetypes, enemies, towers) from src/sim/telemetryExport.js; `validateRun` checks consistency; `npm run summarize` prints tables.
 
-## 9. Experiment Harness Spec (Phase 8)
+## 9. Experiment Harness Spec (Phase 8A, implemented)
 
-- Bot players in `experiments/bots.js`: `monoSplash`, `monoSniper`, `balanced`, `adaptiveBot` (shifts loadout toward whatever is leaking), `random`.
-- Runner: `npm run sim -- --mode=static|adaptive --bot=<name> --seeds=30` executes full 30-wave games headless using the exact same `src/sim/` code.
-- Runs export through `attachTelemetry` and the CSV tables (src/sim/telemetryExport.js); 'summary' detail (no per-enemy records) is the default for batch experiments.
-- Phase 8 compares the three modes (static, adaptive, random) over bot-and-seed batches; the bots now include monoMortar and monoSniper next to none, weak and balanced. experiments/directorCompare.js is the small preview.
-- Metrics: wave reached, lives lost, total leaks, leak rate per enemy type, gold efficiency, Director weight trajectories.
-- Output: CSV/JSON into `experiments/results/`; analysis scripts/charts in `experiments/analysis/` (hand-built SVG or JS, or optional Python pandas/matplotlib for report figures).
-- Report mean +/- 95% CI and a significance test for Static vs Adaptive per bot.
+Full protocol: docs/EXPERIMENT.md (pre-registration); machine-readable: experiments/protocol.js (hash recorded in every result file and in the held-out lock).
+
+- **Games:** Quick (15 waves), five style bots (balancedR, lanceHeavy, mortarHeavy, poisonHeavy, sniperHeavy; own seeded random stream, knobs calibrated in static mode only), three modes (static, adaptive, random), seed sets calibration 1001-1010, tuning 1001-1030, held-out 2001-2060.
+- **Pipeline:** `npm run calibrate` -> `npm run experiment -- --set=tuning` (rows + CSV in docs/results) -> `npm run analyze` (paired seed-level differences, cluster bootstrap CI, sign-flip permutation p, Holm per family, effect sizes, power, tilt alignment). Every unit is validated; an incomplete data set is reported, never silently analyzed.
+- **Held-out lock:** `npm run experiment -- --set=heldout --final --yes` writes experiments/heldout.lock.json before playing; a second run needs --new-lock and leaves an audit trail. The held-out set is not run before Phase 8B.
+- Runs export through `attachTelemetry` ('summary' detail) and the CSV tables; experiments/directorCompare.js (`npm run compare`) remains as a small preview.
 
 ## 10. Coding Conventions
 
@@ -489,11 +500,22 @@ Implemented; awaiting user check, then tag phase-6-complete.
 **Done when:** a viewer can watch the overlay and understand why each wave changed.
 Implemented; awaiting user check, then tag phase-7-complete.
 
-### [ ] Phase 8 — Headless experiment harness
-- [ ] Bots (Section 9) and batch runner using the same `src/sim/` code
-- [ ] Results to `experiments/results/`; analysis scripts and charts
-- [ ] Stats (mean, 95% CI, significance test) for Static vs Adaptive
-**Done when:** one command reproduces the full comparison and produces report-ready charts.
+### [~] Phase 8A — Experiment harness
+- [x] Pre-registered protocol (docs/EXPERIMENT.md, experiments/protocol.js with a hash)
+- [x] Five style bots with their own seeded random stream; calibration in static mode only (chosen knobs recorded)
+- [x] Metrics, batch runner with result files and identity (code hash, git commit), deterministic output
+- [x] Statistics and analysis (sign-flip test, cluster bootstrap, Holm, Wilson, power) with text and markdown reports
+- [x] Held-out lock (pure decision logic plus CLI); the held-out set has NOT been run
+- [x] One exploratory run on the tuning set, results committed under docs/results
+- [x] Director's report footnote and insight cap fixes
+**Done when:** one command reproduces the tuning comparison and the analysis is deterministic.
+Implemented; awaiting user check, then tag phase-8a-complete.
+
+### [ ] Phase 8B — Figures and the held-out evaluation
+- [ ] Report-ready figures (hand-built SVG) from the results files
+- [ ] The held-out run through the lock (npm run experiment -- --set=heldout --final --yes)
+- [ ] A Full-length (30-wave) confirmatory run on the first 20 held-out seeds
+- [ ] The final results write-up
 
 ### [ ] Phase 9 — Final polish, audio, and balance
 - [ ] Balance pass using harness data
@@ -508,6 +530,7 @@ Implemented; awaiting user check, then tag phase-7-complete.
 - [ ] Quick-mode finale wave (wave 15 is an ordinary wave in a Quick game)
 - [ ] Re-check the 60% worst-wave-share clause of T5 that Phase 4A.2 dropped
 - [ ] Wave control and end-card polish if the user finds issues
+- [ ] Director tuning on the TUNING seed set only (small-sample shrinkage for types with very few units, tiltMax, beta, alpha, minThreatShare), then a single held-out evaluation; recalibrate the static guard (npm run calibrate) after any balance change
 - [ ] Rebalance after Phase 8 data: the Mortar deals about a third of all damage; revisit tiltMax, beta and alpha using Phase 8 results
 **Done when:** the game feels good to play for 15+ minutes and balance data supports it.
 
@@ -670,6 +693,16 @@ Implemented; awaiting user check, then tag phase-7-complete.
 - 2026-10-19 | 7 | (j) docs/fixtures/demo-adaptive-w15.json is a committed snapshot of an adaptive run for the gallery and tests; its test checks validity and report building but deliberately does not compare it with a fresh run | The fixture must not break every time the sim changes; regenerate with npm run fixture:demo
 - 2026-10-19 | 7 | (k) Other: the report model also carries totalWaves; the reduced-motion scan is a new renderer.fx.directorFade (0.12 s fade of the HUD strip) instead of directorScan; the overlay returns its element so the gallery can inline it; the overlay is also created in static mode and only shows a toast; sr-only data tables are wrapped in a div because tables ignore overflow clipping | Gaps the brief left open
 
+- 2026-10-19 | 8A | (a) The old bots (none, weak, mono*, balanced) are deterministic: one layout per game, so seeds add nothing and cannot support an experiment. The style bots draw their tower type, tile and tie-breaks from their own stream createRng(seed).fork('bot-' + style) (the sim's streams are untouched, tested by replaying the commands by hand), build a pending type once per build, and use only sim commands | A distribution of games per style and mode instead of one game
+- 2026-10-19 | 8A | (b) Calibration rule: static mode only, on the calibration seeds; mean win rate in [0.5, 0.9], every style >= 0.2, closest to 0.7; stage 1 grid of 9 knob sets sufficed. Chosen: tilePool 1, focusWeight 0.3, upgradeAfter 6 (mean 0.64; styles 0.50, 0.70, 0.70, 0.90, 0.40). tests/calibrationGuard.test.js re-checks it | Bot strength is fixed without looking at the Director
+- 2026-10-19 | 8A | (c) Primary metric: lives lost, a loss counting as 20; leaked threat is normalized by spawned threat (leakFraction) because adaptive changes the composition and raw leak counts are not comparable across compositions | Avoids rewarding the Director for sending more cheap units
+- 2026-10-19 | 8A | (d) Seeds are the clusters: every comparison is a paired seed-level difference averaged over the styles, with a cluster bootstrap interval and a sign-flip permutation test; Holm within the primary and secondary families separately | Games of one seed share their random choices
+- 2026-10-19 | 8A | (e) The held-out lock (pure decision function plus CLI) refuses without --final --yes, with a dirty tree or unknown commit, and on a repeat; it is written before any game is played and keeps previous locks | An auditable single confirmatory run
+- 2026-10-19 | 8A | (f) The tuning set (seeds 1001-1030) is exploratory: its results may inform Director tuning in Phase 9 and may not be reported as confirmatory
+- 2026-10-19 | 8A | (g) Report insight cap raised to 7 (nothing is cut) and an adaptive-only footnote about tankiness added (approved reversal of the earlier cap-of-5 test)
+- 2026-10-19 | 8A | (h) Experiment outputs are committed under docs/results (calibration.*, tuning.csv, tuning.rows.json, tuning-summary.*); experiments/results stays git-ignored for scratch output
+- 2026-10-19 | 8A | (i) Other: the style bots' calibration range gives balancedR a fixed 0.2 weight per tower (it ignores focusWeight); T1 skips styles without a prediction; supportsDirection is only the sign of the mean difference (read it together with the CI); the analysis returns an incomplete-data report instead of statistics when units are missing or duplicated; the tuning rows file records the git commit and the dirty flag (it was produced before the calibrated knobs were committed)
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -711,6 +744,11 @@ Implemented; awaiting user check, then tag phase-7-complete.
 - The overlay (max height 420) scrolls inside when its rows, plain-language lines and mini chart do not fit; the mini chart can sit below the fold.
 - The wave control title can wrap for long set-piece names in the intermission ('Next: Wave 10 — The Vanguard' was not measured).
 - Gallery overlays are driven by a stand-in game object; they show the recorded run's decisions, not live ones.
+- Exploratory tuning-set results (Phase 8A, 30 seeds): the primary P1 (adaptive vs static) shows +1.48 lives lost (95% CI 0.85 to 2.15); P2 (adaptive vs random) is null (+0.06, CI -0.65 to 0.75); T1 is reversed (the random control leans toward the predicted types more often than the Director: 17% / 0% / 73% / 20% versus 47% / 43% / 83% / 60% for the four predicted styles). Most of the "harder than static" effect is also present in the random control (C1 +1.42).
+- The Director's final weights are similar for every style (Regenerator and Bruiser up, Fast Runner and Armored Grunt down): it behaves like a tankiness detector more than a counter to the player's mix.
+- balancedR (a random tower mix) wins only about 45% of static games and its Director results barely move (a possible ceiling or floor effect); the calibration constrains the mean, not the spread between styles.
+- All styles lose most lives in the same few waves; seeds only change lanes and the bots' random choices, so seed-level variation is modest (sd of seed-level P1 differences 1.9 lives).
+- The tuning run's rows file records gitDirty true: it was produced with the calibrated knobs in the working tree before they were committed (the code and protocol hashes are the ones in the commit).
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -728,3 +766,4 @@ Implemented; awaiting user check, then tag phase-7-complete.
 - 2026-10-19 | Phase 5 | Telemetry collector, schema, validateRun, JSON/CSV export, docs/TELEMETRY.md, playthrough --telemetry, summarize, download buttons, debug telemetry line, browser-check dev tool (check, smoke); 700 tests pass; 30-wave balanced seed 1 still wins with 8 lives in 43.4 min (15 waves 18.9 min), none loses at wave 3, weak at wave 10; headless Chrome smoke passes | User checks, then tag phase-5-complete; Phase 6 only when the user says so
 - 2026-10-19 | Phase 6 | Shared wave composer and golden static waves, Director math, Director and random control, game wiring, decision records, telemetry hook and validation, docs/DIRECTOR.md, monoMortar and monoSniper bots, playthrough --mode, compare tool, modes in menu and URL, Director UI lines; 778 tests pass; static results identical to Phase 5; headless Chrome smoke passes (5 checks) | User checks, then tag phase-6-complete; Phase 7 only when the user says so
 - 2026-10-19 | Phase 7 | Layout fixes (wave control 360, HUD text), pure modules (decision log, director view, chart model, report, end card layout), Director overlay with HUD button and hotkey I, SVG charts, direction marks, scan sweep with a reduced-motion fade, the Director's Report from the end card, gallery section, demo fixture, window.__siege debug handle, smoke checks 6-8; 834 tests pass; Phase 6 results reproduce exactly (static 8 lives, adaptive 1, random 5); real-browser evidence from headless Chrome | User checks, then tag phase-7-complete; Phase 8 only when the user says so
+- 2026-10-19 | Phase 8A | Insight cap 7 and the adaptive footnote; pre-registered protocol, five style bots, metrics, batch runner, statistics and analysis, held-out lock (not run), calibration (static only), one exploratory tuning-set run (450 games) with committed results, docs/EXPERIMENT.md; 894 tests pass; Phase 7 results reproduce exactly | User checks, then tag phase-8a-complete; Phase 8B only when the user says so
