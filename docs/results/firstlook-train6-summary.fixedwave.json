@@ -1,0 +1,239 @@
+{
+ "candidates": [
+  9,
+  11,
+  12,
+  13,
+  14,
+  15
+ ],
+ "coverage": {
+  "5": {
+   "adaptive": {
+    "observed": 71,
+    "populationUnits": 71,
+    "coverage": 1
+   },
+   "adaptive2": {
+    "observed": 71,
+    "populationUnits": 71,
+    "coverage": 1
+   },
+   "counter": {
+    "observed": 71,
+    "populationUnits": 71,
+    "coverage": 1
+   },
+   "prior": {
+    "observed": 71,
+    "populationUnits": 71,
+    "coverage": 1
+   },
+   "random": {
+    "observed": 71,
+    "populationUnits": 71,
+    "coverage": 1
+   }
+  },
+  "7": {
+   "adaptive": {
+    "observed": 57,
+    "populationUnits": 71,
+    "coverage": 0.8028169014084507
+   },
+   "adaptive2": {
+    "observed": 58,
+    "populationUnits": 71,
+    "coverage": 0.8169014084507042
+   },
+   "counter": {
+    "observed": 58,
+    "populationUnits": 71,
+    "coverage": 0.8169014084507042
+   },
+   "prior": {
+    "observed": 60,
+    "populationUnits": 71,
+    "coverage": 0.8450704225352113
+   },
+   "random": {
+    "observed": 59,
+    "populationUnits": 71,
+    "coverage": 0.8309859154929577
+   }
+  },
+  "9": {
+   "adaptive": {
+    "observed": 50,
+    "populationUnits": 71,
+    "coverage": 0.704225352112676
+   },
+   "adaptive2": {
+    "observed": 57,
+    "populationUnits": 71,
+    "coverage": 0.8028169014084507
+   },
+   "counter": {
+    "observed": 55,
+    "populationUnits": 71,
+    "coverage": 0.7746478873239436
+   },
+   "prior": {
+    "observed": 52,
+    "populationUnits": 71,
+    "coverage": 0.7323943661971831
+   },
+   "random": {
+    "observed": 54,
+    "populationUnits": 71,
+    "coverage": 0.7605633802816901
+   }
+  },
+  "11": {
+   "adaptive": {
+    "observed": 47,
+    "populationUnits": 71,
+    "coverage": 0.6619718309859155
+   },
+   "adaptive2": {
+    "observed": 50,
+    "populationUnits": 71,
+    "coverage": 0.704225352112676
+   },
+   "counter": {
+    "observed": 49,
+    "populationUnits": 71,
+    "coverage": 0.6901408450704225
+   },
+   "prior": {
+    "observed": 47,
+    "populationUnits": 71,
+    "coverage": 0.6619718309859155
+   },
+   "random": {
+    "observed": 50,
+    "populationUnits": 71,
+    "coverage": 0.704225352112676
+   }
+  },
+  "12": {
+   "adaptive": {
+    "observed": 46,
+    "populationUnits": 71,
+    "coverage": 0.647887323943662
+   },
+   "adaptive2": {
+    "observed": 49,
+    "populationUnits": 71,
+    "coverage": 0.6901408450704225
+   },
+   "counter": {
+    "observed": 49,
+    "populationUnits": 71,
+    "coverage": 0.6901408450704225
+   },
+   "prior": {
+    "observed": 47,
+    "populationUnits": 71,
+    "coverage": 0.6619718309859155
+   },
+   "random": {
+    "observed": 50,
+    "populationUnits": 71,
+    "coverage": 0.704225352112676
+   }
+  },
+  "13": {
+   "adaptive": {
+    "observed": 46,
+    "populationUnits": 71,
+    "coverage": 0.647887323943662
+   },
+   "adaptive2": {
+    "observed": 49,
+    "populationUnits": 71,
+    "coverage": 0.6901408450704225
+   },
+   "counter": {
+    "observed": 49,
+    "populationUnits": 71,
+    "coverage": 0.6901408450704225
+   },
+   "prior": {
+    "observed": 47,
+    "populationUnits": 71,
+    "coverage": 0.6619718309859155
+   },
+   "random": {
+    "observed": 50,
+    "populationUnits": 71,
+    "coverage": 0.704225352112676
+   }
+  },
+  "14": {
+   "adaptive": {
+    "observed": 46,
+    "populationUnits": 71,
+    "coverage": 0.647887323943662
+   },
+   "adaptive2": {
+    "observed": 49,
+    "populationUnits": 71,
+    "coverage": 0.6901408450704225
+   },
+   "counter": {
+    "observed": 49,
+    "populationUnits": 71,
+    "coverage": 0.6901408450704225
+   },
+   "prior": {
+    "observed": 47,
+    "populationUnits": 71,
+    "coverage": 0.6619718309859155
+   },
+   "random": {
+    "observed": 50,
+    "populationUnits": 71,
+    "coverage": 0.704225352112676
+   }
+  },
+  "15": {
+   "adaptive": {
+    "observed": 40,
+    "populationUnits": 71,
+    "coverage": 0.5633802816901409
+   },
+   "adaptive2": {
+    "observed": 47,
+    "populationUnits": 71,
+    "coverage": 0.6619718309859155
+   },
+   "counter": {
+    "observed": 47,
+    "populationUnits": 71,
+    "coverage": 0.6619718309859155
+   },
+   "prior": {
+    "observed": 40,
+    "populationUnits": 71,
+    "coverage": 0.5633802816901409
+   },
+   "random": {
+    "observed": 46,
+    "populationUnits": 71,
+    "coverage": 0.647887323943662
+   }
+  }
+ },
+ "minCoverageByWave": {
+  "9": 0.704225352112676,
+  "11": 0.6619718309859155,
+  "12": 0.647887323943662,
+  "13": 0.647887323943662,
+  "14": 0.647887323943662,
+  "15": 0.5633802816901409
+ },
+ "chosen": 9,
+ "metRule": false,
+ "rule": "smallest eligible wave >= 9 whose minimum coverage over adaptive, adaptive2, counter, prior and random is at least 0.75; otherwise the wave with the largest minimum coverage"
+}
