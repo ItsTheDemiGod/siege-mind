@@ -7,6 +7,7 @@ import { describePreview } from './bannerState.js';
 import { compositionChips } from './compositionChips.js';
 import { markChips } from './directionMark.js';
 import { directionByType } from './directorView.js';
+import { previewKey, loadoutEvents } from './previewRefresh.js';
 
 const REFRESH_MS = 250; // phase flips happen after WAVE_ENDED fires, so a slow poll is the simplest correct trigger
 
@@ -28,7 +29,7 @@ export function createWavePreview({ root, game, controlRect }) {
   let lastKey = '';
   function refresh() {
     const preview = game.over ? null : getWavePreview(game);
-    const key = preview ? `${preview.wave}|${game.waves.phase}` : 'none';
+    const key = previewKey(game, preview);
     if (key === lastKey) return;
     lastKey = key;
     const d = describePreview(preview, game.totalWaves);
@@ -45,7 +46,7 @@ export function createWavePreview({ root, game, controlRect }) {
     el.classList.toggle('is-final', d.final);
   }
 
-  for (const type of [EVENT_TYPES.WAVE_STARTED, EVENT_TYPES.GAME_OVER]) game.events.on(type, refresh);
+  for (const type of [EVENT_TYPES.WAVE_STARTED, EVENT_TYPES.GAME_OVER, ...loadoutEvents(game.mode)]) game.events.on(type, refresh); // counter mode: the loadout decides the plan
   setInterval(refresh, REFRESH_MS);
   refresh();
   return { refresh };

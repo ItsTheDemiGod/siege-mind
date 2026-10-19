@@ -8,6 +8,12 @@ export const MODES = Object.freeze([
 /** The random control mode is reachable only through ?mode=random, so it is not part of MODES. */
 export const RANDOM_CONTROL = Object.freeze({ label: 'Random control', blurb: 'A control mode: enemy mixes are tilted at random' });
 
+/** Research arms (Phase 9A-2a): reachable only through ?mode=adaptive2 or ?mode=counter, not listed in the menu. */
+export const RESEARCH_ARMS = Object.freeze({
+  adaptive2: Object.freeze({ label: 'Adaptive v2 (research)', blurb: 'Research arm: Director v2 with baseline-normalized rewards' }),
+  counter: Object.freeze({ label: 'Counter arm (research)', blurb: 'Research arm: enemy mixes are set from your tower loadout' }),
+});
+
 export const LENGTH_OPTIONS = Object.freeze([
   Object.freeze({ waves: 15, label: 'Quick', blurb: '15 waves, about 20 min at normal speed' }),
   Object.freeze({ waves: 30, label: 'Full', blurb: '30 waves, about 45 min at normal speed' }),

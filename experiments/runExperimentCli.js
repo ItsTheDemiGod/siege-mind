@@ -7,6 +7,7 @@ import { PROTOCOL, seedsOf } from './protocol.js';
 import { runExperiment, unitsFor, writeResults, identityOf } from './runExperiment.js';
 import { decideHeldoutRun } from './lock.js';
 import { splitSeeds } from './splits.js';
+import { modesAllowedFor } from './modes.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const LOCK_PATH = resolve(ROOT, 'experiments/heldout.lock.json');
@@ -31,7 +32,7 @@ export function parseExperimentArgs(argv) {
       out.waves = Number(value);
     } else if (name === 'styles' || name === 'modes') {
       const list = value.split(',');
-      const allowed = name === 'styles' ? PROTOCOL.styles : PROTOCOL.modes;
+      const allowed = name === 'styles' ? PROTOCOL.styles : modesAllowedFor(argv.find((x) => x.startsWith('--set='))?.slice(6));
       const bad = list.find((x) => !allowed.includes(x));
       if (bad) throw new Error(`unknown ${name.slice(0, -1)}: ${bad} (have: ${allowed.join(', ')})`);
       out[name] = list;

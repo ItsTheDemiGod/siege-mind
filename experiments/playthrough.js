@@ -52,7 +52,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const seed = Number(arg('seed', 1));
   const waves = Number(arg('waves', config.game.totalWaves));
   const mode = arg('mode', 'static');
-  if (!['static', 'adaptive', 'random'].includes(mode)) { console.error('--mode must be static, adaptive or random'); process.exit(2); }
+  if (!['static', 'adaptive', 'random', 'adaptive2', 'counter'].includes(mode)) { console.error('--mode must be static, adaptive, random, adaptive2 or counter'); process.exit(2); }
   const telemetry = arg('telemetry', '');
   if (telemetry && !config.telemetry.allowedDetails.includes(telemetry)) { console.error('--telemetry must be full or summary'); process.exit(2); }
   const outDir = arg('out', 'experiments/results');

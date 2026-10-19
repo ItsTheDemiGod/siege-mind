@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ENEMY_ORDER } from '../src/data/enemies.js';
-import { metricsFromRun, tiltAlignedOf, METRIC_COLUMNS } from '../experiments/metrics.js';
+import { metricsFromRun, tiltAlignedOf, tiltAtWave, METRIC_COLUMNS } from '../experiments/metrics.js';
 import { PROTOCOL } from '../experiments/protocol.js';
 import { LEGACY_FOCUS_PREDICTIONS } from '../experiments/legacyPredictions.js'; // tiltAlignedOf tests use the archived focus styles (approved reversal A2)
 import { playGame } from '../experiments/playthrough.js';
@@ -154,4 +154,49 @@ test('every METRIC_COLUMNS entry is produced by the metrics plus the three exper
   for (const c of METRIC_COLUMNS) assert.ok(c in m, c);
   assert.equal(new Set(METRIC_COLUMNS).size, METRIC_COLUMNS.length);
   assert.ok(!METRIC_COLUMNS.includes('livesLostByWave'));
+});
+
+test('9A-2a: tiltByWave holds the applied tilt of eligible records only, null elsewhere; tiltAtWave reads it', () => {
+  const run = miniRun('adaptive'); // wave 1 not eligible, waves 2 (tilt all 1) and 3 (tilt 0.4 / 2.5 / 1 / 1.2 / 0.9) eligible
+  const m = metricsFromRun(run);
+  assert.equal(m.tiltByWave.length, 15);
+  assert.equal(m.tiltByWave[0], null);
+  assert.deepEqual(m.tiltByWave[1], { armoredGrunt: 1, swarmling: 1, fastRunner: 1, regenerator: 1, shieldedBruiser: 1 });
+  assert.deepEqual(m.tiltByWave[2], { armoredGrunt: 0.4, swarmling: 2.5, fastRunner: 1, regenerator: 1.2, shieldedBruiser: 0.9 });
+  assert.ok(m.tiltByWave.slice(3).every((x) => x === null));
+  assert.deepEqual(tiltAtWave(m, 3), m.tiltByWave[2]);
+  assert.equal(tiltAtWave(m, 1), null);
+  assert.equal(tiltAtWave(m, 15), null);
+  assert.equal(tiltAtWave({}, 3), null);
+  // the last eligible record agrees with the tilt_* columns (amendment A1 is unchanged)
+  const last = [...m.tiltByWave].reverse().find((x) => x);
+  for (const t of ENEMY_ORDER) assert.equal(m[`tilt_${t}`], last[t]);
+  // a later non-eligible record does not hide the earlier eligible tilt
+  run.waves[2].director.eligible = false;
+  const m2 = metricsFromRun(run);
+  assert.equal(m2.tiltByWave[2], null);
+  assert.deepEqual(m2.tiltByWave[1], m.tiltByWave[1]);
+  assert.equal(m2.tilt_swarmling, 1);
+  // static runs: all null
+  assert.ok(metricsFromRun(miniRun('static')).tiltByWave.every((x) => x === null));
+  assert.ok(!METRIC_COLUMNS.includes('tiltByWave'));
+});
+
+test('9A-2a: real runs of every mode produce well-formed rows that reconcile with tiltByWave', () => {
+  for (const mode of ['static', 'adaptive', 'random', 'adaptive2', 'counter']) {
+    const r = playGame({ seed: 1, bot: getBot('balanced'), mode, totalWaves: 15, telemetry: 'summary' });
+    const m = metricsFromRun(r.run);
+    assert.equal(m.tiltByWave.length, 15, mode);
+    for (const [i, x] of m.tiltByWave.entries()) {
+      if (x === null) continue;
+      assert.deepEqual(Object.keys(x), [...ENEMY_ORDER], `${mode} wave ${i + 1}`);
+      assert.ok(ENEMY_ORDER.every((t) => Number.isFinite(x[t]) && x[t] > 0));
+    }
+    const observed = m.tiltByWave.filter(Boolean);
+    assert.equal(m.eligibleWaves, mode === 'static' ? 0 : observed.length, mode);
+    if (mode === 'static') { assert.equal(m.tiltObserved, 0); continue; }
+    assert.equal(m.tiltObserved, 1, mode);
+    for (const t of ENEMY_ORDER) assert.equal(m[`tilt_${t}`], observed.at(-1)[t], `${mode} ${t}`);
+    assert.ok(!/NaN|undefined/.test(JSON.stringify(m)));
+  }
 });

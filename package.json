@@ -23,7 +23,8 @@
     "figures": "node experiments/figuresCli.js",
     "early-losses": "node experiments/earlyLosses.js",
     "contrast": "node experiments/contrast.js",
-    "baseline": "node experiments/makeBaseline.js"
+    "baseline": "node experiments/makeBaseline.js",
+    "first-look": "node experiments/firstLookCli.js"
   },
   "engines": {
     "node": ">=22"

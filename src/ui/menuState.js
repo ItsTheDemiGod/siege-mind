@@ -20,11 +20,11 @@ export function parseSeedInput(text) {
   return { ok: true, seed: t };
 }
 
-const VALID_MODES = ['static', 'adaptive', 'random'];
+const VALID_MODES = ['static', 'adaptive', 'random', 'adaptive2', 'counter']; // random, adaptive2 and counter are URL only
 
 /**
  * @param {string|null|undefined} text the ?mode= value
- * @returns {{ok: boolean, mode: 'static'|'adaptive'|'random'}} absent or empty is Static; an unknown value falls back to Static with ok false
+ * @returns {{ok: boolean, mode: 'static'|'adaptive'|'random'|'adaptive2'|'counter'}} absent or empty is Static; an unknown value falls back to Static with ok false
  */
 export function parseModeParam(text) {
   const t = String(text ?? '').trim().toLowerCase();

@@ -10,6 +10,7 @@ import { playGame } from './playthrough.js';
 import { createStyleBot } from './styleBots.js';
 import { metricsFromRun, tiltAlignedOf, METRIC_COLUMNS } from './metrics.js';
 import { PROTOCOL, seedsOf, protocolHash } from './protocol.js';
+import { modesAllowedFor } from './modes.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CODE_FILES = ['experiments/styleBots.js', 'experiments/runExperiment.js', 'experiments/metrics.js', 'experiments/protocol.js', 'experiments/bots.js'];
@@ -33,11 +34,14 @@ export function runUnit({ style, mode, seed, waves = PROTOCOL.waves, knobs = PRO
   const row = {};
   for (const c of METRIC_COLUMNS) row[c] = all[c];
   row.livesLostByWave = m.livesLostByWave;
+  row.tiltByWave = m.tiltByWave; // JSON only, not a CSV column
   return row;
 }
 
 /** @returns {{style: string, mode: string, seed: number, waves: number}[]} in the stable order seed, then style, then mode */
 export function unitsFor({ set, styles = PROTOCOL.styles, modes = PROTOCOL.modes, waves = PROTOCOL.waves, seeds = seedsOf(set) }) {
+  const bad = modes.find((m) => !modesAllowedFor(set).includes(m));
+  if (bad) throw new RangeError(`mode ${bad} is not allowed for the ${set} set`);
   const units = [];
   for (const seed of seeds) for (const style of styles) for (const mode of modes) units.push({ style, mode, seed, waves });
   return units;

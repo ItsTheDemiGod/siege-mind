@@ -2,7 +2,7 @@
 import { config } from '../data/config.js';
 import { TOTAL_WAVES } from '../data/waves.js';
 import { lengthLabel } from './waveSummary.js';
-import { MODES, RANDOM_CONTROL } from '../data/menuText.js';
+import { MODES, RANDOM_CONTROL, RESEARCH_ARMS } from '../data/menuText.js';
 import { ENEMY_ORDER } from '../data/enemies.js';
 import { tiltFromScores } from '../sim/directorMath.js';
 
@@ -22,6 +22,7 @@ const SHORT_NAMES = Object.freeze({ armoredGrunt: 'grunt', swarmling: 'swarm', f
 /** @param {string} mode game mode id @returns {string} display label (Static when unknown) */
 export function modeLabel(mode) {
   if (mode === 'random') return RANDOM_CONTROL.label;
+  if (RESEARCH_ARMS[mode]) return RESEARCH_ARMS[mode].label;
   return MODES.find((m) => m.id === mode)?.label ?? 'Static';
 }
 
@@ -32,7 +33,8 @@ export function modeLabel(mode) {
  */
 export function formatDirectorLine(game) {
   if (!game.director) return 'director: off (static mode)';
-  const tilt = tiltFromScores(game.director.scores, game.directorCfg ?? config.director);
+  const cfg = game.mode === 'adaptive2' ? (game.directorV2Cfg ?? config.directorV2) : (game.directorCfg ?? config.director);
+  const tilt = tiltFromScores(game.director.scores, cfg);
   const parts = ENEMY_ORDER.map((t) => `${SHORT_NAMES[t]} ${game.director.scores[t].toFixed(2)}/${tilt[t].toFixed(2)}`);
   return `director: mode ${game.director.mode}, score/tilt: ${parts.join(' ')}`;
 }

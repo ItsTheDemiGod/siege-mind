@@ -13,7 +13,7 @@ const tmp = () => mkdtempSync(join(tmpdir(), 'siege-exp-'));
 test('runUnit returns a well-formed row for each mode', () => {
   for (const mode of PROTOCOL.modes) {
     const row = runUnit({ style: 'noLance', mode, seed: 1001 });
-    assert.deepEqual(Object.keys(row), [...METRIC_COLUMNS, 'livesLostByWave']);
+    assert.deepEqual(Object.keys(row), [...METRIC_COLUMNS, 'livesLostByWave', 'tiltByWave']); // extended in 9A-2a: tiltByWave is a JSON-only field
     assert.deepEqual([row.style, row.mode, row.seed], ['noLance', mode, 1001]);
     assert.ok(['won', 'lost'].includes(row.result));
     assert.equal(row.livesLostByWave.length, PROTOCOL.waves);
@@ -149,4 +149,19 @@ test('parseExperimentArgs: --split only for the tuning set, validated, and a spl
 test('unitsFor takes an explicit seed list (a split) and keeps the stable order', () => {
   const u = unitsFor({ set: 'tuning', seeds: [1001, 1002], styles: ['balancedR'], modes: ['static', 'random'] });
   assert.deepEqual(u.map((x) => `${x.seed}/${x.mode}`), ['1001/static', '1001/random', '1002/static', '1002/random']);
+});
+
+test('9A-2a: the research arms are allowed for the tuning set only; defaults stay the protocol modes', async () => {
+  const { ALL_MODES, EXTRA_MODES, PROTOCOL_MODES, modesAllowedFor } = await import('../experiments/modes.js');
+  assert.deepEqual([...PROTOCOL_MODES], [...PROTOCOL.modes]);
+  assert.deepEqual([...EXTRA_MODES], ['adaptive2', 'counter']);
+  assert.deepEqual([...ALL_MODES], ['static', 'adaptive', 'random', 'adaptive2', 'counter']);
+  assert.deepEqual([...modesAllowedFor('heldout')], [...PROTOCOL.modes]);
+  assert.deepEqual(parseExperimentArgs(['--set=tuning', '--modes=static,adaptive2,counter']).modes, ['static', 'adaptive2', 'counter']);
+  assert.deepEqual(parseExperimentArgs(['--set=tuning']).modes, [...PROTOCOL.modes]);
+  assert.throws(() => parseExperimentArgs(['--modes=adaptive2', '--set=calibration']), /unknown mode: adaptive2/);
+  assert.throws(() => parseExperimentArgs(['--set=heldout', '--modes=counter']), /not allowed|unknown mode/);
+  assert.equal(unitsFor({ set: 'tuning', seeds: [1001], styles: ['balancedR'], modes: ALL_MODES }).length, 5);
+  assert.throws(() => unitsFor({ set: 'heldout', modes: ['adaptive2'] }), RangeError);
+  assert.throws(() => unitsFor({ set: 'calibration', modes: ['counter'] }), RangeError);
 });

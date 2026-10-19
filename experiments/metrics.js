@@ -6,13 +6,16 @@ import { roundTo } from '../src/sim/telemetrySchema.js';
 const TILTS = ENEMY_ORDER.map((t) => `tilt_${t}`);
 const SHARES = TOWER_ORDER.map((t) => `dmgShare_${t}`);
 
-/** Columns of a result row, in file order (the array field livesLostByWave is JSON-only). */
+/** Columns of a result row, in file order (the array fields livesLostByWave and tiltByWave are JSON-only). */
 export const METRIC_COLUMNS = Object.freeze([
   'style', 'mode', 'seed', 'result', 'won', 'finalWave', 'completedWaves', 'livesLeft', 'livesLost', 'minutes', 'spawnedThreat', 'leakedUnits', 'leakedThreat',
   'leakFraction', 'penetration', 'towersBuilt', 'upgrades', ...SHARES, 'eligibleWaves', 'adaptedWaves', 'meanShiftFrac', ...TILTS, 'tiltObserved', 'tiltAligned',
 ]);
 
 const r6 = (x) => roundTo(x, 6);
+
+/** @param {{tiltByWave: (Record<string, number>|null)[]}} row @param {number} W 1-based wave @returns {Record<string, number>|null} the applied tilt going into wave W, or null when W was not an observed eligible wave */
+export const tiltAtWave = (row, W) => (Array.isArray(row.tiltByWave) ? row.tiltByWave[W - 1] ?? null : null);
 
 /** @param {object} d a Director decision record @returns {number} half the L1 distance between final and template shares */
 const shiftOf = (d) => 0.5 * ENEMY_ORDER.reduce((n, t) => n + Math.abs(d.finalShares[t] - d.templateShares[t]), 0);
@@ -74,6 +77,10 @@ export function metricsFromRun(run) {
   m.meanShiftFrac = r6(eligible.length ? eligible.reduce((n, w) => n + shiftOf(w.director), 0) / eligible.length : 0);
   ENEMY_ORDER.forEach((t, i) => { m[TILTS[i]] = r6(tilts[t]); });
   m.tiltObserved = observed;
+  m.tiltByWave = Array.from({ length: run.meta.totalWaves }, (_, i) => {
+    const rec = run.waves.find((w) => w.wave === i + 1);
+    return rec && rec.director && rec.director.eligible ? Object.fromEntries(ENEMY_ORDER.map((t) => [t, r6(rec.director.tilt[t])])) : null;
+  });
   m.livesLostByWave = Array.from({ length: run.meta.totalWaves }, (_, i) => run.waves.find((w) => w.wave === i + 1)?.livesLost ?? null);
   return m;
 }

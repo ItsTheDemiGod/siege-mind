@@ -5,7 +5,7 @@ import { EVENT_TYPES } from '../sim/events.js';
 import { planWaveWithDecision } from '../sim/waves.js';
 import { h } from './dom.js';
 import { iconSvg, enemyIconName } from './icons.js';
-import { buildDirectorView } from './directorView.js';
+import { buildDirectorView, tiltMaxOf } from './directorView.js';
 import { directionMark } from './directionMark.js';
 import { renderTiltChart } from './directorChartView.js';
 
@@ -73,7 +73,7 @@ export function createDirectorOverlay({ root, game, log, toaster, onChange = () 
     const key = `${decision ? `${decision.wave}|${decision.reason}|${entries.length}` : 'none'}|${game.waves.phase}`;
     if (!force && key === lastKey) return;
     lastKey = key;
-    const view = buildDirectorView(decision, { tiltMax: config.director.tiltMax });
+    const view = buildDirectorView(decision, { tiltMax: tiltMaxOf(decision.mode) });
     title.textContent = view.title ?? 'Director';
     sub.textContent = decision ? `Wave ${view.wave} · ${REASON_TEXT[view.reason] ?? view.reason}` : 'No decision yet';
     rows.replaceChildren(...view.rows.map(renderRow));

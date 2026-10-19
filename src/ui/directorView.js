@@ -35,13 +35,19 @@ export function directionByType(decision, ratio = config.report.directionRatio) 
 }
 
 /**
- * The weights to plot for a decision: the HELD weights for adaptive (non-eligible waves report an applied tilt of 1), the applied tilt for random.
- * @param {{mode: string, scores: Record<string, number>, tilt: Record<string, number>}} decision @param {object} [cfg] config.director
+ * The weights to plot for a decision: the HELD weights for adaptive and adaptive2 (non-eligible waves report an applied tilt of 1), the applied tilt for random and counter.
+ * @param {{mode: string, scores: Record<string, number>, tilt: Record<string, number>}} decision @param {object} [cfg] config.director @param {object} [cfgV2] config.directorV2
  * @returns {Record<string, number>}
  */
-export function chartTilt(decision, cfg = config.director) {
-  return decision.mode === 'adaptive' ? tiltFromScores(decision.scores, cfg) : { ...decision.tilt };
+export function chartTilt(decision, cfg = config.director, cfgV2 = config.directorV2) {
+  if (decision.mode === 'adaptive') return tiltFromScores(decision.scores, cfg);
+  if (decision.mode === 'adaptive2') return tiltFromScores(decision.scores, cfgV2);
+  return { ...decision.tilt };
 }
+
+const VIEW_TITLES = Object.freeze({ random: 'Random control', adaptive2: 'Director v2', counter: 'Counter arm' });
+/** @param {string} mode @returns {number} the tilt limit of the mode's arm (for the overlay bars) */
+export const tiltMaxOf = (mode) => (mode === 'adaptive2' ? config.directorV2.tiltMax : mode === 'counter' ? config.counter.tiltMax : config.director.tiltMax);
 
 const ZERO_EVIDENCE = Object.freeze({ units: 0, leaked: 0, meanProgress: 0, reward: 0, advantage: 0 });
 
@@ -62,7 +68,7 @@ export function buildDirectorView(decision, { tiltMax, defs = ENEMIES }) {
     };
   });
   return {
-    mode: decision.mode, title: decision.mode === 'random' ? 'Random control' : 'Director', reason: decision.reason, eligible: decision.eligible,
+    mode: decision.mode, title: VIEW_TITLES[decision.mode] ?? 'Director', reason: decision.reason, eligible: decision.eligible,
     wave: decision.wave, basedOnWave: decision.basedOnWave, lines: [...decision.lines], rows,
   };
 }

@@ -20,6 +20,21 @@ const CHECKS = [
     name: 'adaptive game page', path: '/?seed=1&play=1&waves=15&mode=adaptive', wait: 2500, shot: 'smoke-adaptive.png',
     expr: `(() => { const hud = document.querySelector('.hud'); const parts = { canvas: !!document.querySelector('canvas#game'), hud015: !!hud && hud.textContent.includes('0 / 15'), waveControl: !!document.querySelector('.wave-control') }; return { ok: Object.values(parts).every(Boolean), detail: JSON.stringify(parts) }; })()`,
   },
+  ...[['adaptive2', 'Director v2'], ['counter', 'Counter arm']].map(([mode, title]) => ({
+    name: `${mode} research arm page`, path: `/?seed=1&play=1&waves=15&mode=${mode}`, wait: 2500, shot: `smoke-${mode}.png`,
+    expr: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const hud = document.querySelector('.hud');
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'i', code: 'KeyI' }));
+      await sleep(500);
+      const ov = document.querySelector('[data-director-overlay]');
+      const parts = {
+        canvas: !!document.querySelector('canvas#game'), hud015: !!hud && hud.textContent.includes('0 / 15'), waveControl: !!document.querySelector('.wave-control'),
+        overlayShown: !!ov && !ov.hidden, overlayTitle: ov ? ov.querySelector('.dov-title').textContent : null,
+      };
+      return { ok: parts.canvas && parts.hud015 && parts.waveControl && parts.overlayShown && parts.overlayTitle === ${JSON.stringify(title)}, detail: JSON.stringify(parts) };
+    })()`,
+  })),
   {
     name: 'director overlay (adaptive)', path: '/?seed=1&play=1&waves=15&mode=adaptive', wait: 2500, shot: 'smoke-overlay.png',
     expr: `(async () => {
