@@ -74,7 +74,7 @@ export const PROTOCOL = deepFreeze({
     estimands: {
       metrics: ['livesLost', 'won', 'finalWave', 'leakFraction', 'penetration'],
       pairs: [['random', 'static'], ['prior', 'random'], ['adaptive', 'prior'], ['adaptive2', 'prior'], ['adaptive', 'static'], ['adaptive2', 'static'], ['counter', 'static'], ['counter', 'prior']],
-      contrastWaves: [5, 9], contrastModes: ['adaptive', 'adaptive2', 'counter', 'prior', 'random'],
+      contrastWaves: [5, 9, 13], contrastModes: ['adaptive', 'adaptive2', 'counter', 'prior', 'random'],
       reporting: 'point estimate and 95% cluster bootstrap CI over seeds; no p-values',
     },
     sensitivity: ['K1 on all units instead of the reached-wave-5 population', 'K2 and K3 on the matched set of units observed at the primary wave in adaptive, adaptive2 and counter', 'leave-one-style-out recomputation of K1-K3'],

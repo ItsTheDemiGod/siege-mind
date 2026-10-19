@@ -56,6 +56,8 @@ test('docs/EXPERIMENT.md pre-registers amendment A3: hypotheses, estimands, proc
   for (const h of PROTOCOL.confirmatory.hypotheses) assert.ok(doc.includes(`**${h.id}**`), `hypothesis ${h.id}`);
   assert.ok(doc.includes('2001-2150') && doc.includes('4500 games') && doc.includes('phase-9a2b2-complete'));
   assert.ok(doc.includes('was NOT met'));
+  assert.ok(doc.includes('Planned power') && doc.includes('wave 13'));
+  assert.deepEqual([...PROTOCOL.confirmatory.estimands.contrastWaves], [5, 9, 13]);
 });
 
 test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the six figures', () => {

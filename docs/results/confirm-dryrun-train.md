@@ -1,6 +1,6 @@
 # EXPLORATORY DRY RUN ON TRAINING DATA: NOT CONFIRMATORY
 
-Protocol version 4, hash `60b7408915417a5ba91e6b597a91bd780b158e951c3f6dcf7c7802d97da29f74`.
+Protocol version 4, hash `6ff1e583210a9e00106cd123d502a660f2e79cc6cedb046f20de32a3ad0fe178`.
 
 ## How to read this
 
@@ -100,6 +100,25 @@ Coverage rule (smallest eligible wave >= 9 whose minimum coverage over adaptive,
 | 9 | counter | 15 | 55/71 | 77% | 0.341 | [0.229, 0.465] | - |
 | 9 | prior | 14 | 52/71 | 73% | 0.000 | [0.000, 0.000] | ok |
 | 9 | random | 15 | 54/71 | 76% | 0.000 | [0.000, 0.000] | ok |
+| 13 | adaptive | 12 | 46/71 | 65% | 0.294 | [0.150, 0.430] | - |
+| 13 | adaptive2 | 11 | 49/71 | 69% | 0.100 | [-0.016, 0.201] | - |
+| 13 | counter | 12 | 49/71 | 69% | 0.430 | [0.321, 0.561] | - |
+| 13 | prior | 12 | 47/71 | 66% | 0.000 | [0.000, 0.000] | ok |
+| 13 | random | 12 | 50/71 | 70% | 0.000 | [0.000, 0.000] | ok |
+
+## Fixed-wave style contrast on the matched set (units observed at that wave in adaptive, adaptive2 AND counter; descriptive)
+
+| wave | mode | matched units | seeds | estimate | 95% CI |
+| --- | --- | --- | --- | --- | --- |
+| 5 | adaptive | 71 | 18 | 0.009 | [-0.119, 0.135] |
+| 5 | adaptive2 | 71 | 18 | 0.008 | [-0.076, 0.093] |
+| 5 | counter | 71 | 18 | 0.386 | [0.234, 0.537] |
+| 9 | adaptive | 49 | 13 | 0.096 | [-0.068, 0.243] |
+| 9 | adaptive2 | 49 | 13 | 0.039 | [-0.068, 0.135] |
+| 9 | counter | 49 | 13 | 0.314 | [0.197, 0.455] |
+| 13 | adaptive | 43 | 10 | 0.282 | [0.142, 0.415] |
+| 13 | adaptive2 | 43 | 10 | 0.187 | [0.080, 0.311] |
+| 13 | counter | 43 | 10 | 0.410 | [0.292, 0.567] |
 
 ## Coverage at the primary wave 9
 

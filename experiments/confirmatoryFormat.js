@@ -24,6 +24,7 @@ function tables(r) {
   const metrics = [...new Set(r.estimands.map((e) => e.metric))];
   for (const metric of metrics) out.push({ title: `Estimand ${metric} (A - B, seed-level on the population; estimate and 95% cluster bootstrap CI, no p-values)`, headers: ['pair', 'seeds', 'estimate', '95% CI'], rows: r.estimands.filter((e) => e.metric === metric).map((e) => [e.pair, e.n, f(e.estimate), ci(e.ci95)]) });
   out.push({ title: 'Fixed-wave style contrast (unlocked predicted types only; estimate and 95% CI, no p-values)', headers: ['wave', 'mode', 'seeds', 'observed units', 'coverage', 'estimate', '95% CI', 'zero check'], rows: r.contrasts.map((c) => [c.wave, c.mode, c.n, `${c.unitsObserved}/${c.populationUnits}`, pct(c.coverage), f(c.estimate), ci(c.ci95), c.zeroCheck === undefined ? '-' : (c.zeroCheck ? 'ok' : 'VIOLATED')]) });
+  out.push({ title: 'Fixed-wave style contrast on the matched set (units observed at that wave in adaptive, adaptive2 AND counter; descriptive)', headers: ['wave', 'mode', 'matched units', 'seeds', 'estimate', '95% CI'], rows: r.contrasts.filter((c) => c.matched).map((c) => [c.wave, c.mode, c.matched.units, c.matched.n, f(c.matched.estimate), ci(c.matched.ci95)]) });
   const cv = r.coverageAtPrimary;
   out.push({ title: `Coverage at the primary wave ${cv.wave}`, headers: ['mode', 'observed', 'population', 'coverage'], rows: Object.entries(cv.perMode).map(([m, x]) => [m, x.observed, x.populationUnits, pct(x.coverage)]) });
   const s = r.sensitivity;

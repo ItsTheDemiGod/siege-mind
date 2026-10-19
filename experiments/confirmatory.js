@@ -76,10 +76,17 @@ export function analyzeConfirmatory(rows, { protocol = PROTOCOL, label = 'CONFIR
 
   // contrasts at the registered waves, with coverage and the zero-by-construction check
   const contrasts = [];
+  const matchModes = ['adaptive', 'adaptive2', 'counter'];
+  const commonAt = (wave) => matchModes.map((m) => observedUnits(pop.rows, m, wave)).reduce((a, b) => new Set([...a].filter((x) => b.has(x))));
   for (const wave of C.estimands.contrastWaves) for (const mode of C.estimands.contrastModes) {
     const c = contrastSeedValues(pop.rows, mode, wave, protocol, { unlockedOnly: true });
     const e = estimateOf(c.values, st);
     const entry = { wave, mode, n: e.n, unitsObserved: c.observedUnits, populationUnits: pop.units, coverage: r6(pop.units ? c.observedUnits / pop.units : 0), estimate: e.estimate, ci95: e.ci95, usedPairs: c.perPair.map((p) => `${p.style}->${p.type}`), perPair: c.perPair };
+    if (matchModes.includes(mode)) { // the matched-set version: only units observed at this wave in adaptive, adaptive2 AND counter
+      const common = commonAt(wave);
+      const m = contrastSeedValues(pop.rows.filter((r) => common.has(keyOf(r))), mode, wave, protocol, { unlockedOnly: true });
+      entry.matched = { units: common.size, ...estimateOf(m.values, st) };
+    }
     if (ZERO_BY_CONSTRUCTION.includes(mode)) entry.zeroCheck = e.estimate === null || Math.abs(e.estimate) < ZERO_TOLERANCE;
     contrasts.push(entry);
   }
@@ -94,8 +101,7 @@ export function analyzeConfirmatory(rows, { protocol = PROTOCOL, label = 'CONFIR
 
   // sensitivity analyses
   const k1all = seedValuesMetric(rows, allSeeds, 'livesLost', 'random', 'static');
-  const matchModes = ['adaptive', 'adaptive2', 'counter'];
-  const common = matchModes.map((m) => observedUnits(pop.rows, m, primary)).reduce((a, b) => new Set([...a].filter((x) => b.has(x))));
+  const common = commonAt(primary);
   const sub = pop.rows.filter((r) => common.has(keyOf(r)));
   const matched = Object.fromEntries(C.hypotheses.filter((h) => h.kind === 'contrast').map((h) => { const v = hypothesisValues(h, sub, allSeeds, protocol); return [h.id, estimateOf(v.values, st)]; }));
   const loso = C.hypotheses.map((h) => {

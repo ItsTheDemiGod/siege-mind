@@ -50,7 +50,10 @@ test('the confirmatory block is deep-frozen and has the registered structure', (
   for (const [a, b] of C.estimands.pairs) assert.ok(C.modes.includes(a) && C.modes.includes(b) && a !== b);
   for (const m of C.estimands.metrics) assert.ok(METRIC_COLUMNS.includes(m), m);
   for (const m of C.estimands.contrastModes) assert.ok(C.modes.includes(m));
-  assert.deepEqual([...C.estimands.contrastWaves], [5, 9]);
+  assert.deepEqual([...C.estimands.contrastWaves], [5, 9, 13]);
+  assert.ok(C.estimands.contrastWaves.every((w) => isAdaptiveEligible(w, config.director)));
+  assert.ok(C.estimands.contrastWaves.at(-1) > C.fixedWave.primary, 'wave 13 is later than the primary wave (descriptive only)');
+  assert.deepEqual([C.fixedWave.primary, C.fixedWave.secondary, C.hypotheses[1].wave, C.hypotheses[2].wave], [9, 5, 9, 9]);
   assert.match(C.estimands.reporting, /no p-values/);
   assert.equal(C.sensitivity.length, 3);
 });

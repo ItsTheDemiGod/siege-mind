@@ -33,6 +33,7 @@ function tbw(mode, style, seed) {
   const t = SHARED[mode] ? SHARED[mode] : tilt(OWN[mode][style]);
   a[4] = t;
   a[8] = t;
+  a[12] = t;
   return a;
 }
 function makeRows(patch = (r) => r) {
@@ -115,7 +116,7 @@ test('contrasts: unlocked-only pairs at wave 5, coverage below 1, zero checks fo
   near(c('adaptive', 5).estimate, 0.4);
   assert.equal(c('adaptive', 9).usedPairs.length, 3);
   assert.deepEqual([c('adaptive', 9).unitsObserved, c('adaptive', 9).populationUnits, c('adaptive', 9).coverage], [20, 20, 1]);
-  for (const mode of ['random', 'prior']) for (const wave of [5, 9]) assert.deepEqual([c(mode, wave).estimate, c(mode, wave).zeroCheck], [0, true]);
+  for (const mode of ['random', 'prior']) for (const wave of [5, 9, 13]) assert.deepEqual([c(mode, wave).estimate, c(mode, wave).zeroCheck], [0, true]);
   assert.equal(c('adaptive', 9).zeroCheck, undefined);
   const partial = run(makeRows((r) => (r.mode === 'adaptive' && r.style === 'sB' && r.seed === 3 ? { ...r, tiltByWave: r.tiltByWave.map((t, i) => (i === 8 ? null : t)) } : r)));
   const p9 = partial.contrasts.find((x) => x.mode === 'adaptive' && x.wave === 9);
@@ -127,6 +128,24 @@ test('contrasts: unlocked-only pairs at wave 5, coverage below 1, zero checks fo
   assert.equal(bad.contrasts.find((x) => x.mode === 'prior' && x.wave === 9).zeroCheck, false);
   assert.match(formatConfirmatory(bad), /WARNING: THE CONTRAST OF A MODE THAT CANNOT DEPEND ON THE DEFENSE IS NOT 0/);
   assert.doesNotMatch(formatConfirmatory(result), /WARNING/);
+});
+
+test('wave 13 is a descriptive contrast wave in the same format, with coverage, unlocked pairs and a matched-set version; K2 and K3 stay at wave 9', () => {
+  const c = (mode, wave) => result.contrasts.find((x) => x.mode === mode && x.wave === wave);
+  assert.equal(result.contrasts.length, 3 * 5);
+  assert.deepEqual(Object.keys(c('adaptive', 13)), Object.keys(c('adaptive', 9)));
+  assert.deepEqual([c('adaptive', 13).usedPairs.length, c('adaptive', 13).coverage, c('adaptive', 13).unitsObserved], [3, 1, 20]);
+  near(c('adaptive', 13).estimate, c('adaptive', 9).estimate);
+  assert.deepEqual([c('adaptive', 13).matched.units, c('adaptive', 13).matched.n], [20, 7]);
+  near(c('adaptive', 13).matched.estimate, c('adaptive', 13).estimate);
+  assert.equal(c('random', 13).matched, undefined, 'the matched-set version exists for adaptive, adaptive2 and counter only');
+  assert.deepEqual(result.confirmatory.map((k) => k.id), ['K1', 'K2', 'K3']);
+  near(k('K2').estimate, c('adaptive', 9).estimate);
+  const partial = run(makeRows((r) => (r.mode === 'counter' && r.style === 'sA' && r.seed === 2 ? { ...r, tiltByWave: r.tiltByWave.map((t, i) => (i === 12 ? null : t)) } : r)));
+  const p13 = partial.contrasts.find((x) => x.mode === 'adaptive' && x.wave === 13);
+  assert.equal(p13.matched.units, 19, 'one counter unit missing at wave 13 shrinks the matched set');
+  assert.equal(p13.coverage, 1, 'the plain coverage of adaptive is unchanged');
+  assert.match(formatConfirmatory(result), /Fixed-wave style contrast on the matched set/);
 });
 
 test('coverage rule block: computed from counts, with the registered values next to it', () => {

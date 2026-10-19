@@ -2,7 +2,7 @@
  "label": "EXPLORATORY DRY RUN",
  "banner": "EXPLORATORY DRY RUN ON TRAINING DATA: NOT CONFIRMATORY",
  "protocolVersion": 4,
- "protocolHash": "60b7408915417a5ba91e6b597a91bd780b158e951c3f6dcf7c7802d97da29f74",
+ "protocolHash": "6ff1e583210a9e00106cd123d502a660f2e79cc6cedb046f20de32a3ad0fe178",
  "completeness": {
   "complete": true,
   "expected": 600,
@@ -627,7 +627,16 @@
      "n": 16,
      "mean": 0.131093
     }
-   ]
+   ],
+   "matched": {
+    "units": 71,
+    "n": 18,
+    "estimate": 0.009431,
+    "ci95": [
+     -0.118945,
+     0.135285
+    ]
+   }
   },
   {
    "wave": 5,
@@ -658,7 +667,16 @@
      "n": 16,
      "mean": 0.090705
     }
-   ]
+   ],
+   "matched": {
+    "units": 71,
+    "n": 18,
+    "estimate": 0.008473,
+    "ci95": [
+     -0.075867,
+     0.092966
+    ]
+   }
   },
   {
    "wave": 5,
@@ -689,7 +707,16 @@
      "n": 16,
      "mean": 0.376223
     }
-   ]
+   ],
+   "matched": {
+    "units": 71,
+    "n": 18,
+    "estimate": 0.385855,
+    "ci95": [
+     0.234498,
+     0.5373
+    ]
+   }
   },
   {
    "wave": 5,
@@ -798,7 +825,16 @@
      "n": 6,
      "mean": 0.30121
     }
-   ]
+   ],
+   "matched": {
+    "units": 49,
+    "n": 13,
+    "estimate": 0.096006,
+    "ci95": [
+     -0.067977,
+     0.242705
+    ]
+   }
   },
   {
    "wave": 9,
@@ -843,7 +879,16 @@
      "n": 8,
      "mean": 0.09407
     }
-   ]
+   ],
+   "matched": {
+    "units": 49,
+    "n": 13,
+    "estimate": 0.038825,
+    "ci95": [
+     -0.068039,
+     0.135156
+    ]
+   }
   },
   {
    "wave": 9,
@@ -888,7 +933,16 @@
      "n": 8,
      "mean": 0.121667
     }
-   ]
+   ],
+   "matched": {
+    "units": 49,
+    "n": 13,
+    "estimate": 0.313815,
+    "ci95": [
+     0.196517,
+     0.455147
+    ]
+   }
   },
   {
    "wave": 9,
@@ -977,6 +1031,260 @@
      "style": "noSniper",
      "type": "shieldedBruiser",
      "n": 8,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  },
+  {
+   "wave": 13,
+   "mode": "adaptive",
+   "n": 12,
+   "unitsObserved": 46,
+   "populationUnits": 71,
+   "coverage": 0.647887,
+   "estimate": 0.293727,
+   "ci95": [
+    0.149817,
+    0.430041
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.101003
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.244207
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0.241573
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.623245
+    }
+   ],
+   "matched": {
+    "units": 43,
+    "n": 10,
+    "estimate": 0.282418,
+    "ci95": [
+     0.142,
+     0.415156
+    ]
+   }
+  },
+  {
+   "wave": 13,
+   "mode": "adaptive2",
+   "n": 11,
+   "unitsObserved": 49,
+   "populationUnits": 71,
+   "coverage": 0.690141,
+   "estimate": 0.0999,
+   "ci95": [
+    -0.016402,
+    0.201012
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0.013918
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0.153993
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 8,
+     "mean": 0.039575
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 4,
+     "mean": 0.293192
+    }
+   ],
+   "matched": {
+    "units": 43,
+    "n": 10,
+    "estimate": 0.186861,
+    "ci95": [
+     0.08041,
+     0.310945
+    ]
+   }
+  },
+  {
+   "wave": 13,
+   "mode": "counter",
+   "n": 12,
+   "unitsObserved": 49,
+   "populationUnits": 71,
+   "coverage": 0.690141,
+   "estimate": 0.4298,
+   "ci95": [
+    0.320903,
+    0.561399
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 6,
+     "mean": 0.481894
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0.518489
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0.415904
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 5,
+     "mean": 0.151637
+    }
+   ],
+   "matched": {
+    "units": 43,
+    "n": 10,
+    "estimate": 0.410255,
+    "ci95": [
+     0.291768,
+     0.567049
+    ]
+   }
+  },
+  {
+   "wave": 13,
+   "mode": "prior",
+   "n": 12,
+   "unitsObserved": 47,
+   "populationUnits": 71,
+   "coverage": 0.661972,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 5,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 12,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 4,
+     "mean": 0
+    }
+   ],
+   "zeroCheck": true
+  },
+  {
+   "wave": 13,
+   "mode": "random",
+   "n": 12,
+   "unitsObserved": 50,
+   "populationUnits": 71,
+   "coverage": 0.704225,
+   "estimate": 0,
+   "ci95": [
+    0,
+    0
+   ],
+   "usedPairs": [
+    "noLance->armoredGrunt",
+    "noMortar->swarmling",
+    "noPoison->regenerator",
+    "noSniper->shieldedBruiser"
+   ],
+   "perPair": [
+    {
+     "style": "noLance",
+     "type": "armoredGrunt",
+     "n": 7,
+     "mean": 0
+    },
+    {
+     "style": "noMortar",
+     "type": "swarmling",
+     "n": 11,
+     "mean": 0
+    },
+    {
+     "style": "noPoison",
+     "type": "regenerator",
+     "n": 6,
+     "mean": 0
+    },
+    {
+     "style": "noSniper",
+     "type": "shieldedBruiser",
+     "n": 6,
      "mean": 0
     }
    ],
