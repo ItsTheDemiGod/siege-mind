@@ -9,7 +9,7 @@ import { METRIC_COLUMNS } from '../experiments/metrics.js';
 test('the protocol is frozen all the way down and has the registered shape', () => {
   const frozen = (o) => Object.isFrozen(o) && Object.values(o).every((v) => (v && typeof v === 'object' ? frozen(v) : true));
   assert.ok(frozen(PROTOCOL));
-  assert.equal(PROTOCOL.version, 1);
+  assert.equal(PROTOCOL.version, 2); // approved reversal (Phase 8B): amendment A1 bumped the version
   assert.equal(PROTOCOL.waves, 15);
   assert.equal(PROTOCOL.startLives, config.game.startLives);
   assert.deepEqual([...PROTOCOL.styles], ['balancedR', 'lanceHeavy', 'mortarHeavy', 'poisonHeavy', 'sniperHeavy']);
@@ -90,4 +90,17 @@ test('protocolHash is deterministic and changes with any knob', () => {
   assert.notEqual(hashOf(copy), protocolHash());
   const reordered = JSON.parse(JSON.stringify(PROTOCOL));
   assert.equal(hashOf(Object.fromEntries(Object.entries(reordered).reverse())), protocolHash(), 'key order does not matter');
+});
+
+test('amendment A1 is registered and is part of the hash', () => {
+  assert.deepEqual(PROTOCOL.amendments.map((a) => a.id), ['A1']);
+  const a1 = PROTOCOL.amendments[0];
+  assert.deepEqual([...a1.affects], ['tilt_*', 'tiltAligned', 'tiltObserved', 'T1']);
+  assert.equal(a1.madeAfterSeeingTuningResults, true);
+  assert.equal(a1.madeBeforeHeldout, true);
+  assert.ok(a1.summary.length > 20);
+  assert.match(PROTOCOL.hypotheses.find((h) => h.id === 'T1').label, /last eligible wave/);
+  const without = JSON.parse(JSON.stringify(PROTOCOL));
+  delete without.amendments;
+  assert.notEqual(hashOf(without), protocolHash());
 });

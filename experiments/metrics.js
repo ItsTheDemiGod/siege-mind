@@ -1,9 +1,7 @@
 // Per-game metrics from a telemetry run (pure). Definitions are pre-registered in docs/EXPERIMENT.md.
-import { config } from '../src/data/config.js';
 import { ENEMY_ORDER } from '../src/data/enemies.js';
 import { TOWER_ORDER } from '../src/data/towers.js';
 import { roundTo } from '../src/sim/telemetrySchema.js';
-import { tiltFromScores } from '../src/sim/directorMath.js';
 
 const TILTS = ENEMY_ORDER.map((t) => `tilt_${t}`);
 const SHARES = TOWER_ORDER.map((t) => `dmgShare_${t}`);
@@ -11,7 +9,7 @@ const SHARES = TOWER_ORDER.map((t) => `dmgShare_${t}`);
 /** Columns of a result row, in file order (the array field livesLostByWave is JSON-only). */
 export const METRIC_COLUMNS = Object.freeze([
   'style', 'mode', 'seed', 'result', 'won', 'finalWave', 'completedWaves', 'livesLeft', 'livesLost', 'minutes', 'spawnedThreat', 'leakedUnits', 'leakedThreat',
-  'leakFraction', 'penetration', 'towersBuilt', 'upgrades', ...SHARES, 'eligibleWaves', 'adaptedWaves', 'meanShiftFrac', ...TILTS, 'tiltAligned',
+  'leakFraction', 'penetration', 'towersBuilt', 'upgrades', ...SHARES, 'eligibleWaves', 'adaptedWaves', 'meanShiftFrac', ...TILTS, 'tiltObserved', 'tiltAligned',
 ]);
 
 const r6 = (x) => roundTo(x, 6);
@@ -19,12 +17,15 @@ const r6 = (x) => roundTo(x, 6);
 /** @param {object} d a Director decision record @returns {number} half the L1 distance between final and template shares */
 const shiftOf = (d) => 0.5 * ENEMY_ORDER.reduce((n, t) => n + Math.abs(d.finalShares[t] - d.templateShares[t]), 0);
 
-/** Final held weights: the scores of the last Director record turned into tilts (adaptive), its applied tilt (random), all 1 (static). */
+/**
+ * Final tilt (amendment A1): the applied tilt of the LAST wave record whose director.eligible is true, the same rule for adaptive and random.
+ * Static runs, and games that ended before any eligible wave, have no observation: all tilts are 1 and observed is 0.
+ */
 function finalTilts(run) {
   const ones = Object.fromEntries(ENEMY_ORDER.map((t) => [t, 1]));
-  const last = [...run.waves].reverse().find((w) => w.director);
-  if (!last || run.meta.mode === 'static') return ones;
-  return run.meta.mode === 'adaptive' ? tiltFromScores(last.director.scores, config.director) : { ...last.director.tilt };
+  if (run.meta.mode === 'static') return { tilts: ones, observed: 0 };
+  const last = [...run.waves].reverse().find((w) => w.director && w.director.eligible);
+  return last ? { tilts: { ...last.director.tilt }, observed: 1 } : { tilts: ones, observed: 0 };
 }
 
 /**
@@ -50,7 +51,7 @@ export function metricsFromRun(run) {
   const towerDamage = TOWER_ORDER.reduce((n, t) => n + by[t], 0);
   const withDirector = run.waves.filter((w) => w.director);
   const eligible = withDirector.filter((w) => w.director.eligible);
-  const tilts = finalTilts(run);
+  const { tilts, observed } = finalTilts(run);
   const m = {
     result: run.result.result ?? 'unfinished',
     won: run.result.result === 'won' ? 1 : 0,
@@ -72,6 +73,7 @@ export function metricsFromRun(run) {
   m.adaptedWaves = eligible.filter((w) => w.director.reason === 'adapted').length;
   m.meanShiftFrac = r6(eligible.length ? eligible.reduce((n, w) => n + shiftOf(w.director), 0) / eligible.length : 0);
   ENEMY_ORDER.forEach((t, i) => { m[TILTS[i]] = r6(tilts[t]); });
+  m.tiltObserved = observed;
   m.livesLostByWave = Array.from({ length: run.meta.totalWaves }, (_, i) => run.waves.find((w) => w.wave === i + 1)?.livesLost ?? null);
   return m;
 }
@@ -79,10 +81,10 @@ export function metricsFromRun(run) {
 /**
  * Did the final weights lean toward the types this style is predicted to be weak against?
  * @param {string} style @param {Record<string, number>} tiltRow an object with tilt_<type> fields @param {Record<string, string[]|null>} predictions @param {number} threshold
- * @returns {1|0|null} null when the style has no prediction
+ * @returns {1|0|null} null when the style has no prediction or the row has tiltObserved 0
  */
 export function tiltAlignedOf(style, tiltRow, predictions, threshold) {
   const predicted = predictions[style];
-  if (!predicted) return null;
+  if (!predicted || tiltRow.tiltObserved === 0) return null; // no prediction for this style, or no eligible wave was observed
   return Math.max(...predicted.map((t) => tiltRow[`tilt_${t}`])) >= threshold ? 1 : 0;
 }

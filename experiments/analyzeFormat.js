@@ -41,7 +41,7 @@ function sections(r) {
       title: `Tilt alignment (a final weight of at least ${tilt.threshold} on a predicted type)`, headers: ['style', 'predicted', 'adaptive', 'adaptive 95%', 'random', 'random 95%'],
       rows: Object.entries(tilt.perStyle).map(([s, a]) => [s, a.predictedTypes.join('+'), pct(a.adaptive.rate), ci(a.adaptive.wilson), pct(a.random.rate), ci(a.random.wilson)]),
     },
-    tilts: { title: 'Mean final weight per enemy type, adaptive mode (95% CI over seeds)', headers: ['style', ...types], rows: Object.entries(tilt.tilts).map(([s, t]) => [s, ...types.map((x) => `${f(t[x].mean, 2)} ${ci(t[x].ci95)}`)]) },
+    tilts: { title: `Mean final weight per enemy type, adaptive mode (95% CI over seeds; ${tilt.rowsUsed.adaptive} games used, ${tilt.rowsExcluded.adaptive} excluded: no eligible wave reached; random: ${tilt.rowsUsed.random} used, ${tilt.rowsExcluded.random} excluded)`, headers: ['style', ...types], rows: Object.entries(tilt.tilts).map(([s, t]) => [s, ...types.map((x) => `${f(t[x].mean, 2)} ${ci(t[x].ci95)}`)]) },
     descriptiveTables: lines,
     guard: { title: 'Static win rate per style (the calibration guard)', headers: ['style', 'win rate'], rows: [...Object.entries(r.staticWinRateGuard.perStyle).map(([s, v]) => [s, pct(v)]), ['mean', pct(r.staticWinRateGuard.mean)]] },
     power: { title: 'Power (80%, alpha 0.05): seeds needed for the primary comparisons', headers: ['id', 'sd of seed diffs', 'observed effect', 'seeds for observed effect', 'seeds for half the effect'], rows: Object.entries(r.power).map(([id, p]) => [id, f(p.sdSeedDiffs), f(p.observedEffect), p.nForObservedEffect ?? '-', p.nForHalfEffect ?? '-']) },

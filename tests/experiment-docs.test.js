@@ -22,3 +22,11 @@ test('docs/EXPERIMENT.md matches the registered seed sets, knobs and thresholds'
   assert.ok(doc.includes(String(PROTOCOL.stats.seed)));
   assert.ok(doc.includes(String(PROTOCOL.stats.alignmentThreshold)));
 });
+
+test('docs/EXPERIMENT.md documents amendment A1 and the planned next steps', () => {
+  assert.ok(doc.includes('Amendments'));
+  assert.ok(doc.includes('A1'));
+  assert.ok(doc.includes('tiltObserved'));
+  assert.ok(doc.includes('Planned next steps'));
+  assert.ok(doc.includes('AFTER the tuning-set results had been seen'));
+});

@@ -25,7 +25,7 @@ function makeRows() {
         const predicted = protocol.tiltPredictions[style];
         const aligned = predicted === null || mode === 'static' ? null : mode === 'adaptive' ? (seed <= 9 ? 1 : 0) : (seed <= 3 ? 1 : 0);
         const row = {
-          style, mode, seed, won: 1, finalWave: 15, livesLost: 2 + si + extra, leakFraction: 0.05 + 0.01 * extra, penetration: 0.3 + 0.02 * extra, minutes: 18, towersBuilt: 20, tiltAligned: aligned,
+          style, mode, seed, tiltObserved: mode === 'static' ? 0 : 1, won: 1, finalWave: 15, livesLost: 2 + si + extra, leakFraction: 0.05 + 0.01 * extra, penetration: 0.3 + 0.02 * extra, minutes: 18, towersBuilt: 20, tiltAligned: aligned,
         };
         for (const t of ENEMY_ORDER) row[`tilt_${t}`] = mode === 'adaptive' ? 1.2 : 1;
         rows.push(row);
@@ -89,6 +89,20 @@ test('tilt alignment rates, pooled result, tilts and the static guard', () => {
   near(result.power.P1.observedEffect, 4);
   assert.ok(result.power.P1.nForObservedEffect >= 1);
   assert.equal(result.power.P1.nForHalfEffect >= result.power.P1.nForObservedEffect, true);
+});
+
+test('A1: rows with tiltObserved 0 are excluded from tilt statistics only', () => {
+  const altered = rows.map((r) => (r.mode === 'adaptive' && r.style === 'lanceHeavy' && r.seed <= 2 ? { ...r, tiltObserved: 0, tiltAligned: null, tilt_swarmling: 9 } : r));
+  const r = analyze(altered, protocol, { set: 'x' });
+  assert.equal(r.tiltAlignment.rowsExcluded.adaptive, 2);
+  assert.equal(r.tiltAlignment.rowsUsed.adaptive, 36 - 2);
+  assert.equal(r.tiltAlignment.rowsExcluded.random, 0);
+  near(r.tiltAlignment.tilts.lanceHeavy.swarmling.mean, 1.2); // the 9s were not used
+  assert.equal(r.tiltAlignment.perStyle.lanceHeavy.adaptive.n, 10);
+  assert.equal(r.descriptive.livesLost.byMode.adaptive.n, 36); // every other statistic still uses all rows
+  assert.equal(r.descriptive.livesLost.byStyleMode.lanceHeavy.adaptive.n, 12);
+  near(r.hypotheses.find((h) => h.id === 'P1').meanDiff, 4);
+  assert.ok(formatAnalysis(r).includes('2 excluded'));
 });
 
 test('descriptive tables', () => {

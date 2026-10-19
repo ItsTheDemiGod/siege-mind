@@ -48,7 +48,7 @@ Differences are always metric(mode A) minus metric(mode B), computed per (style,
 - **livesLost**: the start lives (20) minus the lives left; a lost game counts as 20. **won**: 1 for a victory. **finalWave**: the wave reached when the game ended.
 - **leakFraction**: leaked threat divided by spawned threat (threat = units times the enemy's threat cost), so it is comparable across compositions.
 - **penetration**: the threat-weighted mean path progress of all enemies at death or leak (a leak counts as 1).
-- **tiltAligned**: 1 when the **final tilt** of a predicted type is at least 1.15. The final tilt is the Director's held weight after the last wave: for adaptive the tilt computed from the scores of the last record, for random the tilt applied in the last record, 1 for static.
+- **tiltAligned**: 1 when the **final tilt** of a predicted type is at least 1.15. The final tilt (amendment A1) is the applied tilt (`director.tilt`) of the LAST wave record whose `director.eligible` is true, the same rule for adaptive and random; static runs have all tilts 1. The column `tiltObserved` is 1 when an adaptive or random game reached at least one eligible wave, otherwise 0; `tiltAligned` is null when `tiltObserved` is 0 or the style has no prediction.
 - Also recorded: minutes, towers and upgrades, damage shares per tower, adapted waves and the mean share shift (see `experiments/metrics.js`).
 
 ## Analysis plan
@@ -65,6 +65,14 @@ Seeds are the clusters: the same seed with different modes shares its random cho
 - Bot strength is calibrated on static outcomes only; the pooled analysis averages five styles, so a style-specific effect can be diluted (per-style results are reported).
 - Many secondary comparisons (Holm handles the multiplicity inside the family).
 - Director parameters may be tuned in Phase 9, on the tuning seed set only; the held-out set then gives one evaluation.
+
+## Amendments
+
+**A1 (protocol version 2): where the final weights are measured.** In Phase 8A the final tilt was the last wave record's applied tilt (random) or the held weights computed from the scores of the last record (adaptive). In random mode a game whose last wave record is a non-eligible wave (a fixed or introduction wave, or any wave before 5) reports a tilt of exactly 1 for every type, while adaptive uses held weights, so the two modes were measured differently and the random tilt-alignment rate was biased low. The new rule, for both modes: the final tilt is the applied tilt of the last wave record with `director.eligible` true, plus the flag `tiltObserved`. **Chronology:** this problem was noticed AFTER the tuning-set results had been seen (the Phase 8A analysis). The amendment concerns only the measurement of the final tilt; it changes no hypothesis, no metric behind P1-P2, S1-S8 or C1, and no seed set, and it was made before any held-out run. The Phase 8A tuning outputs are kept under docs/results/archive (tuning-v1.*), the tuning set was re-run under A1 (every column other than the tilt columns is identical, checked unit by unit) and docs/results/amendment-A1.md compares the two definitions.
+
+## Planned next steps (written before any held-out run)
+
+Director v2 will be developed using ONLY the tuning seeds; the v1 tuning results are reported as the "before"; the held-out set will be run once through the lock with the final Director.
 
 ## Status after Phase 8A (exploratory, tuning set)
 

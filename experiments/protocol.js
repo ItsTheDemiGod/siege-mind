@@ -11,8 +11,11 @@ const deepFreeze = (o) => {
 const hyp = (id, family, metric, modeA, modeB, direction, label) => ({ id, family, metric, modeA, modeB, direction, label });
 
 export const PROTOCOL = deepFreeze({
-  version: 1,
+  version: 2,
   waves: 15,
+  amendments: [
+    { id: 'A1', summary: 'The final enemy weights are measured at the last ELIGIBLE wave (director.tilt) for adaptive and random alike, with a tiltObserved flag.', affects: ['tilt_*', 'tiltAligned', 'tiltObserved', 'T1'], madeAfterSeeingTuningResults: true, madeBeforeHeldout: true },
+  ],
   startLives: 20,
   styles: ['balancedR', 'lanceHeavy', 'mortarHeavy', 'poisonHeavy', 'sniperHeavy'],
   modes: ['static', 'adaptive', 'random'],
@@ -43,7 +46,7 @@ export const PROTOCOL = deepFreeze({
     hyp('S6', 'secondary', 'penetration', 'adaptive', 'random', 'greater', 'Enemies get further along the path under adaptive than random'),
     hyp('S7', 'secondary', 'finalWave', 'adaptive', 'static', 'less', 'The final wave reached is lower under adaptive than static'),
     hyp('S8', 'secondary', 'finalWave', 'adaptive', 'random', 'less', 'The final wave reached is lower under adaptive than random'),
-    hyp('T1', 'secondary', 'tiltAligned', 'adaptive', 'random', 'greater', 'The final weights lean toward the predicted enemy types more often under adaptive than random'),
+    hyp('T1', 'secondary', 'tiltAligned', 'adaptive', 'random', 'greater', 'The final weights lean toward the predicted enemy types more often under adaptive than random (final weights measured at the last eligible wave)'),
     hyp('C1', 'descriptive', 'livesLost', 'random', 'static', 'greater', 'Composition variability alone (random versus static) costs lives'),
   ],
 });

@@ -40,7 +40,8 @@ test('hand-built adaptive run: every field has its hand-computed value', () => {
     leakFraction: 0.409091, penetration: 0.718182, towersBuilt: 7, upgrades: 2,
     dmgShare_lance: 0.2, dmgShare_mortar: 0.6, dmgShare_frost: 0, dmgShare_poison: 0.2, dmgShare_sniper: 0,
     eligibleWaves: 2, adaptedWaves: 1, meanShiftFrac: 0.1,
-    tilt_armoredGrunt: 0.5, tilt_swarmling: 1.5, tilt_fastRunner: 1, tilt_regenerator: 3, tilt_shieldedBruiser: 0.333333,
+    // approved reversal (Phase 8B, amendment A1): the final tilt is the applied tilt of the last ELIGIBLE record, not the held weights
+    tilt_armoredGrunt: 0.4, tilt_swarmling: 2.5, tilt_fastRunner: 1, tilt_regenerator: 1.2, tilt_shieldedBruiser: 0.9, tiltObserved: 1,
   };
   for (const [k, v] of Object.entries(expected)) assert.equal(m[k], v, k);
   assert.deepEqual(m.livesLostByWave, [0, 2, 18, ...Array(12).fill(null)]);
@@ -50,11 +51,45 @@ test('hand-built adaptive run: every field has its hand-computed value', () => {
 test('static runs have tilt 1, no adapted waves and no shift; random runs take the applied tilt of the last record', () => {
   const s = metricsFromRun(miniRun('static'));
   for (const t of ENEMY_ORDER) assert.equal(s[`tilt_${t}`], 1);
+  assert.equal(s.tiltObserved, 0);
   assert.deepEqual([s.eligibleWaves, s.adaptedWaves, s.meanShiftFrac], [0, 0, 0]);
   const r = metricsFromRun(miniRun('random'));
   assert.deepEqual([r.tilt_armoredGrunt, r.tilt_swarmling, r.tilt_fastRunner, r.tilt_regenerator, r.tilt_shieldedBruiser], [0.4, 2.5, 1, 1.2, 0.9]);
+  assert.equal(r.tiltObserved, 1);
   assert.equal(r.adaptedWaves, 0);
   assert.equal(r.eligibleWaves, 2);
+});
+
+test('A1: the last ELIGIBLE record is used even when later records are not eligible (both modes)', () => {
+  for (const mode of ['adaptive', 'random']) {
+    const run = miniRun(mode);
+    run.waves[1].director.tilt = shares({ armoredGrunt: 0.7, swarmling: 1.9, fastRunner: 1.3, regenerator: 1, shieldedBruiser: 1 });
+    run.waves[2].director.eligible = false;
+    run.waves[2].director.reason = 'static-fixed';
+    run.waves[2].director.tilt = shares({ armoredGrunt: 1, swarmling: 1, fastRunner: 1, regenerator: 1, shieldedBruiser: 1 });
+    const m = metricsFromRun(run);
+    assert.deepEqual([m.tilt_armoredGrunt, m.tilt_swarmling, m.tilt_fastRunner, m.tiltObserved], [0.7, 1.9, 1.3, 1], mode);
+  }
+});
+
+test('A1: adaptive tilts are the applied tilt of the record, not tiltFromScores of its scores', () => {
+  const run = miniRun('adaptive');
+  run.waves[2].director.scores = shares({ armoredGrunt: 4, swarmling: -4 }); // would give 3 and 1/3 under the Phase 8A definition
+  const m = metricsFromRun(run);
+  assert.deepEqual([m.tilt_armoredGrunt, m.tilt_swarmling], [0.4, 2.5]);
+});
+
+test('A1: a game with no eligible record, and static games, have tiltObserved 0, tilts 1 and no alignment', () => {
+  const none = miniRun('adaptive');
+  for (const w of none.waves) w.director.eligible = false;
+  const m = metricsFromRun(none);
+  assert.equal(m.tiltObserved, 0);
+  for (const t of ENEMY_ORDER) assert.equal(m[`tilt_${t}`], 1);
+  assert.equal(tiltAlignedOf('lanceHeavy', { ...m, tilt_swarmling: 5 }, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold), null, 'tiltObserved 0 gives null even with a high tilt');
+  const s = metricsFromRun(miniRun('static'));
+  assert.equal(s.tiltObserved, 0);
+  assert.equal(tiltAlignedOf('mortarHeavy', s, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold), null);
+  assert.equal(tiltAlignedOf('mortarHeavy', { ...metricsFromRun(miniRun('adaptive')), tilt_fastRunner: 1.2 }, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold), 1);
 });
 
 test('a won game with no damage or threat does not divide by zero', () => {
@@ -99,6 +134,13 @@ test('a real run reconciles with the playthrough in every mode', () => {
     assert.deepEqual(metricsFromRun(r.run), m);
   }
   assert.equal(metricsFromRun(real.static.run).tilt_swarmling, 1);
+  assert.equal(metricsFromRun(real.static.run).tiltObserved, 0);
+  for (const mode of ['adaptive', 'random']) {
+    const last = [...real[mode].run.waves].reverse().find((w) => w.director.eligible);
+    const m = metricsFromRun(real[mode].run);
+    assert.equal(m.tiltObserved, 1, mode);
+    for (const t of ENEMY_ORDER) assert.equal(m[`tilt_${t}`], Math.round(last.director.tilt[t] * 1e6) / 1e6, `${mode} ${t}`);
+  }
   assert.ok(metricsFromRun(real.adaptive.run).adaptedWaves >= 1);
   assert.ok(metricsFromRun(real.adaptive.run).meanShiftFrac > 0);
   assert.equal(metricsFromRun(real.static.run).livesLost, 12);

@@ -28,7 +28,7 @@ export function runUnit({ style, mode, seed, waves = PROTOCOL.waves, knobs = PRO
   const problems = validateRun(r.run);
   if (problems.length > 0) throw new Error(`unit ${name} produced an invalid run: ${problems.slice(0, 3).join('; ')}`);
   const m = metricsFromRun(r.run);
-  const tiltAligned = mode === 'adaptive' || mode === 'random' ? tiltAlignedOf(style, m, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold) : null;
+  const tiltAligned = tiltAlignedOf(style, m, PROTOCOL.tiltPredictions, PROTOCOL.stats.alignmentThreshold); // null for static (tiltObserved 0) and styles without a prediction
   const all = { style, mode, seed, ...m, tiltAligned };
   const row = {};
   for (const c of METRIC_COLUMNS) row[c] = all[c];

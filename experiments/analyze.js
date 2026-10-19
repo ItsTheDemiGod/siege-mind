@@ -91,7 +91,7 @@ function tiltSection(rows, protocol, hypotheses) {
   for (const [style, predicted] of Object.entries(protocol.tiltPredictions)) {
     if (!predicted) continue;
     const rate = (mode) => {
-      const v = rows.filter((r) => r.style === style && r.mode === mode).map((r) => r.tiltAligned);
+      const v = rows.filter((r) => r.style === style && r.mode === mode && r.tiltObserved === 1 && r.tiltAligned !== null).map((r) => r.tiltAligned);
       const k = v.reduce((a, b) => a + b, 0);
       return { rate: r6(mean(v)), wilson: rCI(wilson(k, v.length)), n: v.length };
     };
@@ -101,11 +101,14 @@ function tiltSection(rows, protocol, hypotheses) {
   for (const style of protocol.styles) {
     tilts[style] = {};
     for (const t of ENEMY_ORDER) {
-      const v = rows.filter((r) => r.style === style && r.mode === 'adaptive').map((r) => r[`tilt_${t}`]);
+      const v = rows.filter((r) => r.style === style && r.mode === 'adaptive' && r.tiltObserved === 1).map((r) => r[`tilt_${t}`]);
       tilts[style][t] = { mean: r6(mean(v)), ci95: rCI(bootstrapCI(v, { resamples: st.bootstrapResamples, alpha: st.alpha, seed: st.seed })) };
     }
   }
-  return { threshold: st.alignmentThreshold, perStyle: alignment, pooled: hypotheses.find((h) => h.id === 'T1') ?? null, tilts };
+  const count = (mode, observed) => rows.filter((r) => r.mode === mode && (r.tiltObserved === 1) === observed).length;
+  const rowsUsed = { adaptive: count('adaptive', true), random: count('random', true) };
+  const rowsExcluded = { adaptive: count('adaptive', false), random: count('random', false) }; // no eligible wave was reached: tilts are not observed
+  return { threshold: st.alignmentThreshold, perStyle: alignment, pooled: hypotheses.find((h) => h.id === 'T1') ?? null, tilts, rowsUsed, rowsExcluded };
 }
 
 /**
