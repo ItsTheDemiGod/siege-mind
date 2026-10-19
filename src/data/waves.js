@@ -1,7 +1,8 @@
 // The 30-wave static script: budget formula, hand-authored templates and a pure builder (no DOM, no randomness).
 // STATIC_THREAT is the REALIZED threat of each wave; the future Adaptive Director must spend STATIC_THREAT[w], not the formula target.
 import { config } from './config.js';
-import { ENEMIES, ENEMY_ORDER } from './enemies.js';
+import { ENEMY_ORDER } from './enemies.js';
+import { composeGroups, pickCost } from './waveCompose.js';
 
 export const TOTAL_WAVES = 30;
 
@@ -95,41 +96,6 @@ export const WAVE_TEMPLATES = Object.freeze([
   tpl(30, 'The Siege', true, share(0.25, 0.2, 0.15, 0.2, 0.2)),
 ]);
 
-const pickCost = (type) => ENEMIES[type].threatCost * ENEMIES[type].packSize;
-
-/**
- * Pick counts per type for a budget: floors, then at least one pick for every positive share when affordable,
- * then largest-remainder additions while they bring the total closer to the budget.
- * @param {number} budget @param {Record<string, number>} shares
- * @returns {Record<string, number>}
- */
-function pickCounts(budget, shares) {
-  const picks = {};
-  const ideal = {};
-  let allocated = 0;
-  for (const type of ENEMY_ORDER) {
-    ideal[type] = shares[type] > 0 ? (budget * shares[type]) / pickCost(type) : 0;
-    picks[type] = Math.floor(ideal[type]);
-    allocated += picks[type] * pickCost(type);
-  }
-  for (const type of ENEMY_ORDER) { // every present type shows up once if the budget allows it
-    if (shares[type] > 0 && picks[type] === 0 && allocated + pickCost(type) <= budget) { picks[type] = 1; allocated += pickCost(type); }
-  }
-  for (;;) { // largest remainder first, ties by ENEMY_ORDER; only while it moves the total closer to the budget
-    let best = null;
-    let bestRem = -Infinity;
-    for (const type of ENEMY_ORDER) {
-      if (!(shares[type] > 0)) continue;
-      const rem = ideal[type] - picks[type];
-      if (Math.abs(allocated + pickCost(type) - budget) < Math.abs(allocated - budget) && rem > bestRem) { best = type; bestRem = rem; }
-    }
-    if (!best) break;
-    picks[best]++;
-    allocated += pickCost(best);
-  }
-  return picks;
-}
-
 /**
  * Turn budgets and templates into spawn plans. Pure.
  * @param {readonly number[]} budgets @param {readonly object[]} templates @param {typeof config.waves} cfg
@@ -137,16 +103,8 @@ function pickCounts(budget, shares) {
  */
 export function buildStaticWaves(budgets, templates, cfg) {
   return Object.freeze(templates.map((t, i) => {
-    const counts = pickCounts(budgets[i], t.shares);
-    const window = Math.min(cfg.windowMaxSeconds, cfg.windowBaseSeconds + cfg.windowPerWave * t.wave);
-    const present = ENEMY_ORDER.filter((type) => counts[type] > 0);
-    const groups = present.map((type, groupIndex) => Object.freeze({
-      type,
-      picks: counts[type],
-      startSeconds: cfg.startStaggerSeconds * groupIndex,
-      gapSeconds: Math.max(window / counts[type], cfg.minGapSeconds[type]), // never below the minimum gap: the window stretches instead
-    }));
-    return Object.freeze({ wave: t.wave, name: t.name, fixed: t.fixed, groups: Object.freeze(groups) });
+    const groups = Object.freeze(composeGroups({ wave: t.wave, shares: t.shares, targetThreat: budgets[i], cfg, fit: false }));
+    return Object.freeze({ wave: t.wave, name: t.name, fixed: t.fixed, groups });
   }));
 }
 
@@ -169,4 +127,22 @@ export function waveInfo(w) {
   if (!Number.isInteger(w) || w < 1 || w > TOTAL_WAVES) throw new RangeError(`wave must be an integer 1..${TOTAL_WAVES}, got ${String(w)}`);
   const p = STATIC_WAVES[w - 1];
   return { wave: w, name: p.name, fixed: p.fixed, budget: BUDGETS[w - 1], threat: STATIC_THREAT[w - 1], hpMult: hpMultiplierForWave(w) };
+}
+
+/** First wave in which each enemy type may appear (the first wave whose template gives it a positive share). */
+export const INTRO_WAVES = Object.freeze({ armoredGrunt: 1, swarmling: 3, fastRunner: 4, regenerator: 6, shieldedBruiser: 8 });
+
+/** @param {string} type @param {number} wave @returns {boolean} true once the type has been introduced */
+export const isTypeUnlocked = (type, wave) => wave >= INTRO_WAVES[type];
+
+/** @param {number} wave @returns {boolean} true for the waves that introduce a new enemy type after wave 1 (3, 4, 6, 8) */
+export const isIntroWave = (wave) => ENEMY_ORDER.some((type) => INTRO_WAVES[type] > 1 && INTRO_WAVES[type] === wave);
+
+/**
+ * @param {number} wave @param {{firstAdaptiveWave: number}} directorCfg
+ * @returns {boolean} true when the Director may change this wave's composition
+ */
+export function isAdaptiveEligible(wave, directorCfg) {
+  if (!Number.isInteger(wave) || wave < 1 || wave > TOTAL_WAVES) return false;
+  return !WAVE_TEMPLATES[wave - 1].fixed && !isIntroWave(wave) && wave >= directorCfg.firstAdaptiveWave;
 }

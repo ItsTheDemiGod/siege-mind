@@ -1,0 +1,986 @@
+[
+  {
+    "wave": 1,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 4,
+        "startSeconds": 0,
+        "gapSeconds": 3.2
+      }
+    ]
+  },
+  {
+    "wave": 2,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 6,
+        "startSeconds": 0,
+        "gapSeconds": 2.2666666666666666
+      }
+    ]
+  },
+  {
+    "wave": 3,
+    "name": "First Swarm",
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 5,
+        "startSeconds": 0,
+        "gapSeconds": 2.88
+      },
+      {
+        "type": "swarmling",
+        "picks": 2,
+        "startSeconds": 0.8,
+        "gapSeconds": 7.2
+      }
+    ]
+  },
+  {
+    "wave": 4,
+    "name": "Speed Run",
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 5,
+        "startSeconds": 0,
+        "gapSeconds": 3.04
+      },
+      {
+        "type": "swarmling",
+        "picks": 2,
+        "startSeconds": 0.8,
+        "gapSeconds": 7.6
+      },
+      {
+        "type": "fastRunner",
+        "picks": 4,
+        "startSeconds": 1.6,
+        "gapSeconds": 3.8
+      }
+    ]
+  },
+  {
+    "wave": 5,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 4,
+        "startSeconds": 0,
+        "gapSeconds": 4
+      },
+      {
+        "type": "swarmling",
+        "picks": 4,
+        "startSeconds": 0.8,
+        "gapSeconds": 4
+      },
+      {
+        "type": "fastRunner",
+        "picks": 3,
+        "startSeconds": 1.6,
+        "gapSeconds": 5.333333333333333
+      }
+    ]
+  },
+  {
+    "wave": 6,
+    "name": "Regrowth",
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 7,
+        "startSeconds": 0,
+        "gapSeconds": 2.4
+      },
+      {
+        "type": "swarmling",
+        "picks": 2,
+        "startSeconds": 0.8,
+        "gapSeconds": 8.4
+      },
+      {
+        "type": "fastRunner",
+        "picks": 5,
+        "startSeconds": 1.6,
+        "gapSeconds": 3.3600000000000003
+      },
+      {
+        "type": "regenerator",
+        "picks": 2,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 8.4
+      }
+    ]
+  },
+  {
+    "wave": 7,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 6,
+        "startSeconds": 0,
+        "gapSeconds": 2.9333333333333336
+      },
+      {
+        "type": "swarmling",
+        "picks": 1,
+        "startSeconds": 0.8,
+        "gapSeconds": 17.6
+      },
+      {
+        "type": "fastRunner",
+        "picks": 13,
+        "startSeconds": 1.6,
+        "gapSeconds": 1.353846153846154
+      },
+      {
+        "type": "regenerator",
+        "picks": 3,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 5.866666666666667
+      }
+    ]
+  },
+  {
+    "wave": 8,
+    "name": "Iron Skin",
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 8,
+        "startSeconds": 0,
+        "gapSeconds": 2.3
+      },
+      {
+        "type": "swarmling",
+        "picks": 2,
+        "startSeconds": 0.8,
+        "gapSeconds": 9.2
+      },
+      {
+        "type": "fastRunner",
+        "picks": 5,
+        "startSeconds": 1.6,
+        "gapSeconds": 3.6799999999999997
+      },
+      {
+        "type": "regenerator",
+        "picks": 2,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 9.2
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 3,
+        "startSeconds": 3.2,
+        "gapSeconds": 6.133333333333333
+      }
+    ]
+  },
+  {
+    "wave": 9,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 10,
+        "startSeconds": 0,
+        "gapSeconds": 1.92
+      },
+      {
+        "type": "swarmling",
+        "picks": 3,
+        "startSeconds": 0.8,
+        "gapSeconds": 6.3999999999999995
+      },
+      {
+        "type": "fastRunner",
+        "picks": 8,
+        "startSeconds": 1.6,
+        "gapSeconds": 2.4
+      },
+      {
+        "type": "regenerator",
+        "picks": 4,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 4.8
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 1,
+        "startSeconds": 3.2,
+        "gapSeconds": 19.2
+      }
+    ]
+  },
+  {
+    "wave": 10,
+    "name": "The Vanguard",
+    "fixed": true,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 18,
+        "startSeconds": 0,
+        "gapSeconds": 1.1111111111111112
+      },
+      {
+        "type": "regenerator",
+        "picks": 4,
+        "startSeconds": 0.8,
+        "gapSeconds": 5
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 5,
+        "startSeconds": 1.6,
+        "gapSeconds": 4
+      }
+    ]
+  },
+  {
+    "wave": 11,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 21,
+        "startSeconds": 0,
+        "gapSeconds": 0.9904761904761905
+      },
+      {
+        "type": "swarmling",
+        "picks": 3,
+        "startSeconds": 0.8,
+        "gapSeconds": 6.933333333333334
+      },
+      {
+        "type": "fastRunner",
+        "picks": 5,
+        "startSeconds": 1.6,
+        "gapSeconds": 4.16
+      },
+      {
+        "type": "regenerator",
+        "picks": 3,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 6.933333333333334
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 2,
+        "startSeconds": 3.2,
+        "gapSeconds": 10.4
+      }
+    ]
+  },
+  {
+    "wave": 12,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 7,
+        "startSeconds": 0,
+        "gapSeconds": 3.085714285714286
+      },
+      {
+        "type": "swarmling",
+        "picks": 10,
+        "startSeconds": 0.8,
+        "gapSeconds": 2.16
+      },
+      {
+        "type": "fastRunner",
+        "picks": 9,
+        "startSeconds": 1.6,
+        "gapSeconds": 2.4000000000000004
+      },
+      {
+        "type": "regenerator",
+        "picks": 3,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 7.2
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 2,
+        "startSeconds": 3.2,
+        "gapSeconds": 10.8
+      }
+    ]
+  },
+  {
+    "wave": 13,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 8,
+        "startSeconds": 0,
+        "gapSeconds": 2.8
+      },
+      {
+        "type": "swarmling",
+        "picks": 3,
+        "startSeconds": 0.8,
+        "gapSeconds": 7.466666666666666
+      },
+      {
+        "type": "fastRunner",
+        "picks": 34,
+        "startSeconds": 1.6,
+        "gapSeconds": 1
+      },
+      {
+        "type": "regenerator",
+        "picks": 4,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 5.6
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 2,
+        "startSeconds": 3.2,
+        "gapSeconds": 11.2
+      }
+    ]
+  },
+  {
+    "wave": 14,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 9,
+        "startSeconds": 0,
+        "gapSeconds": 2.577777777777778
+      },
+      {
+        "type": "swarmling",
+        "picks": 2,
+        "startSeconds": 0.8,
+        "gapSeconds": 11.600000000000001
+      },
+      {
+        "type": "fastRunner",
+        "picks": 7,
+        "startSeconds": 1.6,
+        "gapSeconds": 3.3142857142857145
+      },
+      {
+        "type": "regenerator",
+        "picks": 19,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 1.2210526315789476
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 4,
+        "startSeconds": 3.2,
+        "gapSeconds": 5.800000000000001
+      }
+    ]
+  },
+  {
+    "wave": 15,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 10,
+        "startSeconds": 0,
+        "gapSeconds": 2.4
+      },
+      {
+        "type": "swarmling",
+        "picks": 3,
+        "startSeconds": 0.8,
+        "gapSeconds": 8
+      },
+      {
+        "type": "fastRunner",
+        "picks": 8,
+        "startSeconds": 1.6,
+        "gapSeconds": 3
+      },
+      {
+        "type": "regenerator",
+        "picks": 6,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 4
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 14,
+        "startSeconds": 3.2,
+        "gapSeconds": 1.7142857142857142
+      }
+    ]
+  },
+  {
+    "wave": 16,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 34,
+        "startSeconds": 0,
+        "gapSeconds": 0.7294117647058824
+      },
+      {
+        "type": "swarmling",
+        "picks": 6,
+        "startSeconds": 0.8,
+        "gapSeconds": 4.133333333333334
+      },
+      {
+        "type": "fastRunner",
+        "picks": 14,
+        "startSeconds": 1.6,
+        "gapSeconds": 1.7714285714285716
+      },
+      {
+        "type": "regenerator",
+        "picks": 4,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 6.2
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 3,
+        "startSeconds": 3.2,
+        "gapSeconds": 8.266666666666667
+      }
+    ]
+  },
+  {
+    "wave": 17,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 16,
+        "startSeconds": 0,
+        "gapSeconds": 1.6
+      },
+      {
+        "type": "swarmling",
+        "picks": 5,
+        "startSeconds": 0.8,
+        "gapSeconds": 5.12
+      },
+      {
+        "type": "fastRunner",
+        "picks": 46,
+        "startSeconds": 1.6,
+        "gapSeconds": 1
+      },
+      {
+        "type": "regenerator",
+        "picks": 5,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 5.12
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 3,
+        "startSeconds": 3.2,
+        "gapSeconds": 8.533333333333333
+      }
+    ]
+  },
+  {
+    "wave": 18,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 17,
+        "startSeconds": 0,
+        "gapSeconds": 1.552941176470588
+      },
+      {
+        "type": "swarmling",
+        "picks": 4,
+        "startSeconds": 0.8,
+        "gapSeconds": 6.6
+      },
+      {
+        "type": "fastRunner",
+        "picks": 11,
+        "startSeconds": 1.6,
+        "gapSeconds": 2.4
+      },
+      {
+        "type": "regenerator",
+        "picks": 25,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 1.056
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 5,
+        "startSeconds": 3.2,
+        "gapSeconds": 5.279999999999999
+      }
+    ]
+  },
+  {
+    "wave": 19,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 19,
+        "startSeconds": 0,
+        "gapSeconds": 1.4315789473684213
+      },
+      {
+        "type": "swarmling",
+        "picks": 6,
+        "startSeconds": 0.8,
+        "gapSeconds": 4.533333333333334
+      },
+      {
+        "type": "fastRunner",
+        "picks": 12,
+        "startSeconds": 1.6,
+        "gapSeconds": 2.266666666666667
+      },
+      {
+        "type": "regenerator",
+        "picks": 6,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 4.533333333333334
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 18,
+        "startSeconds": 3.2,
+        "gapSeconds": 1.5111111111111113
+      }
+    ]
+  },
+  {
+    "wave": 20,
+    "name": "Tide of Swarm",
+    "fixed": true,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 15,
+        "startSeconds": 0,
+        "gapSeconds": 1.8666666666666667
+      },
+      {
+        "type": "swarmling",
+        "picks": 24,
+        "startSeconds": 0.8,
+        "gapSeconds": 2
+      },
+      {
+        "type": "fastRunner",
+        "picks": 39,
+        "startSeconds": 1.6,
+        "gapSeconds": 1
+      }
+    ]
+  },
+  {
+    "wave": 21,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 56,
+        "startSeconds": 0,
+        "gapSeconds": 0.5142857142857143
+      },
+      {
+        "type": "swarmling",
+        "picks": 7,
+        "startSeconds": 0.8,
+        "gapSeconds": 4.114285714285715
+      },
+      {
+        "type": "fastRunner",
+        "picks": 14,
+        "startSeconds": 1.6,
+        "gapSeconds": 2.0571428571428574
+      },
+      {
+        "type": "regenerator",
+        "picks": 7,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 4.114285714285715
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 7,
+        "startSeconds": 3.2,
+        "gapSeconds": 4.114285714285715
+      }
+    ]
+  },
+  {
+    "wave": 22,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 18,
+        "startSeconds": 0,
+        "gapSeconds": 1.6444444444444446
+      },
+      {
+        "type": "swarmling",
+        "picks": 25,
+        "startSeconds": 0.8,
+        "gapSeconds": 2
+      },
+      {
+        "type": "fastRunner",
+        "picks": 23,
+        "startSeconds": 1.6,
+        "gapSeconds": 1.2869565217391306
+      },
+      {
+        "type": "regenerator",
+        "picks": 8,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 3.7
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 5,
+        "startSeconds": 3.2,
+        "gapSeconds": 5.92
+      }
+    ]
+  },
+  {
+    "wave": 23,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 20,
+        "startSeconds": 0,
+        "gapSeconds": 1.5
+      },
+      {
+        "type": "swarmling",
+        "picks": 8,
+        "startSeconds": 0.8,
+        "gapSeconds": 3.75
+      },
+      {
+        "type": "fastRunner",
+        "picks": 82,
+        "startSeconds": 1.6,
+        "gapSeconds": 1
+      },
+      {
+        "type": "regenerator",
+        "picks": 8,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 3.75
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 5,
+        "startSeconds": 3.2,
+        "gapSeconds": 6
+      }
+    ]
+  },
+  {
+    "wave": 24,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 21,
+        "startSeconds": 0,
+        "gapSeconds": 1.4285714285714286
+      },
+      {
+        "type": "swarmling",
+        "picks": 6,
+        "startSeconds": 0.8,
+        "gapSeconds": 5
+      },
+      {
+        "type": "fastRunner",
+        "picks": 17,
+        "startSeconds": 1.6,
+        "gapSeconds": 1.7647058823529411
+      },
+      {
+        "type": "regenerator",
+        "picks": 43,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 0.8
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 9,
+        "startSeconds": 3.2,
+        "gapSeconds": 3.3333333333333335
+      }
+    ]
+  },
+  {
+    "wave": 25,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 23,
+        "startSeconds": 0,
+        "gapSeconds": 1.3043478260869565
+      },
+      {
+        "type": "swarmling",
+        "picks": 6,
+        "startSeconds": 0.8,
+        "gapSeconds": 5
+      },
+      {
+        "type": "fastRunner",
+        "picks": 19,
+        "startSeconds": 1.6,
+        "gapSeconds": 1.5789473684210527
+      },
+      {
+        "type": "regenerator",
+        "picks": 14,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 2.142857142857143
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 31,
+        "startSeconds": 3.2,
+        "gapSeconds": 1
+      }
+    ]
+  },
+  {
+    "wave": 26,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 71,
+        "startSeconds": 0,
+        "gapSeconds": 0.4225352112676056
+      },
+      {
+        "type": "swarmling",
+        "picks": 13,
+        "startSeconds": 0.8,
+        "gapSeconds": 2.3076923076923075
+      },
+      {
+        "type": "fastRunner",
+        "picks": 30,
+        "startSeconds": 1.6,
+        "gapSeconds": 1
+      },
+      {
+        "type": "regenerator",
+        "picks": 10,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 3
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 7,
+        "startSeconds": 3.2,
+        "gapSeconds": 4.285714285714286
+      }
+    ]
+  },
+  {
+    "wave": 27,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 34,
+        "startSeconds": 0,
+        "gapSeconds": 0.8823529411764706
+      },
+      {
+        "type": "swarmling",
+        "picks": 11,
+        "startSeconds": 0.8,
+        "gapSeconds": 2.727272727272727
+      },
+      {
+        "type": "fastRunner",
+        "picks": 95,
+        "startSeconds": 1.6,
+        "gapSeconds": 1
+      },
+      {
+        "type": "regenerator",
+        "picks": 10,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 3
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 7,
+        "startSeconds": 3.2,
+        "gapSeconds": 4.285714285714286
+      }
+    ]
+  },
+  {
+    "wave": 28,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 36,
+        "startSeconds": 0,
+        "gapSeconds": 0.8333333333333334
+      },
+      {
+        "type": "swarmling",
+        "picks": 8,
+        "startSeconds": 0.8,
+        "gapSeconds": 3.75
+      },
+      {
+        "type": "fastRunner",
+        "picks": 22,
+        "startSeconds": 1.6,
+        "gapSeconds": 1.3636363636363635
+      },
+      {
+        "type": "regenerator",
+        "picks": 51,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 0.8
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 11,
+        "startSeconds": 3.2,
+        "gapSeconds": 2.727272727272727
+      }
+    ]
+  },
+  {
+    "wave": 29,
+    "name": null,
+    "fixed": false,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 38,
+        "startSeconds": 0,
+        "gapSeconds": 0.7894736842105263
+      },
+      {
+        "type": "swarmling",
+        "picks": 12,
+        "startSeconds": 0.8,
+        "gapSeconds": 2.5
+      },
+      {
+        "type": "fastRunner",
+        "picks": 24,
+        "startSeconds": 1.6,
+        "gapSeconds": 1.25
+      },
+      {
+        "type": "regenerator",
+        "picks": 12,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 2.5
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 36,
+        "startSeconds": 3.2,
+        "gapSeconds": 1
+      }
+    ]
+  },
+  {
+    "wave": 30,
+    "name": "The Siege",
+    "fixed": true,
+    "groups": [
+      {
+        "type": "armoredGrunt",
+        "picks": 50,
+        "startSeconds": 0,
+        "gapSeconds": 0.6
+      },
+      {
+        "type": "swarmling",
+        "picks": 17,
+        "startSeconds": 0.8,
+        "gapSeconds": 2
+      },
+      {
+        "type": "fastRunner",
+        "picks": 38,
+        "startSeconds": 1.6,
+        "gapSeconds": 1
+      },
+      {
+        "type": "regenerator",
+        "picks": 25,
+        "startSeconds": 2.4000000000000004,
+        "gapSeconds": 1.2
+      },
+      {
+        "type": "shieldedBruiser",
+        "picks": 17,
+        "startSeconds": 3.2,
+        "gapSeconds": 1.7647058823529411
+      }
+    ]
+  }
+]
