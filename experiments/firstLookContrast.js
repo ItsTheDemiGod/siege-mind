@@ -13,7 +13,7 @@ const keyOf = (r) => `${r.style}|${r.seed}`;
  * a predicted type t: value = tilt_t(s) - mean over the other styles of S (same seed and mode, observed at W) of tilt_t; the seed value is the mean of its pairs.
  * @param {object[]} popRows rows of the population units @param {string} mode @param {number} W 1-based wave @param {{styles: string[], tiltPredictions: object}} protocol
  * @param {{unlockedOnly?: boolean}} [o] unlockedOnly drops pairs whose predicted type is not yet unlocked at W
- * @returns {{seeds: number[], values: number[], perPair: {style: string, type: string, n: number, mean: number}[], observedUnits: number}}
+ * @returns {{seeds: number[], values: number[], perPair: {style: string, type: string, n: number, mean: number}[], pairValues: {seed: number, style: string, type: string, v: number}[], observedUnits: number}} pairValues are the per-seed values the means are built from
  */
 export function contrastSeedValues(popRows, mode, W, protocol, { unlockedOnly = false } = {}) {
   const cell = new Map();
@@ -23,6 +23,7 @@ export function contrastSeedValues(popRows, mode, W, protocol, { unlockedOnly = 
   const kept = [];
   const values = [];
   const pairAcc = new Map();
+  const pairValues = [];
   for (const seed of seeds) {
     const pairs = [];
     for (const s of S) {
@@ -33,13 +34,14 @@ export function contrastSeedValues(popRows, mode, W, protocol, { unlockedOnly = 
         if (unlockedOnly && !isTypeUnlocked(t, W)) continue;
         const v = r6(own[t] - mean(refs.map((x) => x[t])));
         pairs.push(v);
+        pairValues.push({ seed, style: s, type: t, v });
         (pairAcc.get(`${s}|${t}`) ?? pairAcc.set(`${s}|${t}`, []).get(`${s}|${t}`)).push(v);
       }
     }
     if (pairs.length) { kept.push(seed); values.push(mean(pairs)); }
   }
   const perPair = [...pairAcc.entries()].map(([k, v]) => { const [style, type] = k.split('|'); return { style, type, n: v.length, mean: r6(mean(v)) }; }).sort((a, b) => (a.style + a.type < b.style + b.type ? -1 : 1));
-  return { seeds: kept, values, perPair, observedUnits: cell.size };
+  return { seeds: kept, values, perPair, pairValues, observedUnits: cell.size };
 }
 
 /** Style contrast at a fixed wave W for one mode with its summary statistics (the first look's table row). */
