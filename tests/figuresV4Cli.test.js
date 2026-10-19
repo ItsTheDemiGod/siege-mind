@@ -10,9 +10,11 @@ import { syntheticRows, FAST_PROTOCOL } from './figuresV4Fixtures.js';
 
 test('parseFiguresV4Args has the documented defaults, overrides them and rejects unknown arguments', () => {
   assert.deepEqual(parseFiguresV4Args([]), DEFAULTS);
-  assert.deepEqual(DEFAULTS, { heldout: 'docs/results/heldout-confirmatory.json', training: 'docs/results/confirm-dryrun-train.json', rows: 'docs/results/heldout.rows.json', out: 'docs/results/figures-final' });
+  assert.deepEqual(DEFAULTS, { heldout: 'docs/results/heldout-confirmatory.json', training: 'docs/results/confirm-dryrun-train.json', rows: 'docs/results/heldout.rows.json', trainingRows: 'docs/results/firstlook-train6.rows.json', out: 'docs/results/figures-final' });
   assert.equal(parseFiguresV4Args(['--out=x/y', '--rows=r.json']).out, 'x/y');
   assert.equal(parseFiguresV4Args(['--rows=r.json']).rows, 'r.json');
+  assert.equal(parseFiguresV4Args(['--training-rows=t.json']).trainingRows, 't.json');
+  assert.equal(parseFiguresV4Args([]).trainingRows, 'docs/results/firstlook-train6.rows.json');
   assert.throws(() => parseFiguresV4Args(['--bogus=1']), /unknown argument/);
   assert.throws(() => parseFiguresV4Args(['--out']), /unknown argument/);
 });
@@ -21,10 +23,11 @@ function setup() {
   const dir = mkdtempSync(join(tmpdir(), 'figv4-'));
   const rows = syntheticRows({ seeds: 8 });
   const heldout = analyzeConfirmatory(rows, { protocol: FAST_PROTOCOL, label: 'CONFIRMATORY' });
-  const training = analyzeConfirmatory(rows, { protocol: FAST_PROTOCOL, label: 'EXPLORATORY DRY RUN' });
+  const trainRows = syntheticRows({ seeds: 20, firstSeed: 1001 });
+  const training = analyzeConfirmatory(trainRows, { protocol: FAST_PROTOCOL, label: 'EXPLORATORY DRY RUN' });
   const write = (name, o) => { const p = join(dir, name); writeFileSync(p, JSON.stringify(o)); return p; };
   const rowsFile = { protocolVersion: 4, protocolHash: heldout.protocolHash, codeHash: 'code', gitCommit: 'abc', set: 'heldout', runIndex: 1, rows };
-  return { dir, heldout, training, rowsFile, paths: { heldout: write('h.json', heldout), training: write('t.json', training), rows: write('r.json', rowsFile) } };
+  return { dir, heldout, training, rowsFile, paths: { heldout: write('h.json', heldout), training: write('t.json', training), rows: write('r.json', rowsFile), trainingRows: write('tr.json', { set: 'tuning', rows: trainRows }) }, trainRows };
 }
 
 function quiet(fn) {
@@ -39,7 +42,7 @@ test('the CLI writes the six figures and an index that references every figure, 
   const s = setup();
   try {
     const out = join(s.dir, 'out');
-    const args = [`--heldout=${s.paths.heldout}`, `--training=${s.paths.training}`, `--rows=${s.paths.rows}`, `--out=${out}`];
+    const args = [`--heldout=${s.paths.heldout}`, `--training=${s.paths.training}`, `--rows=${s.paths.rows}`, `--training-rows=${s.paths.trainingRows}`, `--out=${out}`];
     assert.equal(quiet(() => main(args)).code, 0);
     const names = readdirSync(out).sort();
     assert.deepEqual(names, [...FIGURES_V4.map((f) => f.file), 'index.html'].sort());
@@ -58,8 +61,8 @@ test('the CLI refuses missing inputs, a training file passed as --heldout and mi
   const s = setup();
   try {
     const out = join(s.dir, 'out2');
-    const base = { heldout: s.paths.heldout, training: s.paths.training, rows: s.paths.rows };
-    const run = (o) => quiet(() => main([`--heldout=${o.heldout}`, `--training=${o.training}`, `--rows=${o.rows}`, `--out=${out}`]));
+    const base = { heldout: s.paths.heldout, training: s.paths.training, rows: s.paths.rows, trainingRows: s.paths.trainingRows };
+    const run = (o) => quiet(() => main([`--heldout=${o.heldout}`, `--training=${o.training}`, `--rows=${o.rows}`, `--training-rows=${o.trainingRows}`, `--out=${out}`]));
     let r = run({ ...base, heldout: join(s.dir, 'missing.json') });
     assert.equal(r.code, 1);
     assert.match(r.msgs.join(' '), /cannot read the held-out analysis/);
@@ -71,8 +74,17 @@ test('the CLI refuses missing inputs, a training file passed as --heldout and mi
     writeFileSync(join(s.dir, 'bad.json'), JSON.stringify({ ...s.rowsFile, protocolHash: 'other' }));
     r = run({ ...base, rows: join(s.dir, 'bad.json') });
     assert.match(r.msgs.join(' '), /different protocol hashes/);
+    r = run({ ...base, trainingRows: join(s.dir, 'no-train.json') });
+    assert.equal(r.code, 1);
+    assert.match(r.msgs.join(' '), /cannot read the training rows/);
+    writeFileSync(join(s.dir, 'wrong.json'), JSON.stringify({ set: 'heldout', rows: s.trainRows }));
+    r = run({ ...base, trainingRows: join(s.dir, 'wrong.json') });
+    assert.match(r.msgs.join(' '), /must come from the tuning set/);
+    writeFileSync(join(s.dir, 'short.json'), JSON.stringify({ set: 'tuning', rows: s.trainRows.slice(1) }));
+    r = run({ ...base, trainingRows: join(s.dir, 'short.json') });
+    assert.match(r.msgs.join(' '), /missing units/);
     assert.equal(quiet(() => main(['--nope'])).code, 2);
     assert.ok(!existsSync(out), 'nothing is written on failure');
-    assert.throws(() => buildAll({ heldout: s.heldout, training: s.training, rowsFile: { ...s.rowsFile, set: 'tuning' } }), /not a held-out rows file/);
+    assert.throws(() => buildAll({ heldout: s.heldout, training: s.training, rowsFile: { ...s.rowsFile, set: 'tuning' }, trainingRows: s.trainRows }), /not a held-out rows file/);
   } finally { rmSync(s.dir, { recursive: true, force: true }); }
 });

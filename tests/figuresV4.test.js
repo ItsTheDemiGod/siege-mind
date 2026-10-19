@@ -3,17 +3,19 @@ import assert from 'node:assert/strict';
 import { fig1Confirmatory, fig2Attribution, fig3Estimands, fig4ContrastByWave, fig5Replication, fig6PairContrasts, FIGURES_V4 } from '../experiments/figuresV4/figures.js';
 import { MODE_STYLE, MODE_LABEL, STATUS_STYLE } from '../experiments/figuresV4/palette.js';
 import { shapePath } from '../experiments/figuresV4/markers.js';
-import { makeAnalysis } from './figuresV4Fixtures.js';
+import { makeAliasedAnalysis, makeAnalysis } from './figuresV4Fixtures.js';
+import { FEW_UNITS } from '../experiments/resultsDocParts.js';
 
-const inputs = () => ({ heldout: makeAnalysis('CONFIRMATORY'), training: makeAnalysis('EXPLORATORY DRY RUN', -0.125) });
-const pairs = () => [9, 5].flatMap((wave) => ['adaptive', 'adaptive2', 'counter'].flatMap((mode) => [
-  { wave, mode, style: 'noLance', type: 'armoredGrunt', mean: 0.125, ci95: [0.0625, 0.1875], seeds: 7, units: 8 },
-  { wave, mode, style: 'noMortar', type: 'swarmling', mean: 0.25, ci95: [0.125, 0.375], seeds: 6, units: 8 },
-  ...(wave === 9 ? [{ wave, mode, style: 'noPoison', type: 'regenerator', mean: 0.0625, ci95: [-0.0625, 0.1875], seeds: 5, units: 6 }, { wave, mode, style: 'noSniper', type: 'shieldedBruiser', mean: 0.3125, ci95: [0.25, 0.375], seeds: 5, units: 6 }] : []),
-]));
+const inputs = () => ({ heldout: makeAliasedAnalysis('CONFIRMATORY'), training: makeAliasedAnalysis('EXPLORATORY DRY RUN', -0.125) });
+const side = (e, units) => ({ estimate: e, ci95: [e - 0.0625, e + 0.0625], seeds: 7, units });
+/** replicationPairTable-shaped rows: wave 9 has four pairs, wave 5 two (the others are locked); trainingUnits sets the training count of every row. */
+const pairRows = (trainingUnits = 8) => [9, 5].flatMap((wave) => ['adaptive', 'adaptive2', 'counter'].flatMap((mode) => [
+  ['noLance -> armoredGrunt', 0.125], ['noMortar -> swarmling', 0.25],
+  ...(wave === 9 ? [['noPoison -> regenerator', 0.0625], ['noSniper -> shieldedBruiser', 0.3125]] : []),
+].map(([pair, ho]) => ({ wave, mode, pair, heldout: side(ho, 60), training: side(ho - 0.0625, trainingUnits), overlap: true, sameSign: true, diff: 0.0625 }))));
 const BUILD = {
   'fig1-confirmatory.svg': () => fig1Confirmatory(inputs()), 'fig2-attribution.svg': () => fig2Attribution(inputs()), 'fig3-estimands.svg': () => fig3Estimands(inputs()),
-  'fig4-contrast-by-wave.svg': () => fig4ContrastByWave(inputs()), 'fig5-replication.svg': () => fig5Replication(inputs()), 'fig6-pair-contrasts.svg': () => fig6PairContrasts(inputs(), pairs()),
+  'fig4-contrast-by-wave.svg': () => fig4ContrastByWave(inputs()), 'fig5-replication.svg': () => fig5Replication(inputs()), 'fig6-pair-contrasts.svg': () => fig6PairContrasts(inputs(), pairRows()),
 };
 const count = (s, needle) => s.split(needle).length - 1;
 
@@ -128,17 +130,35 @@ test('fig4 labels coverage, zero by construction and the confirmatory wave', () 
 test('fig5 tags the rows whose intervals do not overlap or whose sign differs', () => {
   const svg = fig5Replication(inputs()); // training shift -0.125: every interval overlaps and no sign changes except where the estimate crosses 0
   assert.equal(count(svg, '>no overlap<'), 0);
-  const far = { heldout: makeAnalysis('CONFIRMATORY'), training: makeAnalysis('EXPLORATORY DRY RUN', -0.75) };
+  const far = { heldout: makeAliasedAnalysis('CONFIRMATORY'), training: makeAliasedAnalysis('EXPLORATORY DRY RUN', -0.75) };
   const s2 = fig5Replication(far);
   checkXml(s2);
   assert.ok(count(s2, '>no overlap<') > 0 && count(s2, '>sign differs<') > 0);
   assert.ok(s2.includes('rows are tagged'));
 });
 
-test('fig6 has the post hoc tag, both waves and rejects empty input', () => {
-  const svg = fig6PairContrasts(inputs(), pairs());
+test('fig6 draws a held-out and a training series per mode on every row, tags thin training data and rejects empty input', () => {
+  const svg = fig6PairContrasts(inputs(), pairRows());
+  checkXml(svg);
   assert.ok(svg.includes('Wave 9:') && svg.includes('Wave 5:'));
   assert.ok(svg.includes('noSniper -&gt; shieldedBruiser'));
-  assert.ok(svg.includes('Director v1: 0.13 (n 7)'));
-  assert.throws(() => fig6PairContrasts(inputs(), []), /needs the per-pair contrasts/);
+  assert.ok(svg.includes('Director v1: held-out 0.13, training 0.06'));
+  for (const mode of ['adaptive', 'adaptive2', 'counter']) {
+    assert.equal(count(svg, `data-series="${mode}|heldout"`), 6, mode); // six rows
+    assert.equal(count(svg, `data-series="${mode}|training"`), 6, mode);
+  }
+  assert.equal(count(svg, '>few training units<'), 6);
+  assert.ok(svg.replace(/<[^>]+>/g, " ").replace(/\s+/g, ' ').includes(`fewer than ${FEW_UNITS} training units`));
+  const enough = fig6PairContrasts(inputs(), pairRows(FEW_UNITS));
+  assert.equal(count(enough, '>few training units<'), 0);
+  assert.equal(count(fig6PairContrasts(inputs(), pairRows(FEW_UNITS - 1)), '>few training units<'), 6);
+  assert.equal(svg, fig6PairContrasts(inputs(), pairRows()));
+  assert.ok(svg.includes('data-status="post hoc"'));
+  assert.throws(() => fig6PairContrasts(inputs(), []), /needs the per-pair replication rows/);
+});
+
+test('fig5 states the number of distinct rows and refuses K rows that do not repeat their alias', () => {
+  const svg = fig5Replication(inputs());
+  assert.ok(svg.includes('25 distinct rows of 28 (K1-K3 repeat other rows)'));
+  assert.throws(() => fig5Replication({ heldout: makeAnalysis('CONFIRMATORY'), training: makeAnalysis('EXPLORATORY DRY RUN') }), /is not identical to/);
 });

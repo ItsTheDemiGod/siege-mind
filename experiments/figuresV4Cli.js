@@ -4,20 +4,20 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROTOCOL } from './protocol.js';
-import { loadFigureInputs, pairContrasts } from './figuresV4/data.js';
+import { loadFigureInputs, loadTrainingRows, replicationPairTable } from './figuresV4/data.js';
 import { FIGURES_V4 } from './figuresV4/figures.js';
 import { escapeXml } from './figures/svg.js';
 import { STATUS_STYLE } from './figuresV4/palette.js';
 
-export const DEFAULTS = Object.freeze({ heldout: 'docs/results/heldout-confirmatory.json', training: 'docs/results/confirm-dryrun-train.json', rows: 'docs/results/heldout.rows.json', out: 'docs/results/figures-final' });
+export const DEFAULTS = Object.freeze({ heldout: 'docs/results/heldout-confirmatory.json', training: 'docs/results/confirm-dryrun-train.json', rows: 'docs/results/heldout.rows.json', trainingRows: 'docs/results/firstlook-train6.rows.json', out: 'docs/results/figures-final' });
 
-/** @param {string[]} argv @returns {{heldout: string, training: string, rows: string, out: string}} @throws {Error} for unknown arguments */
+/** @param {string[]} argv @returns {{heldout: string, training: string, rows: string, trainingRows: string, out: string}} @throws {Error} for unknown arguments */
 export function parseFiguresV4Args(argv) {
   const a = { ...DEFAULTS };
   for (const arg of argv) {
-    const m = /^--(heldout|training|rows|out)=(.+)$/s.exec(arg);
+    const m = /^--(heldout|training|rows|training-rows|out)=(.+)$/s.exec(arg);
     if (!m) throw new Error(`unknown argument: ${arg}`);
-    a[m[1]] = m[2];
+    a[m[1] === 'training-rows' ? 'trainingRows' : m[1]] = m[2];
   }
   return a;
 }
@@ -47,13 +47,13 @@ const readJson = (p, what) => {
 };
 
 /** Build all outputs in memory. @returns {{files: Record<string, string>}} file name to content @throws {Error} for invalid inputs */
-export function buildAll({ heldout, training, rowsFile }) {
+export function buildAll({ heldout, training, rowsFile, trainingRows }) {
   const inputs = loadFigureInputs({ heldout, training });
   if (!Array.isArray(rowsFile.rows) || rowsFile.set !== 'heldout') throw new Error('the rows file is not a held-out rows file');
   if (rowsFile.protocolHash !== heldout.protocolHash) throw new Error('the rows file and the held-out analysis have different protocol hashes');
-  const pairs = pairContrasts(rowsFile.rows, PROTOCOL, { waves: [5, 9, 13], modes: ['adaptive', 'adaptive2', 'counter'], analysis: heldout });
+  const pairRows = replicationPairTable(rowsFile.rows, trainingRows, PROTOCOL);
   const files = {};
-  for (const f of FIGURES_V4) files[f.file] = f.build(inputs, pairs);
+  for (const f of FIGURES_V4) files[f.file] = f.build(inputs, pairRows);
   const provenance = `protocol version ${heldout.protocolVersion}, protocol hash ${heldout.protocolHash}, lock run index ${rowsFile.runIndex}, held-out git commit ${rowsFile.gitCommit}, codeHash ${rowsFile.codeHash}.`;
   files['index.html'] = indexHtmlV4(files, provenance);
   return { files };
@@ -64,7 +64,7 @@ export function main(argv) {
   let a;
   try { a = parseFiguresV4Args(argv); } catch (e) { console.error(e.message); return 2; }
   try {
-    const { files } = buildAll({ heldout: readJson(a.heldout, 'the held-out analysis'), training: readJson(a.training, 'the training analysis'), rowsFile: readJson(a.rows, 'the rows') });
+    const { files } = buildAll({ heldout: readJson(a.heldout, 'the held-out analysis'), training: readJson(a.training, 'the training analysis'), rowsFile: readJson(a.rows, 'the rows'), trainingRows: loadTrainingRows(resolve(a.trainingRows)) });
     mkdirSync(resolve(a.out), { recursive: true });
     for (const [name, content] of Object.entries(files)) { writeFileSync(resolve(a.out, name), content); console.log(`${resolve(a.out, name)}  ${Buffer.byteLength(content)} bytes`); }
     return 0;

@@ -2,26 +2,30 @@
 // text was written for exactly the outcome that assertFixedTextHolds checks, and a different outcome makes the generator throw instead of printing stale text.
 import { MODE_LABEL } from './figuresV4/palette.js';
 import { fmtEst, fmtRate, fmtP, fmtCI, fmtPct } from './resultsFormat.js';
+import { assertPairClaims, headlinePairs, pairReplicationText } from './resultsDocParts.js';
 import {
-  assertFixedTextHolds, loadFigureInputs, estimandOf, contrastOf, confirmatoryTable, estimandTable, contrastTable, matchedTable, pairTable, replicationMarkdown, ESTIMATE_METRICS,
+  assertFixedTextHolds, loadFigureInputs, estimandOf, contrastOf, confirmatoryTable, estimandTable, contrastTable, matchedTable, pairTable, pairReplicationTable, replicationMarkdown, ESTIMATE_METRICS,
 } from './resultsDocTables.js';
 
 const SHA = /^[0-9a-f]{64}$/;
 const fail = (msg) => { throw new Error(`results document: ${msg}`); };
 
-function checkArgs({ heldout, training, lock, pairContrasts, rowsSha256, csvSha256, protocolHash }) {
+function checkArgs({ heldout, training, lock, pairContrasts, rowsSha256, csvSha256, protocolHash, replicationPairs, distinct }) {
   loadFigureInputs({ heldout, training });
   if (!lock || !Number.isInteger(lock.runIndex) || lock.runIndex < 1 || typeof lock.createdAt !== 'string' || typeof lock.gitCommit !== 'string' || typeof lock.codeHash !== 'string') fail('the lock file is missing or incomplete');
   if (lock.protocolHash !== heldout.protocolHash || protocolHash !== heldout.protocolHash) fail('the protocol hash of the lock, the analysis and the argument differ');
   if (!SHA.test(rowsSha256) || !SHA.test(csvSha256)) fail('rowsSha256 and csvSha256 must be 64-character hex digests');
   if (!Array.isArray(pairContrasts) || pairContrasts.length === 0) fail('the per-pair contrasts are missing');
+  if (!Array.isArray(replicationPairs) || replicationPairs.length === 0) fail('the per-pair replication rows are missing');
+  if (!distinct || !Array.isArray(distinct.distinct) || !Array.isArray(distinct.duplicates)) fail('the distinct-row split is missing');
   assertFixedTextHolds(heldout, training);
+  assertPairClaims(heldout, pairContrasts);
 }
 
 const rangeOf = (h, wave) => { const cs = h.contrasts.filter((c) => c.wave === wave).map((c) => c.coverage); return `${fmtPct(Math.min(...cs))} to ${fmtPct(Math.max(...cs))}`; };
 
 /**
- * @param {{heldout: object, training: object, lock: object, pairContrasts: object[], rowsSha256: string, csvSha256: string, protocolHash: string}} a
+ * @param {{heldout: object, training: object, lock: object, pairContrasts: object[], replicationPairs: object[], distinct: {distinct: object[], duplicates: object[]}, rowsSha256: string, csvSha256: string, protocolHash: string}} a
  * @returns {string} the markdown of docs/RESULTS.md @throws {Error} when an input is missing or the fixed text would be wrong for these data
  */
 export function buildResultsDoc(a) {
@@ -31,7 +35,8 @@ export function buildResultsDoc(a) {
   const tk1 = t.confirmatory[0];
   const E = (p, m = 'livesLost') => estimandOf(h, p, m);
   const ci = (e, f = fmtEst) => fmtCI(e.ci95, f);
-  const rep = replicationMarkdown(h, t);
+  const rep = replicationMarkdown(h, t, a.distinct);
+  const pairRep = pairReplicationText(a.replicationPairs);
   const fw = (e) => `${fmtEst(e.estimate)} ${ci(e)}`;
   const [fwRS, fwLR] = [estimandOf(h, 'random-static', 'finalWave'), estimandOf(h, 'random-static', 'leakFraction')];
   const a2s = E('adaptive2-static');
@@ -51,9 +56,9 @@ The players are five scripted bot defenses (balancedR, noLance, noMortar, noPois
 
 ## Headline
 
-- Both Directors respond to the player's defense. At wave 9 the weights of Director v1 separate defenses in the predicted direction (contrast ${fmtEst(k2.estimate)}, 95% CI ${fmtCI(k2.ci95)}, Holm p ${fmtP(k2.pHolm)}) and so do those of Director v2 (${fmtEst(k3.estimate)}, ${fmtCI(k3.ci95)}, Holm p ${fmtP(k3.pHolm)}). Both confirmatory hypotheses were supported. The informed counter arm, a reference, separates defenses more strongly (${fmtEst(contrastOf(h, 'counter', 9).estimate)}).
-- Random composition alone did not cost lives. K1 (random minus static, lives lost) was ${fmtEst(k1.estimate)} (${fmtCI(k1.ci95)}) and was not supported. The training seeds had suggested ${fmtEst(tk1.estimate)} (${fmtCI(tk1.ci95)}); that estimate did not replicate.
-- Most of Director v1's added difficulty came from a fixed lean toward durable enemy types, not from randomness and not from learning. Of v1's ${fmtEst(E('adaptive-static').estimate)} extra lives lost against static, the estimate attributes ${fmtEst(E('random-static').estimate)} to composition variability, ${fmtEst(E('prior-random').estimate)} to the durability bias (a fixed, non-learning arm built from static baselines) and ${fmtEst(E('adaptive-prior').estimate)} to learning on top; the last is small and its sign is not consistent across metrics (see the estimands).
+- ${headlinePairs(h, a.pairContrasts)}
+- Random composition alone had no detectable effect on lives lost. K1 (random minus static, lives lost) was ${fmtEst(k1.estimate)} (${fmtCI(k1.ci95)}) and was not supported. That is not proof of no effect: random composition did lower the final wave reached slightly (random minus static ${fmtEst(fwRS.estimate)} ${ci(fwRS)} waves, an estimate outside the confirmatory family). The training seeds had suggested ${fmtEst(tk1.estimate)} (${fmtCI(tk1.ci95)}) for lives lost; that estimate did not replicate.
+- A fixed, non-learning lean toward durable enemy types reproduces most of Director v1's added difficulty. Of v1's ${fmtEst(E('adaptive-static').estimate)} extra lives lost against static, an attribution along the path static, random control, prior control, Director v1 assigns ${fmtEst(E('random-static').estimate)} to composition variability, ${fmtEst(E('prior-random').estimate)} to the durability bias (the prior control: fixed weights from static baselines, no learning, no look at the defense) and ${fmtEst(E('adaptive-prior').estimate)} to learning on top; the last is small and its sign is not consistent across metrics (see the estimates).
 - Director v2 removes that bias: its lives lost and win rate are not detectably different from static (lives lost ${fw(a2s)}, win rate ${fmtRate(a2w.estimate)} ${ci(a2w, fmtRate)}) while its weights still separate defenses (K3).
 
 ## Confirmatory results
@@ -92,7 +97,17 @@ ${rep.markdown}
 
 The training estimates came from ${t.n.seeds} seeds (${t.population.units} units) and were used to design the confirmatory plan; where they differ from the held-out estimates, the held-out estimates are the ones to report. K1 is the clearest case.
 
-${rep.apart.length} of ${rep.total} rows have intervals that do not overlap: ${rep.apart.length ? rep.apart.join('; ') : 'none'}.
+${rep.apart.length} of ${rep.nDistinct} distinct rows (${rep.total} rows; K1, K2 and K3 repeat other rows and are counted once) have intervals that do not overlap: ${rep.apart.length ? rep.apart.join('; ') : 'none'}.
+
+## Per-pair replication (post hoc)
+
+*Post hoc, not pre-registered; the same pair contrasts as above, estimated on the training seeds and on the held-out seeds.*
+
+${pairReplicationTable(a.replicationPairs)}
+
+${pairRep.wave5}${pairRep.thin ? `
+
+${pairRep.thin}` : ''}
 
 ## Limits
 
@@ -103,7 +118,8 @@ ${rep.apart.length} of ${rep.total} rows have intervals that do not overlap: ${r
 - The counter arm reads the loadout; it is a reference, not a fair competitor.
 - The validation seeds (1021-1030) were not used for confirmation because they are not pristine.
 - The secondary metrics show small effects of random composition that the confirmatory family does not cover (final wave, random minus static: ${fw(fwRS)}; leaked threat fraction: ${fmtRate(fwLR.estimate)} ${ci(fwLR, fmtRate)}).
-- The wave-5 contrast of Director v1 was much smaller on training data (${fmtEst(contrastOf(t, 'adaptive', 5).estimate)}) than held-out (${fmtEst(contrastOf(h, 'adaptive', 5).estimate)}) and this gap is unexplained beyond sampling variation.
+- The wave-5 contrast of Director v1 was ${fmtEst(contrastOf(t, 'adaptive', 5).estimate)} on training data and ${fmtEst(contrastOf(h, 'adaptive', 5).estimate)} held-out; the per-pair replication table shows where the two differ and the gap was not investigated further.
+- The attribution follows one path through the arms (static, random control, prior control, Director v1); the three parts add up exactly, but a different path would split the total differently.
 
 ## What this does not show
 

@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadFigureInputs, replicationTable, pairContrasts } from '../experiments/figuresV4/data.js';
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { loadFigureInputs, replicationTable, pairContrasts, loadTrainingRows, replicationPairTable, distinctRows, rowLabel } from '../experiments/figuresV4/data.js';
 import { analyzeConfirmatory } from '../experiments/confirmatory.js';
 import { makeAnalysis, syntheticRows, FAST_PROTOCOL } from './figuresV4Fixtures.js';
 
@@ -94,4 +97,76 @@ test('pairContrasts re-aggregates to the reported contrast and throws when the a
   wrong.contrasts.find((c) => c.wave === 9 && c.mode === 'adaptive').estimate += 0.01;
   assert.throws(() => pairContrasts(rows, FAST_PROTOCOL, { waves: [9], modes: ['adaptive'], analysis: wrong }), /do not reproduce the reported aggregate at wave 9 for adaptive/);
   assert.throws(() => pairContrasts(rows, FAST_PROTOCOL, { waves: [9], modes: ['adaptive'], analysis: { contrasts: [] } }), /do not reproduce the reported aggregate/);
+});
+
+const ALIASES = { K1: 'livesLost: random - static', K2: 'contrast: adaptive at wave 9', K3: 'contrast: adaptive2 at wave 9' };
+/** An analysis whose K rows repeat their alias rows exactly, as in the real data. */
+function aliased(label, shift) {
+  const a = makeAnalysis(label, shift);
+  Object.assign(a.confirmatory[0], { estimate: a.estimands[0].estimate, ci95: a.estimands[0].ci95 });
+  const c = (mode) => a.contrasts.find((x) => x.mode === mode && x.wave === 9);
+  Object.assign(a.confirmatory[1], { estimate: c('adaptive').estimate, ci95: c('adaptive').ci95 });
+  Object.assign(a.confirmatory[2], { estimate: c('adaptive2').estimate, ci95: c('adaptive2').ci95 });
+  return a;
+}
+
+test('distinctRows: 28 rows with three aliases give 25 distinct rows; a non-identical alias throws', () => {
+  const rows = replicationTable(aliased('CONFIRMATORY', 0), aliased('EXPLORATORY DRY RUN', 0.125));
+  assert.equal(rowLabel(rows[0]), 'K1');
+  assert.equal(rowLabel(rows[3]), 'livesLost: random - static');
+  const d = distinctRows(rows, ALIASES);
+  assert.equal(rows.length, 28);
+  assert.equal(d.distinct.length, 25);
+  assert.deepEqual(d.duplicates, [{ id: 'K1', alias: ALIASES.K1 }, { id: 'K2', alias: ALIASES.K2 }, { id: 'K3', alias: ALIASES.K3 }]);
+  assert.ok(d.distinct.every((r) => !['K1', 'K2', 'K3'].includes(r.id)));
+  assert.deepEqual(distinctRows(rows, ALIASES), d);
+  const bad = replicationTable(aliased('CONFIRMATORY', 0), aliased('EXPLORATORY DRY RUN', 0.125));
+  bad[1].heldout.ci95 = [bad[1].heldout.ci95[0], bad[1].heldout.ci95[1] + 0.001];
+  assert.throws(() => distinctRows(bad, ALIASES), /K2 is not identical to 'contrast: adaptive at wave 9'/);
+  assert.throws(() => distinctRows(rows, { K1: 'nope' }), /row not found/);
+});
+
+test('loadTrainingRows accepts the train split and names every problem', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'trrows-'));
+  try {
+    const write = (o) => { const p = join(dir, 'r.json'); writeFileSync(p, JSON.stringify(o)); return p; };
+    const rows = syntheticRows({ seeds: 20, firstSeed: 1001 });
+    assert.equal(loadTrainingRows(write({ set: 'tuning', rows })).length, 600);
+    assert.throws(() => loadTrainingRows(write({ set: 'heldout', rows })), /must come from the tuning set/);
+    assert.throws(() => loadTrainingRows(write({ set: 'tuning', rows: [...rows, { ...rows[0], seed: 1021 }] })), /train split \(seeds 1001-1020\); 1 rows/);
+    assert.throws(() => loadTrainingRows(write({ set: 'tuning', rows: rows.slice(1) })), /missing units, for example/);
+    assert.throws(() => loadTrainingRows(write({ set: 'tuning', rows: [...rows, rows[5]] })), /duplicate unit/);
+    assert.throws(() => loadTrainingRows(write({ set: 'tuning' })), /no rows array/);
+    assert.throws(() => loadTrainingRows(join(dir, 'missing.json')), /cannot read the training rows/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('replicationPairTable gives exact per-pair estimates, units, overlap, sign and difference; locked pairs are excluded', () => {
+  const held = syntheticRows({ seeds: 4, jitter: 0.1 });
+  const trainRows = syntheticRows({ seeds: 4, jitter: 0, firstSeed: 1001 });
+  const t = replicationPairTable(held, trainRows, FAST_PROTOCOL);
+  assert.equal(t.length, 18); // wave 5: two unlocked pairs, wave 9: four, for three modes
+  assert.deepEqual(t.filter((r) => r.wave === 5 && r.mode === 'adaptive').map((r) => r.pair), ['noLance -> armoredGrunt', 'noMortar -> swarmling']);
+  assert.ok(!t.some((r) => r.wave === 5 && /regenerator|shieldedBruiser/.test(r.pair)));
+  const r = t.find((x) => x.wave === 9 && x.mode === 'adaptive' && x.pair === 'noLance -> armoredGrunt');
+  assert.ok(Math.abs(r.heldout.estimate - 0.25) < 1e-6 && Math.abs(r.training.estimate - 0.2) < 1e-6 && Math.abs(r.diff - 0.05) < 1e-6);
+  assert.deepEqual([r.heldout.units, r.training.units, r.heldout.seeds, r.training.seeds], [4, 4, 4, 4]);
+  assert.equal(r.overlap, true);
+  assert.equal(r.sameSign, true);
+  const c = t.find((x) => x.wave === 5 && x.mode === 'counter' && x.pair === 'noMortar -> swarmling');
+  assert.ok(Math.abs(c.heldout.estimate - 0.65) < 1e-6 && Math.abs(c.training.estimate - 0.6) < 1e-6); // 0.4 * 1.5 plus 0.05 jitter; 0.6 without
+  assert.deepEqual(replicationPairTable(held, trainRows, FAST_PROTOCOL), t);
+});
+
+test('replicationPairTable flags intervals that do not overlap and signs that differ', () => {
+  const held = syntheticRows({ seeds: 4, jitter: 0.1 });
+  const trainRows = syntheticRows({ seeds: 4, jitter: 0, firstSeed: 1001 });
+  for (const row of trainRows) if (row.style === 'noLance' && row.mode === 'adaptive') for (const tl of row.tiltByWave) if (tl) tl.armoredGrunt = 0.7;
+  const r = replicationPairTable(held, trainRows, FAST_PROTOCOL).find((x) => x.wave === 9 && x.mode === 'adaptive' && x.pair === 'noLance -> armoredGrunt');
+  assert.ok(Math.abs(r.training.estimate + 0.3) < 1e-6);
+  assert.equal(r.overlap, false);
+  assert.equal(r.sameSign, false);
+  assert.ok(Math.abs(r.diff - 0.55) < 1e-6);
+  const noTrain = syntheticRows({ seeds: 4, firstSeed: 1001 }).filter((x) => x.style !== 'noSniper');
+  assert.throws(() => replicationPairTable(held, noTrain, FAST_PROTOCOL), /has no training estimate/);
 });

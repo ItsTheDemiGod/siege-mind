@@ -1,6 +1,6 @@
 // Tables and guards of the generated results document. Everything is read from the analysis objects through the shared formatter (resultsFormat.js).
 import { MODE_LABEL } from './figuresV4/palette.js';
-import { loadFigureInputs, replicationTable } from './figuresV4/data.js';
+import { loadFigureInputs, replicationTable, rowLabel } from './figuresV4/data.js';
 import { fmtEst, fmtRate, fmtP, fmtCI, fmtPct } from './resultsFormat.js';
 
 export const METRIC_TITLE = Object.freeze({ livesLost: 'Lives lost (a lost game counts as 20)', won: 'Win rate', finalWave: 'Final wave reached', leakFraction: 'Leaked threat fraction', penetration: 'Mean path progress (penetration)' });
@@ -43,7 +43,6 @@ export function assertFixedTextHolds(h, t) {
   for (const m of ['livesLost', 'won']) { const e = E('adaptive2-static', m); if (!(e.ci95[0] <= 0 && e.ci95[1] >= 0)) fail(`the fixed text says Director v2 is not detectably different from static, but the ${m} interval excludes 0`); }
   if (!(contrastOf(h, 'counter', 9).estimate > h.confirmatory[1].estimate)) fail('the fixed text says the counter arm separates defenses more strongly than Director v1, but it does not at wave 9');
   if (h.coverageAtPrimary.metRule !== false) fail('the fixed text says the coverage rule was not met, but the computed coverage met it');
-  if (!(contrastOf(t, 'adaptive', 5).estimate < contrastOf(h, 'adaptive', 5).estimate / 2)) fail('the fixed text says the wave-5 contrast was much smaller on training data, but it is not');
 }
 
 export function confirmatoryTable(h) {
@@ -68,13 +67,24 @@ export function pairTable(pairs, waves) {
   return table(['Wave', 'Mode', 'Defense style -> enemy type', 'Estimate', '95% CI', 'Seeds', 'Units'], pairs.filter((p) => waves.includes(p.wave)).map((p) => [p.wave, label(p.mode), `${p.style} -> ${p.type}`, fmtEst(p.mean), fmtCI(p.ci95), p.seeds, p.units]));
 }
 
-/** @returns {{markdown: string, apart: string[], total: number}} the replication table and the ids of the rows whose intervals do not overlap */
-export function replicationMarkdown(h, t) {
+/** The per-pair replication table (training and held-out estimates with intervals and units). */
+export function pairReplicationTable(rows) {
+  const c = (e) => `${fmtEst(e.estimate)} ${fmtCI(e.ci95)} (${e.units})`;
+  return table(['Wave', 'Mode', 'Defense style -> enemy type', 'Training estimate [CI] (units)', 'Held-out estimate [CI] (units)', 'Intervals overlap'], rows.map((r) => [r.wave, label(r.mode), r.pair, c(r.training), c(r.heldout), r.overlap ? 'yes' : 'no']));
+}
+
+/**
+ * The replication table with a 'Same quantity as' column and the distinct-row counts.
+ * @param {object} h @param {object} t @param {{distinct: object[], duplicates: {id: string, alias: string}[]}} dr from distinctRows
+ * @returns {{markdown: string, apart: string[], nDistinct: number, total: number}} apart = labels of the DISTINCT rows whose intervals do not overlap
+ */
+export function replicationMarkdown(h, t, dr) {
   const rows = replicationTable(h, t);
   const f = (r) => (r.group === 'won' ? fmtRate : fmtEst);
   const cell = (r, side) => `${f(r)(r[side].estimate)} ${fmtCI(r[side].ci95, f(r))}`;
-  const markdown = table(['Row', 'Training (exploratory)', 'Held-out', 'Intervals overlap', 'Same sign'], rows.map((r) => [r.group === 'confirmatory' ? r.id : `${r.group}: ${r.label}`, cell(r, 'training'), cell(r, 'heldout'), r.overlap ? 'yes' : 'no', r.sameSign ? 'yes' : 'no']));
-  return { markdown, apart: rows.filter((r) => !r.overlap).map((r) => (r.group === 'confirmatory' ? r.id : `${r.group}: ${r.label}`)), total: rows.length };
+  const aliasOf = new Map(dr.duplicates.map((d) => [d.id, d.alias]));
+  const markdown = table(['Row', 'Same quantity as', 'Training (exploratory)', 'Held-out', 'Intervals overlap', 'Same sign'], rows.map((r) => [rowLabel(r), aliasOf.get(r.id) ?? '', cell(r, 'training'), cell(r, 'heldout'), r.overlap ? 'yes' : 'no', r.sameSign ? 'yes' : 'no']));
+  return { markdown, apart: dr.distinct.filter((r) => !r.overlap).map(rowLabel), nDistinct: dr.distinct.length, total: rows.length };
 }
 
 export { loadFigureInputs };

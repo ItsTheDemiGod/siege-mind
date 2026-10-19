@@ -100,11 +100,13 @@ export function forestPanel({ y, title, xTitle, rows, status = 'estimate', domai
     r.items.forEach((it, j) => {
       const yy = mid + (j - (k - 1) / 2) * 9;
       const c = it.style.color;
+      const part = [];
       if (it.ci[1] > it.ci[0]) {
-        g.push(line(x(it.ci[0]), yy, x(it.ci[1]), yy, { stroke: c, width: 2, dash: dash ?? undefined }));
-        for (const e of it.ci) g.push(line(x(e), yy - 4, x(e), yy + 4, { stroke: c, width: 2 }));
+        part.push(line(x(it.ci[0]), yy, x(it.ci[1]), yy, { stroke: c, width: 2, dash: dash ?? undefined }));
+        for (const e of it.ci) part.push(line(x(e), yy - 4, x(e), yy + 4, { stroke: c, width: 2 }));
       }
-      g.push(mark(it.style.marker, x(it.est), yy, 10, { color: c, hollow: it.hollow }));
+      part.push(mark(it.style.marker, x(it.est), yy, 10, { color: c, hollow: it.hollow }));
+      g.push(it.series ? `<g data-series="${escapeXml(it.series)}">${part.join('')}</g>` : part.join(''));
     });
     (r.right ?? []).forEach((l, j) => g.push(text(RX, mid + 4 + (j - ((r.right.length) - 1) / 2) * 14, l, { size: 12, fill: INK.muted })));
     out.push(`<g data-id="${escapeXml(r.id)}">${g.join('')}</g>`);

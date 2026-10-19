@@ -11,11 +11,11 @@ const BASE_EFFECT = { adaptive: 0.2, adaptive2: 0.1, counter: 0.4, prior: 0, ran
 /**
  * Result rows of every confirmatory mode for every style and seed 1..seeds. Predicted-style units get tilt 1 + effect on their predicted type
  * (effect = BASE_EFFECT[mode] * (1 + index/2) + jitter * (seed % 2)); every other tilt is 1, so a pair contrast at any wave >= 5 is that effect exactly.
- * @param {{seeds?: number, jitter?: number, earlyLoss?: {style: string, seed: number}}} [o] earlyLoss: a unit whose STATIC game ends at wave 3
+ * @param {{seeds?: number, jitter?: number, earlyLoss?: {style: string, seed: number}, firstSeed?: number}} [o] earlyLoss: a unit whose STATIC game ends at wave 3
  */
-export function syntheticRows({ seeds = 8, jitter = 0.1, earlyLoss = null } = {}) {
+export function syntheticRows({ seeds = 8, jitter = 0.1, earlyLoss = null, firstSeed = 1 } = {}) {
   const rows = [];
-  for (let seed = 1; seed <= seeds; seed++) {
+  for (let seed = firstSeed; seed < firstSeed + seeds; seed++) {
     for (const [si, style] of PROTOCOL.styles.entries()) {
       for (const mode of PROTOCOL.confirmatory.modes) {
         const early = earlyLoss && earlyLoss.style === style && earlyLoss.seed === seed && mode === 'static';
@@ -60,4 +60,14 @@ export function makeAnalysis(label, shift = 0, { k1Label = 'Composition variabil
     coverageAtPrimary: { wave: 9, minCoverage: 0.7, metRule: false, perMode: {}, rule: 'r', ruleChoice: { chosen: 9, metRule: false }, registered: {} },
     sensitivity: {}, power: {},
   };
+}
+
+/** makeAnalysis whose K rows repeat their alias rows exactly (random-static lives lost, adaptive and adaptive2 at wave 9), as in the real analysis. */
+export function makeAliasedAnalysis(label, shift = 0) {
+  const a = makeAnalysis(label, shift);
+  const c = (mode) => a.contrasts.find((x) => x.mode === mode && x.wave === 9);
+  Object.assign(a.confirmatory[0], { estimate: a.estimands[0].estimate, ci95: a.estimands[0].ci95 });
+  Object.assign(a.confirmatory[1], { estimate: c('adaptive').estimate, ci95: c('adaptive').ci95 });
+  Object.assign(a.confirmatory[2], { estimate: c('adaptive2').estimate, ci95: c('adaptive2').ci95 });
+  return a;
 }

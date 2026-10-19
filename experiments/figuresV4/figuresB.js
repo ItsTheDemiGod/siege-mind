@@ -1,8 +1,9 @@
 // Figures 4-6 of protocol v4: contrasts by wave, training versus held-out replication, and post hoc per-pair contrasts. Pure builders.
-import { loadFigureInputs, replicationTable } from './data.js';
+import { loadFigureInputs, replicationTable, distinctRows, K_ALIASES } from './data.js';
 import { figure, forestPanel, BODY_Y } from './kit.js';
 import { MODE_STYLE, MODE_LABEL, INK } from './palette.js';
 import { fmtEst, fmtRate, fmtPct, fmtCI } from '../resultsFormat.js';
+import { FEW_UNITS } from '../resultsDocParts.js';
 
 const GAP = 12;
 const ZERO = 1e-9;
@@ -48,6 +49,7 @@ const PANELS = [
 export function fig5Replication(inputs) {
   const { heldout, training } = loadFigureInputs(inputs);
   const table = replicationTable(heldout, training);
+  const nDistinct = distinctRows(table, K_ALIASES).distinct.length;
   const hs = { color: INK.ink, marker: 'circle' };
   const ts = { color: INK.muted, marker: 'circle' };
   const panels = [];
@@ -64,38 +66,43 @@ export function fig5Replication(inputs) {
   const { body, bodyHeight } = stack(panels);
   const apart = table.filter((r) => !r.overlap).length;
   return figure({
-    num: 5, title: 'Training seeds versus held-out seeds', n: `held-out: ${heldout.n.seeds} seeds, ${heldout.population.units} population units; training: ${training.n.seeds} seeds, ${training.population.units} units (exploratory)`, status: 'estimate', body, bodyHeight,
+    num: 5, title: 'Training seeds versus held-out seeds', n: `held-out: ${heldout.n.seeds} seeds, ${heldout.population.units} population units; training: ${training.n.seeds} seeds, ${training.population.units} units (exploratory); ${nDistinct} distinct rows of ${table.length} (K1-K3 repeat other rows)`, status: 'estimate', body, bodyHeight,
     note: 'Open circle: training seeds (exploratory, used to design the plan). Filled circle: held-out seeds (K1-K3 confirmatory, other rows estimates).',
     desc: `Training and held-out estimates with 95% intervals for ${table.length} rows; ${apart} rows have non-overlapping intervals.`,
     caption: `Each row shows the training estimate and the held-out estimate with 95% cluster-bootstrap intervals; ${apart} of ${table.length} rows are tagged 'no overlap' because their intervals do not overlap.`,
   });
 }
 
-/** Figure 6: post hoc per-pair contrasts at waves 9 and 5 for Director v1, v2 and the counter arm. @param {object} inputs @param {object[]} pairs from pairContrasts @returns {string} SVG */
-export function fig6PairContrasts(inputs, pairs) {
-  const { heldout: a } = loadFigureInputs(inputs);
-  if (!Array.isArray(pairs) || pairs.length === 0) throw new Error('fig6PairContrasts needs the per-pair contrasts');
+/** Figure 6: post hoc per-pair contrasts, held-out (filled markers) and training (open markers) for Director v1, v2 and the counter arm. @param {object} inputs @param {object[]} pairRows from replicationPairTable @returns {string} SVG */
+export function fig6PairContrasts(inputs, pairRows) {
+  const { heldout: a, training: t } = loadFigureInputs(inputs);
+  if (!Array.isArray(pairRows) || pairRows.length === 0) throw new Error('fig6PairContrasts needs the per-pair replication rows');
   const modes = ['adaptive', 'adaptive2', 'counter'];
   const panels = [];
   let y = BODY_Y;
   for (const wave of [a.coverageAtPrimary.wave, Math.min(...a.contrasts.map((c) => c.wave))]) {
-    const keys = [...new Set(pairs.filter((p) => p.wave === wave).map((p) => `${p.style}|${p.type}`))].sort();
-    const rows = keys.map((k) => {
-      const [style, type] = k.split('|');
-      const mine = modes.map((m) => pairs.find((p) => p.wave === wave && p.mode === m && p.style === style && p.type === type)).filter(Boolean);
+    const keys = [...new Set(pairRows.filter((p) => p.wave === wave).map((p) => p.pair))].sort();
+    const rows = keys.map((pair) => {
+      const mine = modes.map((m) => pairRows.find((p) => p.wave === wave && p.mode === m && p.pair === pair)).filter(Boolean);
+      const few = mine.some((p) => p.training.units < FEW_UNITS);
       return {
-        id: `${wave}|${style}|${type}`, label: `${style} -> ${type}`, items: mine.map((p) => ({ est: p.mean, ci: p.ci95, style: MODE_STYLE[p.mode] })),
-        right: mine.map((p) => `${MODE_LABEL[p.mode].replace(' (reference)', '')}: ${fmtEst(p.mean)} (n ${p.seeds})`),
+        id: `${wave}|${pair}`, label: pair,
+        items: mine.flatMap((p) => [
+          { est: p.heldout.estimate, ci: p.heldout.ci95, style: MODE_STYLE[p.mode], series: `${p.mode}|heldout` },
+          { est: p.training.estimate, ci: p.training.ci95, style: MODE_STYLE[p.mode], hollow: true, series: `${p.mode}|training` },
+        ]),
+        right: [...(few ? ['few training units'] : []), ...mine.map((p) => `${MODE_LABEL[p.mode].replace(' (reference)', '')}: held-out ${fmtEst(p.heldout.estimate)}, training ${fmtEst(p.training.estimate)}`)],
       };
     });
-    const p = forestPanel({ y, title: `Wave ${wave}: contrast of one defense on its predicted enemy type`, xTitle: 'style contrast of one (style, enemy type) pair', rows, status: 'post hoc', rowH: 44, labelW: 240, plotW: 380 });
+    const p = forestPanel({ y, title: `Wave ${wave}: contrast of one defense on its predicted enemy type`, xTitle: 'style contrast of one (style, enemy type) pair', rows, status: 'post hoc', rowH: 70, labelW: 220, plotW: 360 });
     panels.push(p);
     y += p.height + GAP;
   }
   const { body, bodyHeight } = stack(panels);
   return figure({
-    num: 6, title: 'Per-pair contrasts (which defense and enemy type)', n: nLine(a), status: 'post hoc', body, bodyHeight, legendModes: modes,
-    desc: 'Per (defense style, predicted enemy type) fixed-wave contrasts at wave 9 and wave 5 for Director v1, Director v2 and the counter arm.',
-    caption: 'Each row is one defense style with the enemy type its missing tower is strong against; values are the pair contrast averaged over seeds with a 95% cluster-bootstrap interval; n is the number of seeds with a value. Computed after the run, not pre-registered.',
+    num: 6, title: 'Per-pair contrasts, held-out and training', n: `held-out: ${a.n.seeds} seeds, ${a.population.units} population units; training: ${t.n.seeds} seeds, ${t.population.units} units (exploratory)`, status: 'post hoc', body, bodyHeight, legendModes: modes,
+    note: 'Filled marker: held-out seeds. Open marker (a lighter stroke for the x and + shapes): training seeds.',
+    desc: 'Per (defense style, predicted enemy type) fixed-wave contrasts at wave 9 and wave 5 for Director v1, Director v2 and the counter arm, on the held-out seeds and on the training seeds.',
+    caption: `Each row is one defense style with the enemy type its missing tower is strong against; every mode shows its held-out estimate (filled) and its training estimate (open) with 95% cluster-bootstrap intervals. Rows tagged 'few training units' have fewer than ${FEW_UNITS} training units for at least one mode. Computed after the run, not pre-registered.`,
   });
 }

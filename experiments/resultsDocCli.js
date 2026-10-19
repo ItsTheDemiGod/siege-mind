@@ -5,20 +5,20 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROTOCOL, protocolHash } from './protocol.js';
-import { pairContrasts } from './figuresV4/data.js';
+import { pairContrasts, loadTrainingRows, replicationPairTable, replicationTable, distinctRows, K_ALIASES } from './figuresV4/data.js';
 import { buildResultsDoc } from './resultsDoc.js';
 
 export const DEFAULTS = Object.freeze({
-  heldout: 'docs/results/heldout-confirmatory.json', training: 'docs/results/confirm-dryrun-train.json', rows: 'docs/results/heldout.rows.json', csv: 'docs/results/heldout.csv', lock: 'experiments/heldout.lock.json', out: 'docs/RESULTS.md',
+  heldout: 'docs/results/heldout-confirmatory.json', training: 'docs/results/confirm-dryrun-train.json', trainingRows: 'docs/results/firstlook-train6.rows.json', rows: 'docs/results/heldout.rows.json', csv: 'docs/results/heldout.csv', lock: 'experiments/heldout.lock.json', out: 'docs/RESULTS.md',
 });
 
 /** @param {string[]} argv @returns {typeof DEFAULTS} @throws {Error} for unknown arguments */
 export function parseResultsDocArgs(argv) {
   const a = { ...DEFAULTS };
   for (const arg of argv) {
-    const m = /^--(heldout|training|rows|csv|lock|out)=(.+)$/s.exec(arg);
+    const m = /^--(heldout|training|training-rows|rows|csv|lock|out)=(.+)$/s.exec(arg);
     if (!m) throw new Error(`unknown argument: ${arg}`);
-    a[m[1]] = m[2];
+    a[m[1] === 'training-rows' ? 'trainingRows' : m[1]] = m[2];
   }
   return a;
 }
@@ -36,7 +36,10 @@ export function generate(a) {
   const rowsFile = JSON.parse(rowsBuf.toString('utf8'));
   if (rowsFile.set !== 'heldout' || !Array.isArray(rowsFile.rows)) throw new Error(`${a.rows} is not a held-out rows file`);
   const pairs = pairContrasts(rowsFile.rows, PROTOCOL, { waves: [5, 9, 13], modes: ['adaptive', 'adaptive2', 'counter'], analysis: heldout });
-  return buildResultsDoc({ heldout, training, lock, pairContrasts: pairs, rowsSha256: sha(rowsBuf), csvSha256: sha(read(a.csv, 'the CSV')), protocolHash: protocolHash() });
+  const trainingRows = loadTrainingRows(resolve(a.trainingRows));
+  const replicationPairs = replicationPairTable(rowsFile.rows, trainingRows, PROTOCOL);
+  const distinct = distinctRows(replicationTable(heldout, training), K_ALIASES);
+  return buildResultsDoc({ heldout, training, lock, pairContrasts: pairs, replicationPairs, distinct, rowsSha256: sha(rowsBuf), csvSha256: sha(read(a.csv, 'the CSV')), protocolHash: protocolHash() });
 }
 
 /** The CLI body. @param {string[]} argv @returns {number} the exit code */

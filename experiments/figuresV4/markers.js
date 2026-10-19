@@ -14,7 +14,8 @@ export function shapePath(shape, x, y, size) {
 export function mark(shape, x, y, size, { color, hollow = false, background = '#ffffff' }) {
   const strokeOnly = STROKE_ONLY.has(shape);
   const fill = strokeOnly ? 'none' : hollow ? background : color;
-  return `<path d="${shapePath(shape, x, y, size)}" fill="${escapeXml(fill)}" stroke="${escapeXml(color)}" stroke-width="${strokeOnly ? 2.2 : 1.6}"/>`;
+  const faint = hollow && strokeOnly ? ' stroke-opacity="0.45"' : ''; // a stroke-only shape cannot be hollow, so "open" is drawn lighter
+  return `<path d="${shapePath(shape, x, y, size)}" fill="${escapeXml(fill)}" stroke="${escapeXml(color)}" stroke-width="${strokeOnly ? 2.2 : 1.6}"${faint}/>`;
 }
 
 /** Pattern definitions for the six mode fills (the bar and legend swatches). @returns {{defs: string, fill: (mode: string) => string}} */
