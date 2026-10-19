@@ -4,12 +4,19 @@ Experiment outputs, committed here (experiments/results stays git-ignored for sc
 
 | File | What it is | Regenerate with | Status |
 |---|---|---|---|
-| calibration.json, calibration.md | The static-mode bot calibration (every knob combination, win rates, the chosen knobs) | `npm run calibrate` | calibration-seed run, used to fix the bots |
-| tuning.csv, tuning.rows.json | The 450 tuning-set games (30 seeds x 5 styles x 3 modes) under protocol version 2 (amendment A1) | `npm run experiment -- --set=tuning` | exploratory |
-| tuning-summary.json, tuning-summary.md | The pre-registered analysis of the tuning rows | `npm run analyze -- --in=docs/results/tuning.rows.json --out=docs/results/tuning-summary` | exploratory |
-| amendment-A1.json, amendment-A1.md | Side-by-side comparison of the Phase 8A and the A1 definition of the final tilt | `npm run amendment-report` | exploratory |
-| diagnostics.json, diagnostics.md | Static-mode diagnostics of the reward signal (baselines, variance decomposition, noise floor) | `npm run diagnose` | exploratory |
-| figures/ | Six SVG figures and an index page built from the two files above | `npm run figures` | exploratory |
-| archive/ | The Phase 8A tuning outputs (protocol version 1, legacy final-tilt definition) | kept for the record | superseded, not regenerable (protocol hash differs) |
+| calibration.json, calibration.md | The static-mode bot calibration for the ablation styles (nine combinations, win rates, the stage that qualified, the chosen knobs, the dropped style) | `npm run calibrate` | calibration-seed run, used to fix the bots |
+| early-losses-focus-styles.json, .md | Which archived focus-style games ended before wave 5, per mode | `npm run early-losses -- --in=docs/results/archive/tuning-a1-focus.rows.json --out=docs/results/early-losses-focus-styles` | exploratory, post-hoc |
+| contrast-focus-styles-exploratory.json, .md | The style-contrast statistic tried on the archived focus-style rows | `npm run contrast -- --in=docs/results/archive/tuning-a1-focus.rows.json --preset=focus --out=docs/results/contrast-focus-styles-exploratory` | exploratory, post-hoc (designed after seeing these data) |
+| archive/ | Superseded outputs, see below | kept for the record | superseded |
+
+## archive/
+
+- `tuning-v1.*`, `tuning-v1-summary.*`: the Phase 8A tuning outputs (protocol version 1, legacy final-tilt definition). Not regenerable (protocol hash differs).
+- `tuning-a1-focus.csv`, `tuning-a1-focus.rows.json`, `tuning-a1-focus-summary.*`: the tuning set (450 games, five focus styles) re-run under amendment A1, protocol version 2. Not regenerable with the current protocol; the focus bots remain in the code.
+- `amendment-A1.*`: comparison of the Phase 8A and the A1 definition of the final tilt.
+- `diagnostics-focus.*`: static-mode diagnostics of the reward signal for the focus styles.
+- `figures-focus/`: the six SVG figures built from the focus-style analysis. The figures are regenerated for the new styles in a later phase.
+
+The tuning rows and the analysis of the current protocol (version 3, ablation styles, Director v1) and the refreshed diagnostics are added here after the tuning re-run.
 
 Nothing here is confirmatory: the held-out seed set has not been run (experiments/heldout.lock.json does not exist).
