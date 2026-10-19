@@ -48,6 +48,7 @@ import { createAudioEngine } from './audio/engine.js';
 import { bindUnlock } from './audio/unlock.js';
 import { MAPPED_EVENTS } from './audio/eventMap.js';
 import { wireHints } from './ui/hintsWiring.js';
+import { wireCursor } from './ui/cursorWiring.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -210,7 +211,8 @@ document.addEventListener('visibilitychange', () => {
 });
 
 const toggleMuteKey = () => { settings.set('muted', !settings.get('muted')); toaster.show(settings.get('muted') ? 'Sound off' : 'Sound on'); };
-const extraKeys = { ...build.extraKeys, Enter: () => { if (!blocked()) waveControl.start(); }, i: () => { if (!anyDialog()) overlay.toggle(); }, m: () => { if (!anyDialog()) toggleMuteKey(); } };
+const cursorKeys = wireCursor({ root: uiRoot, game, buildState, build, waveControl, blocked, overlayOpen: () => overlay.isOpen }).keys;
+const extraKeys = { ...build.extraKeys, ...cursorKeys, i: () => { if (!anyDialog()) overlay.toggle(); }, m: () => { if (!anyDialog()) toggleMuteKey(); } };
 if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) extraKeys[k] = (e) => { if (!anyDialog()) fn(e); };
 bindKeys({
   togglePause: () => { if (!anyDialog()) pause.toggleUser(); },

@@ -6,7 +6,7 @@ import { reasonText } from './towerInfo.js';
 /**
  * @param {{game: object, canvas: HTMLCanvasElement, renderer: object, buildState: object, toaster: {show: Function},
  *   debugTools: object|null, isModalOpen: () => boolean, onDeny?: () => void}} o onDeny runs when a placement is refused (the UI plays a deny sound)
- * @returns {{extraKeys: Record<string, Function>, actions: object}}
+ * @returns {{extraKeys: Record<string, Function>, actions: object, placeAt: (col: number, row: number) => boolean}} placeAt places the armed tower (pointer and keyboard share it)
  */
 export function createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen, onDeny }) {
   const world = { x: 0, y: 0 };
@@ -31,6 +31,13 @@ export function createBuildController({ game, canvas, renderer, buildState, toas
     setMode(id, mode) { return setTargetMode(game, id, mode); },
   };
 
+  /** Place the armed tower; a refusal shows its reason and calls onDeny. */
+  function placeAt(col, row) {
+    const r = placeTower(game, buildState.state.typeId, col, row);
+    if (!r.ok) { toaster.show(reasonText(r.reason)); if (onDeny) onDeny(); }
+    return r.ok;
+  }
+
   canvas.addEventListener('pointermove', (e) => {
     const tile = tileOf(e);
     buildState.setHover(tile ? tile.col : null, tile ? tile.row : null);
@@ -44,8 +51,7 @@ export function createBuildController({ game, canvas, renderer, buildState, toas
     const action = buildState.route({ towerAtTile: found ? found.id : null, debugToolsEnabled: debugTools !== null });
     if (action === 'place') {
       if (!tile) return;
-      const r = placeTower(game, buildState.state.typeId, tile.col, tile.row);
-      if (!r.ok) { toaster.show(reasonText(r.reason)); if (onDeny) onDeny(); }
+      placeAt(tile.col, tile.row);
     } else if (action === 'select') {
       buildState.selectTower(found.id);
     } else {
@@ -66,5 +72,5 @@ export function createBuildController({ game, canvas, renderer, buildState, toas
   });
   extraKeys.Delete = sellKey;
   extraKeys.Backspace = sellKey;
-  return { extraKeys, actions };
+  return { extraKeys, actions, placeAt };
 }

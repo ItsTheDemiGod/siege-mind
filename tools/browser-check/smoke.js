@@ -74,6 +74,22 @@ const CHECKS = [
     expr: `(() => { const c = document.querySelector('.hint-card'); const shown = !!c && !c.hidden; return { ok: !shown, detail: JSON.stringify({ shown }) }; })()`,
   },
   {
+    name: 'keyboard-only build (A, arrows, Enter)', path: '/?seed=1&play=1&waves=15&mode=static', wait: 2500, shot: 'smoke-keyboard-build.png',
+    expr: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const key = (k, code) => window.dispatchEvent(new KeyboardEvent('keydown', { key: k, code, bubbles: true }));
+      const gold = () => Number(document.querySelector('.chip--gold .num').textContent);
+      const before = gold();
+      key('a', 'KeyA'); await sleep(150);
+      key('ArrowDown', 'ArrowDown'); key('ArrowRight', 'ArrowRight'); await sleep(150);
+      const live = document.querySelector('[data-id="cursor-live"]').textContent;
+      key('Enter', 'Enter'); await sleep(500);
+      const after = gold();
+      const parts = { before, after, live };
+      return { ok: before === 150 && after === 90 && /^Column \\d+, row \\d+: /.test(live), \detail: JSON.stringify(parts) };
+    })()`,
+  },
+  {
     name: 'mute key (M) toggles sound with toasts', path: '/?seed=1&play=1&waves=15&mode=static', wait: 2500, shot: 'smoke-mute.png',
     expr: `(async () => {
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
