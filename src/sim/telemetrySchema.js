@@ -24,7 +24,7 @@ export function sourceIndex(source) {
 }
 
 /**
- * Round to a fixed number of decimals (table of powers of ten, no Math.pow); -0 becomes 0.
+ * Round to a fixed number of decimals (table of powers of ten, no pow call); -0 becomes 0.
  * @param {number} x @param {number} digits integer 0..9
  * @returns {number}
  */

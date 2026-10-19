@@ -1,10 +1,10 @@
 // Main menu: mode, game length and seed, then Start (a page navigation, so a new game is a clean boot). Dialog with a focus trap.
-import { MODES, LENGTH_OPTIONS } from '../data/menuText.js';
+import { MODES, LENGTH_OPTIONS, RANDOM_CONTROL } from '../data/menuText.js';
 import { config } from '../data/config.js';
 import { h } from './dom.js';
 import { createRadioGroup } from './radioGroup.js';
 import { trapTab } from './focusTrap.js';
-import { parseSeedInput, buildPlayUrl } from './menuState.js';
+import { parseSeedInput, buildPlayUrl, parseModeParam } from './menuState.js';
 
 const TAGLINE = 'A tower defense where the enemy learns.';
 const SEED_ERRORS = {
@@ -20,13 +20,15 @@ const SEED_ERRORS = {
  */
 export function createMainMenu({ root, pause, params, randomSeed, openHowTo, openSettings, navigate = (u) => window.location.assign(u), href = () => window.location.href }) {
   const wavesParam = Number(params.get('waves'));
-  let mode = 'static'; // adaptive is not selectable until the Director exists
+  let mode = parseModeParam(params.get('mode')).mode; // 'random' (URL only) is kept until the player picks a radio
   let waves = config.game.allowedTotals.includes(wavesParam) ? wavesParam : config.game.quickTotal;
 
+  const noteFor = (id) => (id === 'random' ? `${RANDOM_CONTROL.label}: ${RANDOM_CONTROL.blurb}` : MODES.find((m) => m.id === id)?.blurb ?? '');
+  const modeNote = h('p', { class: 'menu-mode-note', 'aria-live': 'polite', text: noteFor(mode) });
   const modeGroup = createRadioGroup({
-    label: 'Mode', selected: mode,
+    label: 'Mode', selected: mode === 'adaptive' ? 'adaptive' : 'static',
     options: MODES.map((m) => ({ id: m.id, label: m.label, blurb: m.blurb, available: m.available })),
-    onChange: (id) => { mode = id; },
+    onChange: (id) => { mode = id; modeNote.textContent = noteFor(mode); },
   });
   const lengthGroup = createRadioGroup({
     label: 'Game length', selected: String(waves),
@@ -62,7 +64,7 @@ export function createMainMenu({ root, pause, params, randomSeed, openHowTo, ope
   const card = h('div', { class: 'panel menu-card', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'menu-title' }, [
     h('h1', { id: 'menu-title', class: 'menu-title', text: 'SIEGE MIND' }),
     h('p', { class: 'menu-tagline', text: TAGLINE }),
-    h('div', { class: 'menu-field' }, [h('div', { class: 'menu-label', text: 'Mode' }), modeGroup.el]),
+    h('div', { class: 'menu-field' }, [h('div', { class: 'menu-label', text: 'Mode' }), modeGroup.el, modeNote]),
     h('div', { class: 'menu-field' }, [h('div', { class: 'menu-label', text: 'Game length' }), lengthGroup.el]),
     h('div', { class: 'menu-field' }, [
       h('label', { class: 'menu-label', for: 'menu-seed', text: 'Seed (optional)' }),

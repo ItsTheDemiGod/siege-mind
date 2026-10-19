@@ -26,10 +26,12 @@ Open the game, pick **Quick** (15 waves, about 20 minutes) or **Full** (30 waves
 
 ## Game modes
 
-- **Static** (available): fixed, hand-authored waves, the same every run. The control group.
-- **Adaptive** (shown, locked): the Director AI re-weights each wave against your towers. Arrives in Phase 6.
+- **Static**: fixed, hand-authored waves, the same every run. The control group.
+- **Adaptive**: the Director AI watches how far each enemy type gets against your defense and tilts the mix of eligible waves toward what worked. Every wave still spends exactly the same threat and enemy HP as Static, so only the composition changes; waves 1-4, 6, 8 and the set pieces (10, 20, 30) stay as written. A small violet line in the wave banner and preview says when the Director adapted a wave.
+- **Random control**: reachable only with `?mode=random`. It tilts waves at random by the same amount and learns nothing; it exists so results can be compared against "just different" waves.
 - Game length is Quick (15 waves) or Full (30 waves); the wave script, HP curve and economy are identical, Quick just ends after wave 15.
-- A game is set up by its URL: `?seed=..&mode=static&waves=15|30&play=1` (without `play` or `debug` the menu opens first).
+- A game is set up by its URL: `?seed=..&mode=static|adaptive|random&waves=15|30&play=1` (without `play` or `debug` the menu opens first).
+- `npm run compare -- --bots=weak,monoMortar,monoSniper,balanced --modes=static,adaptive,random --seeds=1,2,3 --waves=15` plays all combinations headlessly and prints the comparison tables and the report-only hypotheses. How the Director works: [docs/DIRECTOR.md](docs/DIRECTOR.md).
 
 ## Controls (dev)
 

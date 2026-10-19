@@ -1,4 +1,4 @@
-// Director math (pure). Plain + - * / comparisons and Math.min/max only: no Math.pow, Math.exp or Math.log, so every JavaScript engine
+// Director math (pure). Plain + - * / comparisons and Math.min/max only: no pow, exp or log calls, so every JavaScript engine
 // produces identical numbers. See docs/DIRECTOR.md for the algorithm.
 import { ENEMY_ORDER } from '../data/enemies.js';
 

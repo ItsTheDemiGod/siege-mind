@@ -15,9 +15,11 @@ const REFRESH_MS = 250; // phase flips happen after WAVE_ENDED fires, so a slow 
 export function createWavePreview({ root, game, controlRect }) {
   const { wavePreviewWidth: w, wavePreviewHeight: hh, wavePreviewGap: gap } = config.ui;
   const title = h('span', { class: 'wp-title' });
+  const director = h('span', { class: 'wp-director', hidden: true });
+  const head = h('span', { class: 'wp-head' }, [title, director]);
   const chips = h('span', { class: 'wp-chips' });
   const hp = h('span', { class: 'wp-hp' });
-  const el = h('div', { class: 'panel wave-preview', role: 'group', 'aria-label': 'Incoming wave', hidden: true }, [title, chips, hp]);
+  const el = h('div', { class: 'panel wave-preview', role: 'group', 'aria-label': 'Incoming wave', hidden: true }, [head, chips, hp]);
   Object.assign(el.style, { left: `${(config.view.width - w) / 2}px`, top: `${controlRect.top - gap - hh}px`, width: `${w}px`, height: `${hh}px` });
   root.append(el);
 
@@ -31,6 +33,8 @@ export function createWavePreview({ root, game, controlRect }) {
     el.hidden = d === null;
     if (!d) return;
     title.textContent = d.title;
+    director.hidden = !d.directorLine;
+    director.textContent = d.directorLine ?? '';
     hp.textContent = d.hpLine;
     chips.replaceChildren(...compositionChips(d.items));
     el.classList.toggle('is-fixed', d.fixed);

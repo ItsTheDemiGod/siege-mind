@@ -257,6 +257,11 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .wave-preview[hidden] { display: none; }
 .wave-preview.is-fixed { border-color: var(--gold); }
 .wave-preview.is-final { border-color: var(--danger); }
+.wp-head { display: flex; flex-direction: column; justify-content: center; line-height: 1.15; }
+.wp-director, .wb-director { color: var(--director); font-size: 11px; letter-spacing: 0.04em; }
+.wp-director[hidden], .wb-director[hidden] { display: none; }
+.wb-director { margin-top: var(--space-1); }
+.menu-mode-note { margin: var(--space-1) 0 0; min-height: 16px; font-size: 12px; color: var(--muted); }
 .wp-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
 .wp-chips { display: flex; gap: var(--space-2); flex: 1; }
 .wp-hp { font-size: 11px; color: var(--muted); }

@@ -12,7 +12,8 @@
     "playthrough": "node experiments/playthrough.js",
     "summarize": "node experiments/summarize.js",
     "browser-check": "node tools/browser-check/check.js",
-    "smoke:browser": "node tools/browser-check/smoke.js"
+    "smoke:browser": "node tools/browser-check/smoke.js",
+    "compare": "node experiments/directorCompare.js"
   },
   "engines": {
     "node": ">=22"

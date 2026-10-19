@@ -10,10 +10,14 @@ const GALLERY_SECTIONS = ['palette', 'type', 'enemies', 'states', 'towers', 'ico
 const CHECKS = [
   {
     name: 'main menu', path: '/', wait: 2500, shot: 'smoke-menu.png',
-    expr: `(() => { const d = document.querySelector('[role="dialog"]'); return { ok: !!d && d.textContent.includes('SIEGE MIND'), detail: d ? d.textContent.slice(0, 40) : 'no dialog' }; })()`,
+    expr: `(() => { const d = document.querySelector('[role="dialog"]'); const r = document.querySelector('[role="radio"][data-id="adaptive"]'); const parts = { title: !!d && d.textContent.includes('SIEGE MIND'), adaptiveRadio: !!r, adaptiveEnabled: !!r && r.getAttribute('aria-disabled') !== 'true' }; return { ok: Object.values(parts).every(Boolean), detail: JSON.stringify(parts) }; })()`,
   },
   {
     name: 'game page', path: '/?seed=1&play=1&waves=15', wait: 2500, shot: 'smoke-game.png',
+    expr: `(() => { const hud = document.querySelector('.hud'); const parts = { canvas: !!document.querySelector('canvas#game'), hud015: !!hud && hud.textContent.includes('0 / 15'), waveControl: !!document.querySelector('.wave-control') }; return { ok: Object.values(parts).every(Boolean), detail: JSON.stringify(parts) }; })()`,
+  },
+  {
+    name: 'adaptive game page', path: '/?seed=1&play=1&waves=15&mode=adaptive', wait: 2500, shot: 'smoke-adaptive.png',
     expr: `(() => { const hud = document.querySelector('.hud'); const parts = { canvas: !!document.querySelector('canvas#game'), hud015: !!hud && hud.textContent.includes('0 / 15'), waveControl: !!document.querySelector('.wave-control') }; return { ok: Object.values(parts).every(Boolean), detail: JSON.stringify(parts) }; })()`,
   },
   {

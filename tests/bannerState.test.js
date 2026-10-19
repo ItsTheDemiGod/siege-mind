@@ -48,3 +48,18 @@ test('describePreview: null handling, titles, items, final flag', () => {
   const plain = describePreview({ wave: 15, name: null, fixed: false, isFinal: true, hpMult: 9, items: [] }, 15);
   assert.deepEqual([plain.title, plain.final], ['Wave 15', true]);
 });
+
+test('directorLine: only an actual adaptation is announced', () => {
+  const line = 'Director adapted this wave';
+  assert.equal(describeBanner(started({ director: { reason: 'adapted' } }), 30).directorLine, line);
+  for (const reason of ['cold-start', 'random', 'static-early', 'static-intro', 'static-fixed']) {
+    assert.equal(describeBanner(started({ director: { reason } }), 30).directorLine, null, reason);
+  }
+  assert.equal(describeBanner(started({ director: null }), 30).directorLine, null);
+  assert.equal(describeBanner(started(), 30).directorLine, null);
+  const preview = (director) => ({ wave: 9, name: null, fixed: false, isFinal: false, hpMult: 4.9, items: [{ type: 'armoredGrunt', units: 5 }], director });
+  assert.equal(describePreview(preview({ eligible: true, reason: 'adapted' }), 30).directorLine, line);
+  assert.equal(describePreview(preview({ eligible: true, reason: 'random' }), 30).directorLine, null);
+  assert.equal(describePreview(preview(null), 30).directorLine, null);
+  assert.equal(describePreview(preview(undefined), 30).directorLine, null);
+});

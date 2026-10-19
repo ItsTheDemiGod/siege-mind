@@ -23,9 +23,12 @@ test('the how-to steps cover the controls the player needs', () => {
   for (const needle of ['A S D F G', 'Enter', 'Delete', 'Esc', '1 2 3', 'Space', 'Gold']) assert.ok(text.includes(needle), needle);
 });
 
-test('adaptive is unavailable and static is available; everything is frozen', () => {
+// approved reversal (Phase 6): adaptive is available now; the random control is not listed in the menu
+test('static and adaptive are available, random is not listed; everything is frozen', () => {
   assert.equal(MODES.find((m) => m.id === 'static').available, true);
-  assert.equal(MODES.find((m) => m.id === 'adaptive').available, false);
+  assert.equal(MODES.find((m) => m.id === 'adaptive').available, true);
+  assert.equal(MODES.find((m) => m.id === 'random'), undefined);
+  assert.deepEqual(MODES.map((m) => m.id), ['static', 'adaptive']);
   assert.ok(Object.isFrozen(MODES) && Object.isFrozen(LENGTH_OPTIONS) && Object.isFrozen(ENEMY_BLURBS) && Object.isFrozen(HOW_TO_STEPS));
 });
 

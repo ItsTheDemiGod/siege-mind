@@ -20,6 +20,18 @@ export function parseSeedInput(text) {
   return { ok: true, seed: t };
 }
 
+const VALID_MODES = ['static', 'adaptive', 'random'];
+
+/**
+ * @param {string|null|undefined} text the ?mode= value
+ * @returns {{ok: boolean, mode: 'static'|'adaptive'|'random'}} absent or empty is Static; an unknown value falls back to Static with ok false
+ */
+export function parseModeParam(text) {
+  const t = String(text ?? '').trim().toLowerCase();
+  if (t === '') return { ok: true, mode: 'static' };
+  return VALID_MODES.includes(t) ? { ok: true, mode: t } : { ok: false, mode: 'static' };
+}
+
 /** @param {URLSearchParams} params @returns {boolean} the menu shows unless the URL says play or debug */
 export function shouldShowMenu(params) {
   return !(params.has('play') || params.has('debug'));

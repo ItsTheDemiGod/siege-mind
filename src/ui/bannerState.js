@@ -2,12 +2,15 @@
 import { config } from '../data/config.js';
 import { compositionItems } from './compositionItems.js';
 
+export const DIRECTOR_LINE = 'Director adapted this wave';
 const hpLine = (hpMult) => `Enemy HP ×${hpMult.toFixed(1)}`;
+/** Only an actual adaptation is announced: 'random' and 'cold-start' show nothing, so the random control stays hidden. */
+const directorLineOf = (director) => (director && director.reason === 'adapted' ? DIRECTOR_LINE : null);
 
 /**
  * @param {{wave: number, name: string|null, fixed: boolean, composition: Record<string, number>, hpMult: number}} started WAVE_STARTED payload
  * @param {number} totalWaves
- * @returns {{kicker: string, title: string, fixed: boolean, final: boolean, items: object[], hpLine: string, seconds: number}}
+ * @returns {{kicker: string, title: string, fixed: boolean, final: boolean, items: object[], hpLine: string, directorLine: string|null, seconds: number}}
  */
 export function describeBanner(started, totalWaves) {
   const final = started.wave === totalWaves;
@@ -15,7 +18,7 @@ export function describeBanner(started, totalWaves) {
   const seconds = final ? config.ui.bannerFinalSeconds : started.fixed ? config.ui.bannerFixedSeconds : config.ui.bannerSeconds;
   return {
     kicker, title: started.name ?? `Wave ${started.wave}`, fixed: started.fixed, final,
-    items: compositionItems(started.composition), hpLine: hpLine(started.hpMult), seconds,
+    items: compositionItems(started.composition), hpLine: hpLine(started.hpMult), directorLine: directorLineOf(started.director), seconds,
   };
 }
 
@@ -33,5 +36,6 @@ export function describePreview(preview, totalWaves) {
     fixed: preview.fixed,
     items: compositionItems(units),
     hpLine: hpLine(preview.hpMult),
+    directorLine: directorLineOf(preview.director),
   };
 }

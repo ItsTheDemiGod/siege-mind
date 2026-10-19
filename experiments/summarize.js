@@ -11,7 +11,7 @@ const f = (x, d = 2) => roundTo(x, d).toFixed(d);
 const LEFT_ALIGNED = new Set(['enemy', 'name', 'type']);
 
 /** Aligned text table: text columns left, numeric columns right-aligned. */
-function table(title, headers, rows) {
+export function table(title, headers, rows) {
   const all = [headers, ...rows.map((r) => r.map(String))];
   const widths = headers.map((_, c) => Math.max(...all.map((r) => r[c].length)));
   const line = (r) => r.map((v, c) => (LEFT_ALIGNED.has(headers[c]) ? v.padEnd(widths[c]) : v.padStart(widths[c]))).join('  ');

@@ -21,7 +21,7 @@ export function waveBudgetTarget(w, cfg = config.waves) {
   return Math.round(cfg.budgetScale * (cfg.budgetBase + cfg.budgetLinear * (w - 1) + cfg.budgetQuad * (w - 1) ** 2));
 }
 
-// Enemy HP and shield multiplier per wave, built with plain + - * arithmetic only (no Math.pow / Math.exp) so every machine gets
+// Enemy HP and shield multiplier per wave, built with plain + - * arithmetic only (no pow or exp calls) so every machine gets
 // identical numbers. Threat accounting (BUDGETS, STATIC_THREAT, planThreat) stays in BASE threat units: the multiplier is applied
 // identically in Static and Adaptive mode and never changes the threat a wave spends.
 /**

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSeedInput, shouldShowMenu, buildPlayUrl, buildMenuUrl } from '../src/ui/menuState.js';
+import { parseSeedInput, shouldShowMenu, buildPlayUrl, buildMenuUrl, parseModeParam } from '../src/ui/menuState.js';
 
 test('parseSeedInput: empty, integers and boundaries', () => {
   assert.deepEqual(parseSeedInput(''), { ok: false, reason: 'empty' });
@@ -45,4 +45,14 @@ test('buildMenuUrl removes the play/debug parameters and keeps seed, mode, waves
   const href = 'http://x.test/g.html?seed=7&mode=static&waves=15&play=1&debug=1&stress=1&wave=12&gold=500&spawn=3&startlives=5&keep=me#frag';
   assert.equal(buildMenuUrl(href), 'http://x.test/g.html?seed=7&mode=static&waves=15&keep=me#frag');
   assert.equal(buildMenuUrl('http://x.test/'), 'http://x.test/');
+});
+
+test('parseModeParam: absent and empty are Static, known modes are case-insensitive, anything else falls back with ok false', () => {
+  const table = [
+    [null, true, 'static'], [undefined, true, 'static'], ['', true, 'static'], ['  ', true, 'static'],
+    ['static', true, 'static'], ['adaptive', true, 'adaptive'], ['random', true, 'random'],
+    [' Adaptive ', true, 'adaptive'], ['RANDOM', true, 'random'], ['Static', true, 'static'],
+    ['hard', false, 'static'], ['adaptiv', false, 'static'], ['1', false, 'static'], ['static;adaptive', false, 'static'],
+  ];
+  for (const [input, ok, mode] of table) assert.deepEqual(parseModeParam(input), { ok, mode }, String(input));
 });

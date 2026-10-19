@@ -5,6 +5,8 @@ import { resolve } from 'node:path';
 import { config } from '../src/data/config.js';
 import { STATIC_THREAT, hpMultiplierForWave } from '../src/data/waves.js';
 import { createGame, stepGame } from '../src/sim/game.js';
+import { tiltFromScores } from '../src/sim/directorMath.js';
+import { ENEMY_ORDER } from '../src/data/enemies.js';
 import { EVENT_TYPES } from '../src/sim/events.js';
 import { getBot } from './bots.js';
 import { attachTelemetry } from '../src/sim/telemetry.js';
@@ -14,12 +16,12 @@ import { runToJson, wavesCsv, waveTypesCsv, enemiesCsv, towersCsv } from '../src
 const ACT_EVERY_TICKS = 120; // while a wave is running
 
 /**
- * Play one full static-mode game.
- * @param {{seed?: number, bot: {act: Function}, maxTicks?: number, totalWaves?: 15|30, gameOptions?: object, telemetry?: 'full'|'summary'|false, meta?: object}} o
- * @returns {{run?: object, result: 'won'|'lost'|'timeout', wave: number, lives: number, ticks: number, seconds: number, minutes: number, stats: object, perWave: object[]}}
+ * Play one full game (static, adaptive or random mode).
+ * @param {{seed?: number, bot: {act: Function}, maxTicks?: number, totalWaves?: 15|30, gameOptions?: object, telemetry?: 'full'|'summary'|false, meta?: object, mode?: 'static'|'adaptive'|'random'}} o
+ * @returns {{director: {scores: object, tilt: object}|null, run?: object, result: 'won'|'lost'|'timeout', wave: number, lives: number, ticks: number, seconds: number, minutes: number, stats: object, perWave: object[]}}
  */
-export function playGame({ seed = 1, bot, maxTicks = 600000, totalWaves = config.game.totalWaves, gameOptions = {}, telemetry = false, meta = {} }) {
-  const game = createGame({ seed, debugSpawnEveryTicks: 0, totalWaves, ...gameOptions });
+export function playGame({ seed = 1, bot, maxTicks = 600000, totalWaves = config.game.totalWaves, gameOptions = {}, telemetry = false, meta = {}, mode = 'static' }) {
+  const game = createGame({ seed, debugSpawnEveryTicks: 0, totalWaves, mode, ...gameOptions });
   const collector = telemetry ? attachTelemetry(game, { detail: telemetry, meta }) : null;
   const perWave = [];
   let waveStartTick = 0;
@@ -35,7 +37,9 @@ export function playGame({ seed = 1, bot, maxTicks = 600000, totalWaves = config
     if (phase === 'prep' || phase === 'intermission' || game.tick % ACT_EVERY_TICKS === 0) bot.act(game);
     stepGame(game);
   }
+  const directorCfg = game.directorCfg ?? config.director;
   return {
+    director: game.director ? { scores: { ...game.director.scores }, tilt: tiltFromScores(game.director.scores, directorCfg) } : null,
     ...(collector ? { run: collector.getRun() } : {}),
     result: game.over ? game.result : 'timeout', wave: game.waves.current, lives: game.lives, ticks: game.tick,
     seconds: game.tick * config.sim.stepSeconds, minutes: (game.tick * config.sim.stepSeconds) / 60, stats: { ...game.stats }, perWave,
@@ -47,20 +51,27 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const botName = arg('bot', 'balanced');
   const seed = Number(arg('seed', 1));
   const waves = Number(arg('waves', config.game.totalWaves));
+  const mode = arg('mode', 'static');
+  if (!['static', 'adaptive', 'random'].includes(mode)) { console.error('--mode must be static, adaptive or random'); process.exit(2); }
   const telemetry = arg('telemetry', '');
   if (telemetry && !config.telemetry.allowedDetails.includes(telemetry)) { console.error('--telemetry must be full or summary'); process.exit(2); }
   const outDir = arg('out', 'experiments/results');
   const t0 = performance.now();
-  const r = playGame({ seed, totalWaves: waves, bot: getBot(botName), telemetry: telemetry || false, meta: { app: 'siege-mind-cli', bot: botName } });
+  const r = playGame({ seed, totalWaves: waves, bot: getBot(botName), telemetry: telemetry || false, mode, meta: { app: 'siege-mind-cli', bot: botName } });
   const ms = performance.now() - t0;
-  console.log(`bot=${botName} seed=${seed} mode=static length=${waves === 15 ? 'Quick' : 'Full'} (${waves} waves)`);
+  console.log(`bot=${botName} seed=${seed} mode=${mode} length=${waves === 15 ? 'Quick' : 'Full'} (${waves} waves)`);
   console.log('wave  threat  hpMult  seconds  kills  leaks  livesLost  livesAfter   gold  towers');
   for (const w of r.perWave) {
     console.log([w.wave, w.threat, w.hpMult.toFixed(2), w.seconds.toFixed(0), w.kills, w.leaks, w.livesLost, w.livesAfter, Math.round(w.gold), w.towers].map((v, i) => String(v).padStart([4, 7, 8, 9, 7, 7, 11, 11, 7, 8][i])).join(''));
   }
   console.log(`result=${r.result} wave=${r.wave} lives=${r.lives} game time=${r.minutes.toFixed(1)} min (${r.seconds.toFixed(0)}s) ticks=${r.ticks} (${(r.ticks / (ms / 1000)).toFixed(0)} steps/s, wall ${ms.toFixed(0)} ms)`);
   console.log(JSON.stringify(r.stats));
-  if (r.run) process.exitCode = writeTelemetry(r.run, outDir, `${botName}_seed${seed}_static_w${waves}`.replace(/[^A-Za-z0-9._-]/g, '-'));
+  if (r.director) {
+    const fmt = (o) => ENEMY_ORDER.map((t) => `${t} ${o[t].toFixed(2)}`).join(', ');
+    console.log(`director final scores: ${fmt(r.director.scores)}`);
+    console.log(`director final tilt:   ${fmt(r.director.tilt)}`);
+  }
+  if (r.run) process.exitCode = writeTelemetry(r.run, outDir, `${botName}_seed${seed}_${mode}_w${waves}`.replace(/[^A-Za-z0-9._-]/g, '-'));
 }
 
 /** Write the JSON and CSV files of a run into dir and validate it. Returns the process exit code. */

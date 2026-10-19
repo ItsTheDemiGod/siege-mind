@@ -31,7 +31,7 @@ import { createEndScreen } from './ui/endScreen.js';
 import { hpMultiplierForWave } from './data/waves.js';
 import { createPauseState } from './ui/pauseState.js';
 import { resolveEscape } from './ui/escapeResolver.js';
-import { shouldShowMenu, buildMenuUrl } from './ui/menuState.js';
+import { shouldShowMenu, buildMenuUrl, parseModeParam } from './ui/menuState.js';
 import { buildRestartUrl } from './ui/restart.js';
 import { createMainMenu } from './ui/mainMenu.js';
 import { createHowToPlay } from './ui/howToPlay.js';
@@ -39,6 +39,7 @@ import { createPauseMenu } from './ui/pauseMenu.js';
 import { createWaveBanner } from './ui/waveBanner.js';
 import { createWavePreview } from './ui/wavePreview.js';
 import { describeBanner } from './ui/bannerState.js';
+import { formatDirectorLine } from './ui/format.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -57,7 +58,7 @@ const stress = debug && params.get('stress') === '1'; // ?debug=1&stress=1: 40 t
 const STRESS_SPAWN_TICKS = 3;
 const STRESS_GOLD = 1e6;
 const debugSpawnEveryTicks = debug && Number.isInteger(spawnParam) && spawnParam >= 0 ? spawnParam : stress ? STRESS_SPAWN_TICKS : undefined; // debug-only
-const modeParam = params.get('mode'); // static only until Phase 6
+const modeResult = parseModeParam(params.get('mode')); // static | adaptive | random (the random control is URL only)
 const waveParam = Number.parseInt(params.get('wave') ?? '', 10); // debug only: start at wave N
 const wavesParam = params.get('waves'); // 15 (Quick) or 30 (Full); anything else falls back to Full with a notice
 const wavesValid = wavesParam === null || config.game.allowedTotals.includes(Number(wavesParam));
@@ -75,7 +76,7 @@ const settings = createSettings({ storage, prefersReducedMotion: window.matchMed
 const applyReduced = () => document.documentElement.classList.toggle('reduced-motion', settings.get('reducedMotion'));
 applyReduced();
 
-const game = createGame({ seed, totalWaves, debugSpawnEveryTicks, startGold, startLives, startWave });
+const game = createGame({ seed, mode: modeResult.mode, totalWaves, debugSpawnEveryTicks, startGold, startLives, startWave });
 const telemetry = attachTelemetry(game, { meta: { app: 'siege-mind' } }); // observation only; before startGame so no event is missed
 startGame(game);
 const stressTowers = stress ? applyStress(game) : 0;
@@ -119,7 +120,7 @@ hud.setSpeed(state.speed);
 game.events.on(EVENT_TYPES.GOLD_CHANGED, (ev) => hud.set({ gold: ev.gold }));
 game.events.on(EVENT_TYPES.LIVES_CHANGED, (ev) => hud.set({ lives: ev.lives }));
 game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => hud.set({ wave: ev.wave, waveTotal: ev.total }));
-if (modeParam !== null && modeParam !== 'static') toaster.show('Adaptive mode arrives in a later phase'); // falls back to static
+if (!modeResult.ok) toaster.show(`Unknown mode "${params.get('mode')}", using Static`);
 if (!wavesValid) toaster.show('Unknown game length, using the full 30 waves');
 
 const banner = createWaveBanner({ root: uiRoot, reducedMotion });
@@ -238,6 +239,7 @@ function frame(now) {
       + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}${stress ? `  stress mode: towers ${stressTowers}` : ''}\n`
       + `fx: particles ${s.particles}  ghosts ${s.ghosts}  beams ${s.beams}  decals ${s.decals}\n`
       + `telemetry: enemies ${tc.enemyRecords} (dropped ${tc.enemyRecordsDropped}) waves ${tc.waveRecords} towers ${tc.towerRecords} active ${tc.active} ignored ${tc.ignoredEvents}\n`
+      + `${formatDirectorLine(game)}\n`
       + `mode ${game.mode}  phase ${game.waves.phase}  wave ${game.waves.current}/${game.totalWaves}  lives ${game.lives}  countdown ${getWaveCountdownSeconds(game).toFixed(1)}s  remaining ${enemiesRemaining(game)}\n`
       + `enemy HP x${hpMultiplierForWave(game.waves.current).toFixed(2)} (next x${hpMultiplierForWave(game.waves.nextWave).toFixed(2)})  tower price x${priceMultiplier(game).toFixed(2)}\n`
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);

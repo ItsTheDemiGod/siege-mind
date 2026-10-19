@@ -89,7 +89,9 @@ siege-mind/
       towers.js              <- placement, upgrades, targeting, firing (no rng)
       projectiles.js         <- homing bolts, ballistic shells, impacts
       economy.js             <- gold: earn/spend/events
-      director.js            <- adaptive Director AI (Phase 6)
+      director.js            <- Director state, event wiring, planFor (pure) -> plan + decision record
+      directorMath.js        <- pure Director math (reward, advantage, scores, tilt, shares); no pow/exp/log
+      directorExplain.js     <- pure human-readable lines for a decision
       telemetry.js           <- observation-only collector: attachTelemetry(game) -> getRun()
       telemetrySchema.js     <- ids, factories, roundTo, derived stats, CSV column lists
       telemetryRecords.js    <- record builders and plain-data helpers for the collector
@@ -98,7 +100,8 @@ siege-mind/
     data/
       towers.js
       enemies.js
-      waves.js               <- static script + threat-budget curve
+      waves.js               <- static script + threat-budget curve, INTRO_WAVES, isAdaptiveEligible
+      waveCompose.js         <- shared composer: shares -> groups (static builder and Director), deterministic fit step
       config.js              <- economy, lives, director hyperparameters
       map.js                 <- default map grid + waypoints
       enemies.js
@@ -181,7 +184,7 @@ siege-mind/
       endScreenView.js       <- end-screen DOM from a plain model (also used by the gallery)
     audio/
       synth.js               <- WebAudio procedural SFX
-  tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, trayState, waves-data, lives, stats, waveRunner, balance, waveControlState, format, restart, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
+  tests/                     <- node:test unit tests (golden/ holds the frozen Phase 5 static waves; sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, trayState, waves-data, lives, stats, waveRunner, balance, waveControlState, format, restart, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
   tools/
     browser-check/           <- dev only: headless Chrome over CDP (args, chrome, cdp, page, check, smoke); not part of npm test
   experiments/
@@ -189,12 +192,14 @@ siege-mind/
     tiles.js                 <- shared tile ranking
     playthrough.js           <- headless full-game playthrough (npm run playthrough; --telemetry=full|summary writes JSON/CSV)
     summarize.js             <- plain-text tables from a run JSON (npm run summarize)
+    directorCompare.js       <- Static vs Adaptive vs Random over bots and seeds, report-only hypotheses (npm run compare)
     run.js                   <- headless batch runner (Phase 8)
     matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
     results/                 <- generated CSV/JSON (gitignored if large)
     analysis/                <- charts / stats for the report
   docs/
     TELEMETRY.md             <- telemetry schema, attribution rules, CSV tables
+    DIRECTOR.md              <- the Director algorithm, config keys, decision record, controls
     DEMO_SCRIPT.md
     REPORT_NOTES.md
     screens/                 <- screenshots and GIFs for README/report
@@ -273,23 +278,27 @@ Exact numeric stats are decided in Phases 2 and 3, stored in `src/data/`, and re
 
 **Style gallery:** gallery.html renders palette swatches, every enemy and tower at multiple sizes, particle effect demos, and UI components, as a permanent visual QA page and a source of screenshots for the report.
 
-## 7. Director AI Spec (Phase 6)
+## 7. Director AI Spec (Phase 6, implemented)
 
-Weighted-bandit style, fully explainable. No deep learning.
+Modes: 'static' (hand-authored waves, the control), 'adaptive' (the Director) and 'random' (a second control: random tilts of the same range with no learning). All three spend the SAME threat per wave (STATIC_THREAT[wave], in base threat units) and apply the SAME HP multiplier (hpMultiplierForWave(wave)); the Director changes composition only.
 
-- **State:** weight `w[type]` for each of the 5 enemy types (init uniform, sums to 1), plus per-type running stats.
-- **After each wave**, for every type that spawned:
-  - `leakRate = leaked / spawned`
-  - `progress = mean(pathProgressAtDeathOrLeak)` in [0, 1] (leaked = 1)
-  - `effectiveness = a * leakRate + b * progress` (defaults a=0.6, b=0.4, in `config.js`)
-- **Update:** `target = softmax(effectiveness / temperature)` over spawned types, then `w = (1 - alpha) * w + alpha * target` (defaults alpha=0.4, temperature=0.25). Types that did not spawn keep their weight, decayed slightly toward uniform.
-- **Safety:** floor `w >= 0.05` for every type (no type disappears), then renormalize. Epsilon-exploration: 10% of spawn slots drawn uniformly.
-- **Composition:** sample enemies by weight with the seeded RNG until the wave's threat budget is spent. Packs (Swarmling) count as one pick.
-- **HP scaling:** the Director spends `STATIC_THREAT[wave]` in BASE threat units and every enemy it spawns gets the same `hpMultiplierForWave(wave)` as in Static mode.
-- **Budget source:** the Director must spend `STATIC_THREAT[wave]` (use `waveInfo(wave)` and `planThreat(groups)` from src/data/waves.js), not the formula target.
-- **Fairness invariant:** total threat per wave is identical between Static and Adaptive Mode. Adaptive may only change composition (and, as a stretch goal, spawn timing/clumping).
-- **Telemetry:** the Director reads the just-finished wave's `byType[type].leakRate` and `meanProgress` from telemetry (or recomputes them from the same events) and stores its decision with `telemetry.attachDirector(wave, record)`.
-- **Explainability output per wave:** old weights, new weights, per-type effectiveness inputs, and a one-line human-readable reason (e.g. "Fast Runners leaked 40% -> weight up; Armored Grunts died at 22% of path -> weight down").
+Eligible waves: not a fixed set piece (10, 20, 30), not an introduction wave (3, 4, 6, 8) and wave >= config.director.firstAdaptiveWave (5); every other wave uses the static plan. The Director observes and learns from EVERY finished wave.
+
+Observation (sim events only, independent of telemetry), per enemy type that spawned: units, leaked, meanProgress (a leak counts as 1), threatSpent = units * threatCost. reward = leakDamage * meanProgress^k / threatCost (k = rewardExponent). average = threat-weighted mean reward over the types that spent at least minThreatShare of the wave's threat. advantage = clamp((reward - average) / average, -1, +advClipHigh). score = (1 - alpha) * score + alpha * advantage for those types; every other type: score = decay * score. tilt = clamp(1 + beta * score, 1 / tiltMax, tiltMax).
+
+Composition of an eligible wave: base share = the static template share (absentFloorShare when the type is unlocked but absent from the template, 0 while locked); share = base * tilt / sum(base * tilt); the shared composer turns shares into picks with the same largest-remainder rules, timing windows and minimum gaps as the static builder and a deterministic fit step brings realized threat within the data tolerance of STATIC_THREAT.
+
+Cold start: with all scores 0 the plan equals the static plan exactly.
+
+Why progress and not leak rate alone: in the balanced-bot data only 5 leaks happened in 15 waves (all Regenerators and Bruisers), so progress is the continuous signal; the exponent rewards near-leaks.
+
+Known bias: tanky types score higher against most defenses, which is why the random control exists.
+
+Random control: tilt = 1 / tiltMax + (tiltMax - 1 / tiltMax) * u with u from createRng(seed).fork('director-wave-' + wave); it records observations but ignores them.
+
+Explainability: every wave has a decision record (reason, tilts, shares, picks, threat target and realized, what it was based on, human-readable lines) in the WAVE_STARTED payload and in telemetry waves[n].director (see docs/DIRECTOR.md).
+
+Numeric rules: only + - * / comparisons and Math.min/max/floor/round/abs (no Math.pow, Math.exp, Math.log) so every JavaScript engine gives the same numbers.
 
 ## 8. Telemetry Spec (Phase 5, implemented)
 
@@ -305,6 +314,7 @@ Full reference: docs/TELEMETRY.md. Observation only: `attachTelemetry(game, { de
 - Bot players in `experiments/bots.js`: `monoSplash`, `monoSniper`, `balanced`, `adaptiveBot` (shifts loadout toward whatever is leaking), `random`.
 - Runner: `npm run sim -- --mode=static|adaptive --bot=<name> --seeds=30` executes full 30-wave games headless using the exact same `src/sim/` code.
 - Runs export through `attachTelemetry` and the CSV tables (src/sim/telemetryExport.js); 'summary' detail (no per-enemy records) is the default for batch experiments.
+- Phase 8 compares the three modes (static, adaptive, random) over bot-and-seed batches; the bots now include monoMortar and monoSniper next to none, weak and balanced. experiments/directorCompare.js is the small preview.
 - Metrics: wave reached, lives lost, total leaks, leak rate per enemy type, gold efficiency, Director weight trajectories.
 - Output: CSV/JSON into `experiments/results/`; analysis scripts/charts in `experiments/analysis/` (JS with Chart.js, or optional Python pandas/matplotlib for report figures).
 - Report mean +/- 95% CI and a significance test for Static vs Adaptive per bot.
@@ -441,17 +451,22 @@ Implemented; awaiting user playtest, then tag phase-4b-complete. Checked in head
 **Done when:** after any run, a complete telemetry object exists and exports cleanly.
 Implemented; awaiting user check, then tag phase-5-complete.
 
-### [ ] Phase 6 — Adaptive Director AI
-- [ ] `director.js` implementing Section 7 with hyperparameters in `config.js`
-- [ ] Budget-preserving composition sampler using seeded RNG
-- [ ] Fixed special waves; fairness invariant test (same budget as static)
-- [ ] Director unit tests (update math, floor, exploration, determinism)
+### [~] Phase 6 — Adaptive Director AI
+- [x] Shared wave composer with a deterministic fit step; golden test proves the static waves are unchanged
+- [x] `director.js` and `directorMath.js` implementing Section 7 with hyperparameters in `config.director`
+- [x] Fixed special waves, intro waves and early waves stay static; fairness invariants tested (same threat within tolerance, same HP multiplier)
+- [x] Random control mode sharing the machinery; Director unit and integration tests (math, observation, cold start, determinism, purity)
+- [x] Decision records in WAVE_STARTED and telemetry; docs/DIRECTOR.md
+- [x] Modes in the menu and URL, Director line in the banner and preview, debug line, end screen mode row
+- [x] Bots monoMortar and monoSniper, playthrough --mode, compare tool with report-only hypotheses
 **Done when:** in Adaptive Mode, waves visibly shift toward whatever the loadout handles worst, with equal total threat to Static.
+Implemented; awaiting user check, then tag phase-6-complete.
 
 ### [ ] Phase 7 — Explainability overlay and mode UI
 - [ ] Vendor Chart.js; live panel: effectiveness bars, weight history, per-wave reason text
 - [ ] Menu toggle Static/Adaptive; in-game overlay show/hide hotkey
 - [ ] Wave preview ("incoming composition") bar
+- [ ] Reads the decision records (waves[n].director / WAVE_STARTED.director); the end screen needs its layout reworked so the card clears the HUD strip and has room for the Director's Report
 - [ ] Director identity in violet (animated Director panel, animated weight bars, scan-sweep on composition change) and a 'Director's Report' end-of-run screen: weight timeline, what the Director learned about the player's build, and one-line plain-language insights
 **Done when:** a viewer can watch the overlay and understand why each wave changed.
 
@@ -473,6 +488,7 @@ Implemented; awaiting user check, then tag phase-5-complete.
 - [ ] Separate early and late HP-curve slopes (lives are only lost in waves 2-10 today)
 - [ ] Quick-mode finale wave (wave 15 is an ordinary wave in a Quick game)
 - [ ] Re-check the 60% worst-wave-share clause of T5 that Phase 4A.2 dropped
+- [ ] Rebalance after Phase 8 data: the Mortar deals about a third of all damage; revisit tiltMax, beta and alpha using Phase 8 results
 **Done when:** the game feels good to play for 15+ minutes and balance data supports it.
 
 ### [ ] Phase 10 — Docs, deployment, and demo
@@ -608,6 +624,20 @@ Implemented; awaiting user check, then tag phase-5-complete.
 - 2026-10-19 | 5 | (k) tools/browser-check is a dev tool (Node built-ins, real Chrome over CDP) and lives outside npm test | Needs a local browser; smoke:browser verifies the menu, game, gallery and 40-tower stress mode
 - 2026-10-19 | 5 | (l) Other: validateRun also checks tower finalLevel against the upgrade list and ignores the free-form director and killer fields in the numeric check; the pause menu download button sits before Restart; the Download buttons are shown only when both callbacks are given (the gallery demos stay without them); impacts of shells still flying after a wave ended count in offWave | Small gaps the brief left open
 
+- 2026-10-19 | 6 | (a) The Director tilts the static template shares; with all scores 0 the plan is the static plan itself (cold start equals static, tested against the golden file) | Adaptive can only differ from static where it has evidence; fairness stays easy to audit
+- 2026-10-19 | 6 | (b) reward = leakDamage * meanProgress^k / threatCost (k 2) | Leaks are sparse (5 in a 15-wave balanced game), progress is the continuous signal, the threat cost makes cheap and expensive types comparable
+- 2026-10-19 | 6 | (c) No pow, exp or log anywhere in src/sim and src/data (integer powers by repeated multiplication), enforced by a grep in the verify step | Cross-engine determinism of recorded runs
+- 2026-10-19 | 6 | (d) Eligibility: not fixed (10, 20, 30), not an intro wave (3, 4, 6, 8), wave >= 5; the Director still learns from every wave | New enemy types are introduced as authored; set pieces stay recognizable
+- 2026-10-19 | 6 | (e) Fairness: the target is STATIC_THREAT[wave], a deterministic fit step keeps the realized threat within max(5%, 12) (measured max 0.17 of the tolerance in the 15-wave test run, 0.83 over 4200 random share vectors), hpMult and wave count are untouched | The only thing that differs from Static is composition
+- 2026-10-19 | 6 | (f) The Director is independent of telemetry (it uses sim events only) and attributes enemies to the wave they spawned in, counting only spawns while a wave runs | Works with telemetry detached; debug spawns between waves carry a stale wave number and are ignored
+- 2026-10-19 | 6 | (g) planFor is pure and returns the decision record with the plan; the preview calls the same function | The preview always equals what will spawn
+- 2026-10-19 | 6 | (h) A 'random' control mode (URL only, not in the menu) uses the same machinery, records observations, ignores them and draws tilts from createRng(seed).fork('director-wave-' + wave) | Lets Phase 8 separate "responds to the defense" from "just different"
+- 2026-10-19 | 6 | (i) The compare tool's hypotheses H1-H6 are reported, never asserted and never used to tune parameters; H6 is N/A unless all four bots ran | Keeps the evaluation honest
+- 2026-10-19 | 6 | (j) The weak bot is now createMonoBot('weak', 'lance') with identical behavior (tests/balance.test.js unchanged and passing); monoMortar and monoSniper added | Bot variety for the Director comparison
+- 2026-10-19 | 6 | (k) tests/golden/static-waves.json and static-threat.json were generated from the Phase 5 code before the composer refactor and are never regenerated | Proof that the refactor left Static bit-for-bit unchanged
+- 2026-10-19 | 6 | (l) Approved reversals: the tests that asserted adaptive throws (waveRunner, quick-game) and that Adaptive is unavailable in MODES were replaced by tests of the new behavior | The behavior changed on purpose
+- 2026-10-19 | 6 | (m) Other: the decision record also carries the explanatory lines; the compare tool measures lives lost as startLives - lives left (so the lost final wave counts); validateRun checks director records per run mode; the debug panel's Director line uses short enemy names so it fits; menu preselects Adaptive from ?mode=adaptive and keeps ?mode=random until a radio is chosen | Small gaps the brief left open
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -638,6 +668,12 @@ Implemented; awaiting user check, then tag phase-5-complete.
 - The collector adds about 4% wall time to a headless 30-wave run (2095 ms without, 2181 ms with full telemetry); there is no browser frame-time measurement of it.
 - Late attachment loses everything before attach (counted in meta.ignoredEvents); startGold is then the gold at attach time.
 - A 30-wave full run is 1.3 MB of JSON (enemies.csv 387 KB); the 20000-record cap is far above any real run (about 3200 enemies).
+- The Director's bias: tanky types (Regenerator, Bruiser) score higher against most defenses, so in adaptive games they get more share; compare against the random control (the balanced bot: adaptive lost 19.7 lives on average over seeds 1-3 versus 18.0 random and 13.0 static, 15 waves).
+- Seeds only change lane offsets, so bot runs vary little across seeds (the balanced bot's lives left differ by seed mostly because of when leaks happen).
+- monoMortar loses at wave 5 and monoSniper at wave 7 in every mode, before or at the Director's first eligible wave, so H5/H6 are trivially satisfied for them in the compare output.
+- The end card overlaps the HUD strip a little (Phase 7 reworks the end screen layout).
+- About 30% of the 40-tower stress layout never fires (towers out of range of the path).
+- The first adaptive wave (5) is 'adapted' as soon as waves 1-4 produced non-zero scores; 'cold-start' therefore appears only when the scores are exactly zero or a wave is observed without any updated type.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -653,3 +689,4 @@ Implemented; awaiting user check, then tag phase-5-complete.
 - 2026-10-19 | Phase 4A.2 | Wave HP scaling (polynomial), base-HP regeneration, tower price growth and cap 60, weak bot, bot ladder calibration (Stage C), price in the tray and HP multiplier in the wave control; 512 tests pass; no real-browser run | User playtests, then Phase 4B
 - 2026-10-19 | Phase 4B | Test tightening, Quick game (15 waves), waveLog and wave preview in the sim, main menu, how-to, pause menu, wave banner, wave preview, countdown ring, four core states with destroyed and victory animations, animated end screens with wave strip, pause locks and a single Escape handler, gallery 4b; 615 tests pass; verified in headless Chrome | User playtests, then tag phase-4b-complete; Phase 5 only when the user says so
 - 2026-10-19 | Phase 5 | Telemetry collector, schema, validateRun, JSON/CSV export, docs/TELEMETRY.md, playthrough --telemetry, summarize, download buttons, debug telemetry line, browser-check dev tool (check, smoke); 700 tests pass; 30-wave balanced seed 1 still wins with 8 lives in 43.4 min (15 waves 18.9 min), none loses at wave 3, weak at wave 10; headless Chrome smoke passes | User checks, then tag phase-5-complete; Phase 6 only when the user says so
+- 2026-10-19 | Phase 6 | Shared wave composer and golden static waves, Director math, Director and random control, game wiring, decision records, telemetry hook and validation, docs/DIRECTOR.md, monoMortar and monoSniper bots, playthrough --mode, compare tool, modes in menu and URL, Director UI lines; 778 tests pass; static results identical to Phase 5; headless Chrome smoke passes (5 checks) | User checks, then tag phase-6-complete; Phase 7 only when the user says so

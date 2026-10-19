@@ -14,7 +14,8 @@ export function createWaveBanner({ root, reducedMotion }) {
   const title = h('div', { class: 'wb-title' });
   const chips = h('div', { class: 'wb-chips' });
   const hp = h('div', { class: 'wb-hp' });
-  const el = h('div', { class: 'wave-banner', role: 'status', 'aria-live': 'polite', hidden: true }, [kicker, title, chips, hp]);
+  const director = h('div', { class: 'wb-director', hidden: true });
+  const el = h('div', { class: 'wave-banner', role: 'status', 'aria-live': 'polite', hidden: true }, [kicker, title, chips, hp, director]);
   el.style.top = `${config.view.hudHeight + TOP_OFFSET}px`;
   root.append(el);
   let timer = 0;
@@ -31,6 +32,8 @@ export function createWaveBanner({ root, reducedMotion }) {
     kicker.textContent = d.kicker;
     title.textContent = d.title;
     hp.textContent = d.hpLine;
+    director.hidden = !d.directorLine;
+    director.textContent = d.directorLine ?? '';
     chips.replaceChildren(...compositionChips(d.items));
     el.classList.toggle('is-fixed', d.fixed);
     el.classList.toggle('is-final', d.final);

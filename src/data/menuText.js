@@ -2,8 +2,11 @@
 
 export const MODES = Object.freeze([
   Object.freeze({ id: 'static', label: 'Static', available: true, blurb: 'Fixed waves, the same every run. The control group.' }),
-  Object.freeze({ id: 'adaptive', label: 'Adaptive', available: false, blurb: 'Locked until the Director AI is built' }),
+  Object.freeze({ id: 'adaptive', label: 'Adaptive', available: true, blurb: 'The enemy studies your defense and counters it' }),
 ]);
+
+/** The random control mode is reachable only through ?mode=random, so it is not part of MODES. */
+export const RANDOM_CONTROL = Object.freeze({ label: 'Random control', blurb: 'A control mode: enemy mixes are tilted at random' });
 
 export const LENGTH_OPTIONS = Object.freeze([
   Object.freeze({ waves: 15, label: 'Quick', blurb: '15 waves, about 20 min at normal speed' }),

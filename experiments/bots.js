@@ -80,29 +80,38 @@ function tryUpgradeAvailable(game) {
   return game.towers.some((t) => TOWERS[t.type].upgrades[t.level]);
 }
 
-const WEAK_MAX_TOWERS = 12;
+const MONO_MAX_TOWERS = 12;
 
-/** Lance-only, at most 12 towers, never upgrades; same rhythm as balanced (starts a wave once nothing is affordable). */
-function createWeakBot() {
+/**
+ * One tower type only, at most `cap` towers, never upgrades; same rhythm as balanced (starts a wave once nothing is affordable).
+ * 'weak' is the Lance version and must behave exactly as it did before this refactor (tests/balance.test.js guards it).
+ */
+function createMonoBot(name, towerType, cap = MONO_MAX_TOWERS) {
   const states = new WeakMap();
   return {
-    name: 'weak',
+    name,
     act(game) {
       if (game.over) return;
       let tiles = states.get(game);
       if (!tiles) { tiles = rankBuildableTiles(game.map, TILE_RANGE); states.set(game, tiles); }
-      while (game.towers.length < WEAK_MAX_TOWERS && game.gold >= getTowerCost(game, 'lance')) {
+      while (game.towers.length < cap && game.gold >= getTowerCost(game, towerType)) {
         const tile = tiles.find((t) => !towerAt(game, t.col, t.row) && game.map.isBuildable(t.col, t.row));
-        if (!tile || !placeTower(game, 'lance', tile.col, tile.row).ok) break;
+        if (!tile || !placeTower(game, towerType, tile.col, tile.row).ok) break;
       }
       startNextWave(game);
     },
   };
 }
 
-const FACTORIES = { none: createNoneBot, weak: createWeakBot, balanced: createBalancedBot };
+const FACTORIES = {
+  none: createNoneBot,
+  weak: () => createMonoBot('weak', 'lance'),
+  monoMortar: () => createMonoBot('monoMortar', 'mortar'),
+  monoSniper: () => createMonoBot('monoSniper', 'sniper'),
+  balanced: createBalancedBot,
+};
 
-/** @param {string} name 'none' | 'balanced' @returns {{name: string, act: (game: object) => void}} */
+/** @param {string} name one of BOT_NAMES @returns {{name: string, act: (game: object) => void}} */
 export function createBot(name) {
   const make = FACTORIES[name];
   if (!make) throw new Error(`unknown bot: ${name} (have: ${Object.keys(FACTORIES).join(', ')})`);
