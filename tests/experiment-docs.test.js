@@ -46,6 +46,10 @@ test('docs/EXPERIMENT.md records the validation-split incident', () => {
   for (const w of ['Incident log', 'not pristine', 'tests/cli-lock.test.js']) assert.ok(doc.includes(w), w);
 });
 
+test('docs/EXPERIMENT.md documents the six-mode first look, the attribution chain and the fixed-wave rule', () => {
+  for (const w of ['Six-mode first look', 'attribution', 'fixed-wave', 'prior', 'before any validation or held-out run', 'metRule', 'protocol version 4', 'no tuning of any arm']) assert.ok(doc.includes(w), w);
+});
+
 test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the six figures', () => {
   assert.ok(doc.includes('## Diagnostics'));
   assert.ok(doc.includes('## Figures'));

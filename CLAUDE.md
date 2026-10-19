@@ -95,6 +95,7 @@ siege-mind/
       directorExplain.js     <- pure human-readable lines for a decision
       directorMathV2.js      <- pure Director v2 math: baselineValue, shrinkFactor, computeObservationV2, config validators for v2 and the counter arm
       directorV2.js          <- Director v2 ('adaptive2') state, event wiring, planForV2, DECISION_KEYS_V2
+      directorPrior.js       <- prior control ('prior'): fixed weights from the static baseline only; priorTilt, planForPrior, DECISION_KEYS_PRIOR, validatePriorConfig
       directorCounter.js     <- informed counter arm ('counter'): loadoutPressure, planForCounter, DECISION_KEYS_COUNTER
       telemetry.js           <- observation-only collector: attachTelemetry(game) -> getRun()
       telemetrySchema.js     <- ids, factories, roundTo, derived stats, CSV column lists
@@ -219,6 +220,8 @@ siege-mind/
     splits.js                <- TRAIN_SEEDS (1001-1020), VALIDATION_SEEDS (1021-1030), splitSeeds
     modes.js                 <- PROTOCOL_MODES, EXTRA_MODES (adaptive2, counter), ALL_MODES, modesAllowedFor
     makeBaseline.js          <- pure buildBaseline + CLI npm run baseline (writes src/data/directorBaseline.js from static train-seed games)
+    fixedWave.js             <- pure fixed-wave rule: coverageTable, chooseFixedWave (counts only), candidates 9..15 eligible
+    firstLookChain.js        <- attribution chain, tilt agreement, mean tilts (pure); firstLookContrast.js is the fixed-wave style contrast
     firstLook.js             <- pure first look at all modes on the population (firstLookFormat.js text/markdown, firstLookCli.js is npm run first-look)
     stats.js                 <- mean/sd/quantile, sign-flip test, cluster bootstrap, Holm, Wilson, required n
     analyze.js               <- the pre-registered analysis (analyzeFormat.js renders text and markdown)
@@ -344,6 +347,8 @@ Explainability: every wave has a decision record (reason, tilts, shares, picks, 
 
 Research arms (Phase 9A-2a, URL only, not in the menu, not part of PROTOCOL): 'adaptive2' (Director v2) keeps v1's mechanism but divides each type's reward by a static baseline for its type and wave (src/data/directorBaseline.js, measured in static train-seed games, so it cannot be circular), computes the advantage against the threat-weighted mean of those normalized rewards and shrinks it by units / (units + shrinkK); 'counter' reads the tower loadout (pressure = weight of towers weak against a type minus weight of towers strong against it, over the total weight; tilt = clamp(1 + gain * pressure)) and is an achievable ceiling, not a fair competitor. Both use the same eligibility, threat target and HP rules as v1, and v1, static and random are bit-for-bit unchanged (tests/golden-modes.test.js). See docs/DIRECTOR.md.
 
+Prior control (Phase 9A-2b-1, URL only, `mode=prior`): a fixed, non-learning arm whose weights come only from the static baseline table and the template shares (tilt = clamp(1 + beta * clamp((b - avg) / avg, -1, advClipHigh)), avg = template-share-weighted mean of the baseline rewards); it reproduces the enemy-durability bias of the learning Directors without learning and without reading the defense, so its fixed-wave style contrast is exactly 0. See docs/DIRECTOR.md.
+
 Explainability (Phase 7): the overlay (key I, HUD button, Adaptive and Random modes) shows the decision for the upcoming wave while the game is in prep or intermission (read-only, from the pure planner planWaveWithDecision) and the latest logged decision (a decision log filled from WAVE_STARTED) while a wave runs or after the game. Rows show the applied tilt; the tilt chart plots the HELD weights (tiltFromScores of the scores) because non-eligible waves report an applied tilt of 1. The Director's Report (end card, adaptive and random runs) is built from the telemetry run: insight 1 leaned-on types, 2 backed-off types, 3 top damage tower with a weakness note, 4 toughest wave, 5 mean share shift; capped at config.report.maxInsights. Details and exact templates in docs/DIRECTOR.md.
 
 Numeric rules: only + - * / comparisons and Math.min/max/floor/round/abs (no Math.pow, Math.exp, Math.log) so every JavaScript engine gives the same numbers.
@@ -366,6 +371,7 @@ Full protocol: docs/EXPERIMENT.md (pre-registration); machine-readable: experime
 - **Held-out lock:** `npm run experiment -- --set=heldout --final --yes` writes experiments/heldout.lock.json before playing; a second run needs --new-lock and leaves an audit trail. The held-out set is not run before Phase 8B.
 - **Amendment A1 (protocol version 2):** the final tilt is measured at the last ELIGIBLE wave for adaptive and random alike (`tiltObserved` flag); made after the tuning results were seen and before any held-out run; the v1 outputs are archived and `npm run amendment-report` compares the definitions. **Diagnostics** (`npm run diagnose`, static mode, tuning seeds) and **figures** (`npm run figures`, hand-written SVG) are described in docs/EXPERIMENT.md.
 - **Phase 9A-2a tooling:** modes static, adaptive, random plus the research arms adaptive2 and counter (allowed for the tuning set only; the held-out run stays PROTOCOL.modes until amendment A3); the tuning seeds are split into TRAIN 1001-1020 and VALIDATION 1021-1030 (`--split=train|validation|all`; the validation split goes through its own lock experiments/validation.lock.json and has not been run); `npm run baseline` writes the Director v2 baseline table; result rows carry the JSON-only `tiltByWave`; `npm run first-look` compares all modes on the population of units whose static game reached wave 5, with a fixed-wave style contrast and coverage.
+- **Phase 9A-2b-1 tooling:** six modes (the prior control joins; allowed for the tuning set only); goldens for every arm (static/adaptive/random, adaptive2/counter, prior); the CLI lock gate is exported as main(argv, deps) and covered by tests/cli-lock.test.js with stubs; `npm run first-look` adds the difficulty-attribution chain (random-static + prior-random + adaptive-prior = adaptive-static, checked per seed), the fixed-wave style contrast for adaptive, adaptive2, counter, prior and random with a matched-set sensitivity, the pre-registered fixed-wave rule (coverage counts only; written to <out>.fixedwave.json), tilt agreement and mean tilts.
 - **Amendment A2 (protocol version 3, Phase 9A-1):** ablation styles replace the focus styles (each omits one tower; the prediction is the strongVs type of the missing tower); T1 (fixed-threshold tilt alignment, biased toward the random control) is retired and replaced by the style-contrast hypotheses T2 (adaptive minus random, secondary family) and T0 (random against 0, descriptive null check); the analysis adds an early-ends invariant check (the same units end before wave 5 in every mode), a reached-wave-5 sensitivity analysis of P1, P2 and C1, and the diagnostics add the reward contrast (does the reward itself separate defenses in the predicted direction, static mode). Made after seeing the tuning results of versions 1 and 2 and the Phase 8B diagnostics, before any held-out run. Calibration: 9 combinations in static mode, selection in up to three stages on the same results.
 - Runs export through `attachTelemetry` ('summary' detail) and the CSV tables; experiments/directorCompare.js (`npm run compare`) remains as a small preview.
 
@@ -551,22 +557,28 @@ Done (tagged phase-8b-complete).
 - [x] Diagnostics refreshed incl. the reward contrast
 Done (tagged phase-9a1-complete); nothing under src/ changed.
 
-### [~] Phase 9A-2a — New arms and first look
+### [x] Phase 9A-2a — New arms and first look
 - [x] Golden pin of static, adaptive and random (tests/golden-modes.test.js) and a train/validation split with a validation lock (not run)
 - [x] Static baseline table from train-seed games (npm run baseline -> src/data/directorBaseline.js)
 - [x] Director v2 ('adaptive2': baseline-normalized rewards, shrinkage) and the informed counter arm ('counter'), initial parameter values, nothing tuned
 - [x] Runner, metrics (tiltByWave), minimal UI for the arms (URL only) and the first-look tool
 - [x] First look on the TRAIN seeds (500 games, exploratory)
-Implemented; awaiting user check, then tag phase-9a2a-complete.
+Done (tagged phase-9a2a-complete).
 
-### [ ] Phase 9A-2b — Tuning on the training seeds, one validation run, amendment A3
-- [ ] Tune Director v2 on the TRAIN seeds only with the bounded grid alpha {0.35, 0.5, 0.7} x beta {1, 1.5} x shrinkK {2, 6} (adaptive2 only; select by the largest adaptive2-minus-random lives lost on the population among combinations with a positive fixed-wave contrast at the pre-chosen wave)
-- [ ] One validation run (seeds 1021-1030) through the validation lock for the chosen configuration, v1 and the counter arm
-- [ ] Amendment A3: confirmatory hypotheses, primary population (static game reached wave 5), fixed-wave contrast wave from a coverage rule on training data, held-out size 150 seeds, written BEFORE any held-out run
-- [ ] Small-sample shrinkage review, regenerate the baseline if the sim balance changes (npm run baseline)
+### [~] Phase 9A-2b-1 — Prior control and six-mode first look
+- [x] Goldens for adaptive2/counter and the prior, CLI lock gate tests with stubs, incident record
+- [x] Prior control arm ('prior': fixed weights from the static baseline, no learning, no defense)
+- [x] First-look attribution chain with an exact identity, fixed-wave rule (counts only), tilt agreement, matched-set sensitivity
+- [x] Six-mode first look on the TRAIN seeds (600 games, exploratory, nothing tuned)
+Implemented; awaiting user check, then tag phase-9a2b1-complete.
+
+### [ ] Phase 9A-2b-2 — Amendment A3 (protocol v4) and confirmatory analysis code
+- [ ] Amendment A3: confirmatory modes (static, random, prior, adaptive, adaptive2, counter), primary population (static game reached wave 5), fixed wave W* from the coverage rule, two response hypotheses (fixed-wave contrast of adaptive and of adaptive2 > 0) and four attribution hypotheses on lives lost (random-static > 0; prior-random, adaptive-prior, adaptive2-prior two-sided) with Holm across the family, all else descriptive, held-out size 150 seeds, no tuning of any arm, written BEFORE any held-out run
+- [ ] Confirmatory analysis code and tests (population, fixed-wave contrast, attribution, Holm) on the training data only
+- [ ] Regenerate the baseline if the sim balance changes (npm run baseline)
 
 ### [ ] Phase 9B — Held-out evaluation and final figures
-- [ ] One run through the lock with all modes
+- [ ] One held-out run of 150 seeds through the lock with all six modes
 - [ ] Figures updated for the new modes and styles (the builders still target protocol version 2)
 - [ ] The write-up
 
@@ -780,6 +792,14 @@ Implemented; awaiting user check, then tag phase-9a2a-complete.
 - 2026-10-19 | 9A-2a | (g) tests/golden-modes.test.js pins the director payloads and the result of static, adaptive and random (balanced bot, seed 1, 15 waves), generated from the Phase 9A-1 code before any change and never regenerated; the first-look run also proved that all 300 static, random and adaptive rows equal the committed tuning rows in every column except the new tiltByWave
 - 2026-10-19 | 9A-2a | (h) Other: (1) validateRun lives in src/sim/telemetryValidate.js (not telemetrySchema.js), that is where the mode list was extended; (2) the runUnit row-keys assertion was extended by tiltByWave; (3) the preview test recomputes the preview at the start event from a copy of the game in the intermission, because the balanced bot starts waves inside its own act call; (4) --split=validation was run once by mistake before the CLI wired the lock (see Known Issues); (5) the menu does not list the new arms; their labels are 'Adaptive v2 (research)' and 'Counter arm (research)'; (6) the tilt limit of the overlay bars comes from the arm's own config (tiltMaxOf)
 
+- 2026-10-19 | 9A-2b-1 | (a) The prior arm exists to split the total effect of Director v1 into parts: the learning Directors seem to favour durable enemy types whatever the player builds, so a fixed arm with weights from the static baseline alone reproduces that bias without learning and without the defense. The attribution chain is then exact: (adaptive - static) = (random - static) + (prior - random) + (adaptive - prior), checked per seed
+- 2026-10-19 | 9A-2b-1 | (b) The prior's definition: the template-share-weighted mean of the baseline rewards of the types in the wave's template is the reference, the advantage is clamped like v1's ([-1, advClipHigh]) and the tilt is clamp(1 + beta * advantage); types outside the template keep tilt 1; no state, no rng, no reading of the defense (tested: identical decisions for different seeds and loadouts)
+- 2026-10-19 | 9A-2b-1 | (c) Goldens now pin every arm (static/adaptive/random from 9A-2a, adaptive2/counter from the 9A-2a code before the prior existed, the prior from its own commit) and are never regenerated
+- 2026-10-19 | 9A-2b-1 | (d) The lock gate of the experiment CLI is exported as main(argv, deps) with injectable dependencies and covered by tests/cli-lock.test.js (stubs only, the real runner is never called for locked sets); the accidental unlocked run of the validation split is recorded in docs/EXPERIMENT.md (Incident log): seeds 1021-1030 are not pristine, only the held-out seeds 2001+ are confirmatory
+- 2026-10-19 | 9A-2b-1 | (e) The fixed wave for the style contrast is chosen by a rule that uses coverage COUNTS only (smallest eligible wave >= 9 with minimum coverage >= 0.75 over adaptive, adaptive2, counter, prior and random, else the largest minimum coverage), so the choice cannot be steered by outcome values; on the training data the rule was not met and chose wave 9 (70%)
+- 2026-10-19 | 9A-2b-1 | (f) No arm is tuned before the held-out run: amendment A3 will fix the confirmatory family first, and the tuning grid planned in 9A-2a for Director v2 is dropped from the plan
+- 2026-10-19 | 9A-2b-1 | (g) Other: (1) the mode order of result sets follows ALL_MODES (static, adaptive, random, adaptive2, counter, prior), whatever order --modes lists; (2) main(argv, deps) has no injectable exit: it returns the exit code; (3) playGame returns director null for modes without scores (prior); (4) the pooled tilt agreement averages all unit-wave cells; (5) the first-look code was split into firstLook.js, firstLookChain.js, firstLookContrast.js and firstLookFormat.js to stay near 300 lines; (6) the identity check can only fail through a bug (it is algebraic), so its error line is tested on a hand-set result
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -847,6 +867,11 @@ Implemented; awaiting user check, then tag phase-9a2a-complete.
 - tests/figures use an explicit legacy protocol and npm run figures is still not regenerated for version 3 (Phase 9B).
 - During this phase `node experiments/runExperimentCli.js --set=tuning --split=validation` was run once while main() did not yet consult the lock, so it executed the whole tuning set (450 games, base tuning-validation) with no lock; the two output files were deleted without being read. Seeds 1021-1030 had already been run as part of the committed 9A-1 tuning set, and the new arms were NOT run on them. The CLI now refuses without --final, --yes and a clean tree and is covered by tests.
 - Incident (recorded in Phase 9A-2b-1, see docs/EXPERIMENT.md Incident log): the validation split was run once without a lock in Phase 9A-2a (whole tuning set, 450 games, outputs deleted unread, new arms not run on it). Seeds 1021-1030 were already read as part of the tuning set in 9A-1, so they are not pristine; only the held-out seeds 2001+ are confirmatory. The lock gate is covered by tests/cli-lock.test.js.
+- Phase 9A-2b-1 six-mode first look (TRAIN seeds, exploratory, nothing tuned, population 71 of 100 units): attribution of lives lost: random - static +1.470 (0.484 to 2.454, p 0.011), prior - random +0.228 (-0.657 to 1.144, p 0.640), adaptive - prior +0.169 (-0.605 to 1.043, p 0.721), total adaptive - static +1.867 (0.733 to 3.158, p 0.005); adaptive2 - prior -1.308 (-2.538 to -0.220, p 0.037); counter - prior -0.987 (-2.259 to 0.147, p 0.136). In these data most of v1's total sits in composition variability, and the prior alone is about as hard as v1 (both 38 wins in all 100 units, versus 44 for random and 51 for static); the identity holds (largest error 8.9e-16).
+- Tilt agreement (pooled): adaptive vs prior 0.214, adaptive2 vs prior 0.340, adaptive vs adaptive2 0.278, random vs prior 0.872: v1's weights are close to the fixed durability prior, v2's are further from it.
+- The fixed-wave contrast of random and prior is exactly 0 at every wave (checked and printed); counter is clearly positive (+0.29 at wave 5, +0.34 to +0.43 at waves 9 to 14), adaptive about +0.12 at wave 9 and +0.26 to +0.31 at waves 12 to 14, adaptive2 smaller (+0.03 at wave 9, up to about +0.1 at waves 12 to 15); coverage limits all of these to 56% to 85% of the population.
+- The pre-registered fixed-wave rule was not met on the training data (no candidate reached 75% minimum coverage); wave 9 was chosen as the best minimum coverage (70%). Amendment A3 must decide what to do with a rule that is not met at 20 seeds (150 held-out seeds will change coverage counts only a little in relative terms).
+- tests/firstLook uses synthetic data; the real identity and zero checks were observed only in the training run.
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -868,3 +893,4 @@ Implemented; awaiting user check, then tag phase-9a2a-complete.
 - 2026-10-19 | Phase 8B | Amendment A1 (final tilt at the last eligible wave, protocol version 2), archive of the v1 outputs, tuning set re-run (non-tilt columns identical), amendment report, static-mode diagnostics of the reward signal, six hand-written SVG figures with an index page, docs/results/README.md; 934 tests pass; Phase 7 results reproduce exactly; nothing under src changed; held-out set not run | User checks, then tag phase-8b-complete; Phase 9 only when the user says so
 - 2026-10-19 | Phase 9A-1 | Early-loss check and style-contrast statistic, amendment A2 (protocol version 3: ablation styles, T1 retired, T2/T0, sensitivity and early-ends blocks), static recalibration (stage 3, noFrost dropped, tilePool 6 / upgradeAfter 4), archive of the focus-style outputs, tuning re-run with Director v1 (450 games), diagnostics with the reward contrast; 958 tests pass; Phase 7 results reproduce exactly (static 8 lives 18.9 min, adaptive 1 life 19.9 min, random 5 lives 19.0 min); nothing under src changed; held-out set not run | User checks, then tag phase-9a1-complete; Phase 9A-2 only when the user says so
 - 2026-10-19 | Phase 9A-2a | Golden pin of the existing modes, train/validation split with a validation lock, static baseline table, Director v2 and the counter arm, runner modes, tiltByWave, minimal UI for the arms, first-look tool, first look on the train seeds (500 games), docs; 1035 tests pass; Phase 7 results reproduce exactly (static 8 lives 18.9 min, adaptive 1 life 19.9 min, random 5 lives 19.0 min); the 300 static/random/adaptive rows equal the committed tuning rows; validation and held-out seeds not run for the new arms | User checks, then tag phase-9a2a-complete; Phase 9A-2b only when the user says so
+- 2026-10-19 | Phase 9A-2b-1 | Goldens for adaptive2/counter, CLI lock gate tests with stubs, incident record, prior control arm, first-look attribution chain, fixed-wave rule, tilt agreement, matched-set sensitivity, six-mode first look on the train seeds (600 games); 1081 tests pass; Phase 7 results reproduce exactly; the 500 older rows equal firstlook-train.rows.json in every column; protocol.js byte-identical; validation and held-out seeds not run | User checks, then tag phase-9a2b1-complete; Phase 9A-2b-2 only when the user says so

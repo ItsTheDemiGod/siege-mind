@@ -118,6 +118,24 @@ Phase 9A-2b will:
 
 - **2026-10-19, validation split run without a lock.** During Phase 9A-2a the command `node experiments/runExperimentCli.js --set=tuning --split=validation` was run once before the lock was wired into the CLI, so it executed the whole tuning set (450 games) without a lock. The output files were deleted without being read and no results were seen; the new arms were not run on those seeds. **Consequence:** seeds 1021-1030 were already part of the tuning set whose results were read in Phase 9A-1, so they are **not pristine**; the held-out seeds 2001+ are untouched and are the only confirmatory data. The lock path (gate before any game, lock written before the runner, refusals, dirty tree, existing lock, research arms refused for the held-out set) is now covered by tests/cli-lock.test.js with stubbed dependencies.
 
+## Six-mode first look (exploratory, training seeds)
+
+**What was run.** All six modes (static, random, prior, adaptive, adaptive2, counter) on the TRAIN seeds 1001-1020 with the protocol styles and knobs (600 games, docs/results/firstlook-train6.rows.json) and analyzed with `npm run first-look` (docs/results/firstlook-train6-summary.md and .fixedwave.json). **Nothing was tuned:** the prior arm and the other arms have their initial parameter values, and the results were reported as printed. The 500 rows of the five older modes are identical in every column to the committed docs/results/firstlook-train.rows.json (checked with no ignored column).
+
+**Chronology.** The prior arm and the attribution chain were designed after seeing the 9A-2a first-look results, before any validation or held-out run. The validation seeds (1021-1030) were not run for any arm; they are in any case **not pristine** (see the Incident log). PROTOCOL is unchanged (version 3).
+
+**Attribution chain.** On the population (units whose static game reached wave 5), seed-level paired differences of lives lost split Director v1's total effect into three parts that add up exactly per seed: (adaptive - static) = (random - static) [composition variability] + (prior - random) [enemy-durability bias beyond variability] + (adaptive - prior) [learning on top of the prior]. The first-look output checks the identity per seed (tolerance 1e-9) and prints an error line if it ever fails. The same differences are reported for all five metrics and for adaptive2 and counter against static and prior. Nothing is adjusted for multiple comparisons.
+
+**Fixed-wave rule.** The fixed wave for the style contrast is chosen from coverage COUNTS only (never outcome values): the smallest eligible wave >= 9 whose minimum coverage over adaptive, adaptive2, counter, prior and random is at least 0.75; otherwise the wave with the largest minimum coverage (ties: the smaller wave). On these training data no candidate reached 75%, and the rule chose wave 9 (minimum coverage 70%) with `metRule` false; the table is written to firstlook-train6-summary.fixedwave.json. The contrast is also reported at every eligible wave 5, 7, 9, 11, 12, 13, 14, 15, with a matched-set sensitivity restricted to units observed at W in all of adaptive, adaptive2 and counter.
+
+**Tilt agreement.** For pairs (adaptive, prior), (adaptive2, prior), (adaptive, adaptive2) and (random, prior): over units observed in both modes at an eligible wave, the mean over the five enemy types of |tilt A - tilt B|, per wave and pooled over all unit-wave cells. random against prior shows the scale of a disagreement; adaptive against prior shows how close v1 is to a fixed durability prior.
+
+**Zero by construction.** The random control's tilts depend only on the seed and the wave and the prior's only on the wave, so both are identical across styles and their fixed-wave contrast is exactly 0 at every wave; the output asserts it and warns loudly otherwise.
+
+### Planned next steps (written before the next phase)
+
+Amendment A3 (protocol version 4) will fix, before any held-out run: the confirmatory modes (static, random, prior, adaptive, adaptive2, counter); the primary population (units whose static game reached wave 5); the fixed wave W* from the rule above; a confirmatory hypothesis family of two response hypotheses (fixed-wave style contrast of adaptive and of adaptive2 greater than 0) and four attribution hypotheses on lives lost (random - static greater than 0; prior - random, adaptive - prior and adaptive2 - prior two-sided) with Holm across the family; all other hypotheses reported as descriptive; a held-out size of 150 seeds; and no tuning of any arm before the held-out run. The held-out set is then run once through the lock.
+
 ## Reproduction
 
 ```

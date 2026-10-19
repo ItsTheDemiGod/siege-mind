@@ -37,3 +37,14 @@ test('docs/DIRECTOR.md documents Director v2 and the counter arm: every config k
   for (const key of DECISION_KEYS_COUNTER.filter((k) => !DECISION_KEYS.includes(k))) assert.ok(counterPart.includes(key), `new counter decision key ${key}`);
   assert.ok(v2Part.includes('Full games') && counterPart.includes('ceiling'));
 });
+
+test('docs/DIRECTOR.md documents the prior control: every config.prior key and every decision key', async () => {
+  const { DECISION_KEYS_PRIOR } = await import('../src/sim/directorPrior.js');
+  const doc = read('DIRECTOR.md');
+  assert.ok(doc.includes('Prior control (prior)'));
+  const part = doc.slice(doc.indexOf('## Prior control (prior)'));
+  for (const key of Object.keys(config.prior)) assert.ok(part.includes(key), `prior key ${key}`);
+  for (const key of DECISION_KEYS_PRIOR) assert.ok(doc.includes(key), `prior decision key ${key}`);
+  for (const key of DECISION_KEYS_PRIOR.filter((k) => !DECISION_KEYS.includes(k))) assert.ok(part.includes(key), `new prior decision key ${key}`);
+  assert.ok(part.includes('enemy-durability') && part.includes('exactly 0'));
+});
