@@ -9,7 +9,7 @@ const ICON_SIZE = 18;
  * @returns {HTMLElement[]} one chip per enemy type: icon, "×units", with the full name as the accessible label
  */
 export function compositionChips(items) {
-  return items.map((it) => h('span', { class: 'comp-chip', role: 'img', 'aria-label': `${it.units} ${it.label}`, 'data-tooltip': it.label }, [
+  return items.map((it) => h('span', { class: 'comp-chip', role: 'img', 'aria-label': `${it.units} ${it.label}`, 'data-tooltip': it.label, 'data-type': it.type }, [
     h('span', { class: `comp-icon enemy-${it.type}`, html: iconSvg(enemyIconName(it.type), ICON_SIZE) }),
     h('span', { class: 'comp-count', text: `×${it.units}` }),
   ]));

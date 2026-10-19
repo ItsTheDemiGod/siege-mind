@@ -30,6 +30,8 @@ const { width, height, hudHeight } = config.view;
 const FLASH_DECAY = 3; // intensity per second
 const SCAN_SECONDS = 0.9;
 const SCAN_SLICES = 10;
+const SCAN_FADE_SECONDS = 0.12; // reduced motion: one short fade instead of the sweep
+const SCAN_FADE_ALPHA = 0.35;
 const CORE_PULSE_DECAY = 2.5; // per second
 const STATE_INDEX = { healthy: 0, damaged: 1, critical: 2, destroyed: 3 };
 const DARKEN_ALPHA = 0.35; // end-of-game darkening after the core falls
@@ -59,7 +61,7 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
   const spawnPos = map.path.positionAt(0, { x: 0, y: 0, angle: 0 });
   const corePos = map.path.positionAt(map.path.totalLength, { x: 0, y: 0, angle: 0 });
   const info = { tick: 0, alpha: 0, stepSeconds: config.sim.stepSeconds, params: null, reducedMotion: false }; // reused every frame
-  const overlay = { flashColor: THEME.colors.danger, flashAlpha: 0, scan: -1, corePulse: 0, destroyClock: -1, victoryClock: -1, dark: 0, victoryAcc: 0 }; // tweened/decayed values
+  const overlay = { flashColor: THEME.colors.danger, flashAlpha: 0, scanFade: 0, scan: -1, corePulse: 0, destroyClock: -1, victoryClock: -1, dark: 0, victoryAcc: 0 }; // tweened/decayed values
 
   let motes = createAmbientMotes(0, rng, map.width, map.height);
   let staticLayer = null;
@@ -173,6 +175,7 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
       flags.reducedMotion = reduced;
       if (!reduced) updateAmbientMotes(motes, step);
       if (overlay.flashAlpha > 0) overlay.flashAlpha = Math.max(0, overlay.flashAlpha - FLASH_DECAY * step);
+      if (overlay.scanFade > 0) overlay.scanFade = Math.max(0, overlay.scanFade - step / SCAN_FADE_SECONDS);
       if (overlay.corePulse > 0) overlay.corePulse = Math.max(0, overlay.corePulse - CORE_PULSE_DECAY * step);
       if (overlay.destroyClock >= 0) {
         overlay.destroyClock += step;
@@ -246,6 +249,12 @@ export function createRenderer({ canvas, ctx, game, settings, quality, seed, bui
         ctx.globalAlpha = overlay.flashAlpha * 0.4;
         ctx.fillStyle = overlay.flashColor;
         ctx.fillRect(0, 0, width, height);
+        ctx.globalAlpha = 1;
+      }
+      if (overlay.scanFade > 0) {
+        ctx.globalAlpha = overlay.scanFade * SCAN_FADE_ALPHA;
+        ctx.fillStyle = THEME.colors.director;
+        ctx.fillRect(0, 0, width, hudHeight);
         ctx.globalAlpha = 1;
       }
       if (overlay.scan >= 0 && overlay.scan < 1) {

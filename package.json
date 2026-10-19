@@ -13,7 +13,8 @@
     "summarize": "node experiments/summarize.js",
     "browser-check": "node tools/browser-check/check.js",
     "smoke:browser": "node tools/browser-check/smoke.js",
-    "compare": "node experiments/directorCompare.js"
+    "compare": "node experiments/directorCompare.js",
+    "fixture:demo": "node experiments/makeFixture.js"
   },
   "engines": {
     "node": ">=22"

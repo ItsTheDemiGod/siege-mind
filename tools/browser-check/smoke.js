@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { inspectPage, isClean } from './page.js';
 import { startLocalServer } from './check.js';
 
-const GALLERY_SECTIONS = ['palette', 'type', 'enemies', 'states', 'towers', 'icons', 'screens', 'fx', 'ui', 'map', 'cvd', 'quality'];
+const GALLERY_SECTIONS = ['palette', 'type', 'enemies', 'states', 'towers', 'icons', 'screens', 'fx', 'ui', 'director', 'map', 'cvd', 'quality'];
 
 // Each expression returns {ok, detail}; they run inside the page.
 const CHECKS = [
@@ -21,8 +21,38 @@ const CHECKS = [
     expr: `(() => { const hud = document.querySelector('.hud'); const parts = { canvas: !!document.querySelector('canvas#game'), hud015: !!hud && hud.textContent.includes('0 / 15'), waveControl: !!document.querySelector('.wave-control') }; return { ok: Object.values(parts).every(Boolean), detail: JSON.stringify(parts) }; })()`,
   },
   {
+    name: 'director overlay (adaptive)', path: '/?seed=1&play=1&waves=15&mode=adaptive', wait: 2500, shot: 'smoke-overlay.png',
+    expr: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const press = () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'i', code: 'KeyI' }));
+      const ov = () => document.querySelector('[data-director-overlay]');
+      const visible = () => { const o = ov(); return !!o && !o.hidden && o.getAttribute('aria-label') === 'Director insights'; };
+      press(); await sleep(500);
+      const shown = visible();
+      const rows = document.querySelectorAll('.dov-row').length;
+      press(); await sleep(300);
+      const hiddenAgain = !visible();
+      const parts = { shown, rows, hiddenAgain, hudButton: !!document.querySelector('button[aria-label="Director overlay (I)"]'), noDebugHandle: window.__siege === undefined };
+      return { ok: shown && rows === 5 && hiddenAgain && parts.hudButton && parts.noDebugHandle, detail: JSON.stringify(parts) };
+    })()`,
+  },
+  {
+    name: 'debug handle (adaptive, debug)', path: '/?debug=1&seed=1&play=1&waves=15&mode=adaptive', wait: 2500, shot: 'smoke-debug-handle.png',
+    expr: `(() => { const s = window.__siege; const parts = { exists: !!s, hasGame: !!s?.game, step: typeof s?.step, startWave: typeof s?.startWave, telemetry: typeof s?.telemetry?.getRun }; return { ok: !!s && parts.step === 'function' && parts.startWave === 'function' && parts.telemetry === 'function', detail: JSON.stringify(parts) }; })()`,
+  },
+  {
+    name: 'static mode has no director button', path: '/?seed=1&play=1&waves=15&mode=static', wait: 2500, shot: 'smoke-static-nodirector.png',
+    expr: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'i', code: 'KeyI' })); await sleep(400);
+      const toast = [...document.querySelectorAll('.toast')].map((t) => t.textContent).join('|');
+      const parts = { noButton: !document.querySelector('button[aria-label="Director overlay (I)"]'), toast, noOverlay: !document.querySelector('[data-director-overlay]:not([hidden])') };
+      return { ok: parts.noButton && toast.includes('The Director overlay is available in Adaptive mode') && parts.noOverlay, detail: JSON.stringify(parts) };
+    })()`,
+  },
+  {
     name: 'gallery', path: '/gallery.html', wait: 3000, shot: 'smoke-gallery.png',
-    expr: `(() => { const missing = ${JSON.stringify(GALLERY_SECTIONS)}.filter((id) => !document.getElementById(id)?.querySelector('h2')); return { ok: missing.length === 0, detail: missing.length ? 'missing sections: ' + missing.join(', ') : 'all sections present' }; })()`,
+    expr: `(() => { const missing = ${JSON.stringify(GALLERY_SECTIONS)}.filter((id) => !document.getElementById(id)?.querySelector('h2')); const heading = document.querySelector('#director h2')?.textContent; return { ok: missing.length === 0 && heading === '7 Director', detail: missing.length ? 'missing sections: ' + missing.join(', ') : 'all sections present' }; })()`,
   },
   {
     name: 'stress mode (40 towers)', path: '/?debug=1&stress=1&spawn=0&seed=1', wait: 3500, shot: 'smoke-stress.png',

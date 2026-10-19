@@ -182,7 +182,7 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .wave-control .btn[hidden] { display: none; }
 .show-results { position: absolute; z-index: var(--z-hud); pointer-events: auto; }
 .show-results[hidden] { display: none; }
-.end-backdrop { position: absolute; inset: 0; z-index: var(--z-overlay); pointer-events: auto; display: flex; align-items: center; justify-content: center;
+.end-backdrop { position: absolute; inset: 0; z-index: var(--z-overlay); pointer-events: auto; display: flex; align-items: flex-start; justify-content: center;
   background: color-mix(in srgb, var(--bg0) 72%, transparent); }
 .end-backdrop[hidden] { display: none; }
 .end-card { width: var(--end-width, 420px); box-sizing: border-box; }
@@ -273,7 +273,7 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .ring-arc { fill: none; stroke: var(--defense-primary); stroke-width: 4px; stroke-linecap: round; }
 .ring-text { position: relative; font-family: var(--font-display); font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
 
-.end-card { animation: end-in 0.4s ease-out; }
+.end-card { animation: end-in 0.4s ease-out; overflow-y: auto; }
 .end-card h2 { animation: end-title-in 0.5s ease-out; }
 .end-card.is-defeat { border-color: color-mix(in srgb, var(--danger) 55%, transparent); }
 .end-subtitle { margin: 0 0 var(--space-3); text-align: center; color: var(--muted); }
@@ -292,6 +292,83 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 @keyframes end-title-in { from { opacity: 0; letter-spacing: 0.3em; } }
 @keyframes row-in { from { opacity: 0; transform: translateX(-8px); } }
 @keyframes strip-in { from { transform: scaleY(0); } }
+
+/* ---------- 8e. Director overlay, charts, report, direction marks (Phase 7) ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.btn--director { color: var(--director); }
+.btn--director.is-active, .btn--director[aria-pressed="true"] { background: color-mix(in srgb, var(--director) 22%, var(--panel)); border-color: var(--director); color: var(--director); }
+.btn--director:hover { border-color: var(--director); box-shadow: 0 0 10px color-mix(in srgb, var(--director) 35%, transparent); }
+
+/* direction marks: a triangle shape (up or down), never color alone */
+.dir-mark { display: inline-flex; align-items: center; margin-left: 3px; }
+.dir-mark svg { fill: var(--director); }
+.comp-chip .dir-mark { margin-left: 4px; }
+
+/* overlay: top right under the HUD strip; only the close button takes the pointer */
+.director-overlay, .report-card { scrollbar-color: var(--muted) transparent; }
+.director-overlay { position: absolute; z-index: var(--z-panel); box-sizing: border-box; overflow: auto; pointer-events: none; padding: var(--space-3); }
+.director-overlay[hidden] { display: none; }
+.dov-close { pointer-events: auto; width: 28px; min-height: 28px; }
+.dov-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); }
+.dov-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--director); line-height: 1.1; }
+.dov-sub { font-size: 12px; color: var(--muted); }
+.dov-rows { margin-top: var(--space-2); }
+.dov-row { margin: 6px 0; }
+.dov-line { display: grid; grid-template-columns: 16px 94px 1fr 64px; gap: 6px; align-items: center; font-size: 12px; }
+.dov-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dov-bar { position: relative; height: 8px; background: var(--grid-line); border-radius: 4px; overflow: hidden; }
+.dov-fill { position: absolute; top: 0; bottom: 0; background: var(--director); transition: left var(--dur-slow), width var(--dur-slow); }
+.dov-fill.is-neg { background: var(--muted); }
+.dov-zero { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--text); }
+.dov-value { display: inline-flex; align-items: center; justify-content: flex-end; font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.dov-meta { padding-left: 22px; font-size: 10px; line-height: 1.3; color: var(--muted); }
+.dov-lines { margin: var(--space-2) 0; padding-left: 16px; font-size: 12px; line-height: 1.35; }
+.dov-chart { margin-top: var(--space-1); }
+
+/* charts (hand-built SVG) */
+.tilt-chart, .comp-strip { display: block; max-width: 100%; height: auto; }
+.chart-frame { fill: none; stroke: var(--grid-line); }
+.chart-grid { stroke: var(--grid-line); }
+.chart-baseline { stroke: var(--muted); stroke-dasharray: 4 3; }
+.chart-label { fill: var(--muted); font: 10px var(--font-mono); }
+.enemy-armoredGrunt { --c: var(--enemy-armored-grunt); }
+.enemy-swarmling { --c: var(--enemy-swarmling); }
+.enemy-fastRunner { --c: var(--enemy-fast-runner); }
+.enemy-regenerator { --c: var(--enemy-regenerator); }
+.enemy-shieldedBruiser { --c: var(--enemy-shielded-bruiser); }
+.pat-armoredGrunt { --c: var(--enemy-armored-grunt); }
+.pat-swarmling { --c: var(--enemy-swarmling); }
+.pat-fastRunner { --c: var(--enemy-fast-runner); }
+.pat-regenerator { --c: var(--enemy-regenerator); }
+.pat-shieldedBruiser { --c: var(--enemy-shielded-bruiser); }
+.chart-line { stroke: var(--c); fill: none; }
+.chart-marker { fill: var(--c); stroke: var(--c); stroke-width: 1.4; }
+.chart-marker.is-hollow { fill: var(--bg0); }
+.chart-marker.is-line { fill: none; }
+.pat { fill: var(--c); }
+.pat.is-stroke { fill: none; stroke: var(--c); stroke-width: 1.3; }
+.pat-bg { fill: var(--bg1); }
+.chart-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px; margin: var(--space-2) 0 0; padding: 0; font-size: 12px; }
+.chart-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.chart-note { margin: var(--space-1) 0 0; font-size: 11px; color: var(--muted); }
+
+/* the Director report modal */
+.report-backdrop { position: absolute; inset: 0; z-index: var(--z-overlay); pointer-events: auto; display: flex; align-items: flex-start; justify-content: center;
+  background: color-mix(in srgb, var(--bg0) 78%, transparent); }
+.report-backdrop[hidden] { display: none; }
+.report-card { box-sizing: border-box; overflow: auto; padding: var(--space-4) var(--space-5); animation: end-in 0.35s ease-out; }
+.report-head h2 { margin: 0; font-family: var(--font-display); font-size: 30px; letter-spacing: 0.06em; color: var(--director); }
+.report-headline { margin: var(--space-1) 0 var(--space-3); color: var(--muted); }
+.report-section { margin-bottom: var(--space-3); animation: row-in 0.3s ease-out backwards; animation-delay: calc(0.15s + var(--i, 0) * 0.12s); }
+.report-section h3 { margin: 0 0 var(--space-2); font-family: var(--font-display); font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.report-insights { margin: 0; padding-left: var(--space-4); line-height: 1.5; }
+.report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.report-table th, .report-table td { padding: 3px var(--space-2); text-align: right; font-variant-numeric: tabular-nums; }
+.report-table th[scope="row"], .report-table thead th:first-child { text-align: left; }
+.report-table thead th { font-weight: 500; color: var(--muted); border-bottom: var(--border-width) solid var(--grid-line); }
+.report-weight { white-space: nowrap; }
+.report-foot { margin: var(--space-2) 0; font-size: 12px; color: var(--muted); }
+.report-card .actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
 
 /* ---------- 9. Debug panel ---------- */
 .debug-panel { position: absolute; left: 50%; transform: translateX(-50%); max-width: 560px; overflow: hidden; pointer-events: none; margin: 0; padding: var(--space-2) var(--space-3); z-index: var(--z-debug);

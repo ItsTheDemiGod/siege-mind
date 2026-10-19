@@ -35,6 +35,8 @@ export function createFxApi(d) {
       tweens.cancel(overlay);
       tweens.start(overlay, 'scan', 1, SCAN_SECONDS, undefined, 0);
     },
+    /** Reduced-motion version of directorScan: the HUD strip fades once (about 0.12 s), nothing sweeps. */
+    directorFade() { overlay.scanFade = 1; },
     colors: colorIds,
     color: (hex) => particles.registerColor(hex),
     corePulse() { overlay.corePulse = 1; },

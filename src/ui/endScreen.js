@@ -12,10 +12,10 @@ const REDUCED_DELAY = 0.2;
 
 /**
  * @param {{root: HTMLElement, game: object, newSeed: () => number, reducedMotion?: () => boolean, navigate?: (url: string) => void, href?: () => string,
- *   onDownloadJson?: () => void, onDownloadWaves?: () => void}} o
- * @returns {{readonly isOpen: boolean, hide: () => void}}
+ *   onDownloadJson?: () => void, onDownloadWaves?: () => void, onOpenReport?: () => void}} o
+ * @returns {{readonly isOpen: boolean, hide: () => void, focusReportButton: () => void}}
  */
-export function createEndScreen({ root, game, newSeed, onDownloadJson, onDownloadWaves, reducedMotion = () => false, navigate = (url) => window.location.assign(url), href = () => window.location.href }) {
+export function createEndScreen({ root, game, newSeed, onDownloadJson, onDownloadWaves, onOpenReport, reducedMotion = () => false, navigate = (url) => window.location.assign(url), href = () => window.location.href }) {
   let open = false;
   let view = null;
   let showButton = null;
@@ -31,7 +31,7 @@ export function createEndScreen({ root, game, newSeed, onDownloadJson, onDownloa
   }
 
   function present() {
-    view = renderEndScreen(buildEndModel(game), { onRetry: () => go(game.seed), onNewSeed: () => go(newSeed()), onMenu: () => navigate(buildMenuUrl(href())), onDownloadJson, onDownloadWaves });
+    view = renderEndScreen(buildEndModel(game), { onRetry: () => go(game.seed), onNewSeed: () => go(newSeed()), onMenu: () => navigate(buildMenuUrl(href())), onDownloadJson, onDownloadWaves, onReport: game.mode !== 'static' ? onOpenReport : undefined });
     root.append(view.el);
 
     // "Show results" lives where the wave control was, so the dialog can be reopened after Esc
@@ -49,5 +49,5 @@ export function createEndScreen({ root, game, newSeed, onDownloadJson, onDownloa
     const seconds = reducedMotion() ? REDUCED_DELAY : game.result === 'won' ? config.ui.endScreenDelayWon : config.ui.endScreenDelayLost;
     setTimeout(present, seconds * 1000);
   });
-  return { get isOpen() { return open; }, hide };
+  return { get isOpen() { return open; }, hide, focusReportButton() { (view?.reportButton ?? view?.el.querySelector('button'))?.focus(); } };
 }

@@ -13,13 +13,14 @@ import { h } from './ui/dom.js';
 import { enemyStatesSection, fxEventButtons } from './galleryEnemies.js';
 import { towersSection } from './galleryTowers.js';
 import { screensSection } from './galleryScreens.js';
+import { directorSection } from './galleryDirector.js';
 import {
   paletteSection, typographySection, enemiesSection, iconsSection, uiSection, colorblindSection,
 } from './galleryStatic.js';
 
 const SECTIONS = [
   ['palette', '1 Palette'], ['type', '2 Typography'], ['enemies', '3 Enemies'], ['states', '3b Enemy states'], ['towers', '3c Towers'], ['icons', '4 Icons'], ['screens', '4b Core and screens'], ['fx', '5 Effects'],
-  ['ui', '6 UI'], ['map', '7 Map'], ['cvd', '8 Colorblind'], ['quality', '9 Quality'],
+  ['ui', '6 UI'], ['director', '7 Director'], ['map', '7 Map'], ['cvd', '8 Colorblind'], ['quality', '9 Quality'],
 ];
 const seed = 'gallery';
 const content = document.getElementById('g-content');
@@ -89,6 +90,7 @@ screensSection(els.screens, isVisible(els.screens), {
   setReducedMotion: (v) => { settings.set('reducedMotion', v); document.documentElement.classList.toggle('reduced-motion', v); },
 });
 uiSection(els.ui);
+directorSection(els.director);
 
 // 5. Effects lab (auto-spawner off)
 const lab = makeStage(els.fx, { spawnEvery: 0 });

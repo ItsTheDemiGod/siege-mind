@@ -6,7 +6,7 @@ import { runToJson, wavesCsv } from './sim/telemetryExport.js';
 import { exportFilename, mimeFor } from './ui/exportName.js';
 import { downloadText } from './ui/downloadRun.js';
 import { EVENT_TYPES } from './sim/events.js';
-import { enemiesRemaining, getWaveCountdownSeconds } from './sim/waveRunner.js';
+import { enemiesRemaining, getWaveCountdownSeconds, startNextWave } from './sim/waveRunner.js';
 import { priceMultiplier } from './ui/trayState.js';
 import { createStepper } from './sim/stepper.js';
 import { computeFit, applyFit } from './render/fit.js';
@@ -39,6 +39,10 @@ import { createPauseMenu } from './ui/pauseMenu.js';
 import { createWaveBanner } from './ui/waveBanner.js';
 import { createWavePreview } from './ui/wavePreview.js';
 import { describeBanner } from './ui/bannerState.js';
+import { createDecisionLog } from './ui/decisionLog.js';
+import { createDirectorOverlay } from './ui/directorOverlay.js';
+import { createReportController } from './ui/reportController.js';
+import { directionByType } from './ui/directorView.js';
 import { formatDirectorLine } from './ui/format.js';
 
 const { width, height } = config.view;
@@ -108,12 +112,14 @@ const exportRun = (kind) => {
   }
 };
 
-let menu = null; let howTo = null; let pauseMenu = null; let endScreen = null; // assigned below; only read from event handlers
+let menu = null; let howTo = null; let pauseMenu = null; let endScreen = null; let overlay = null; let report = null; // assigned below; only read from event handlers
+const decisionLog = createDecisionLog();
+game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => decisionLog.push(ev.director)); // registered before the overlay so it always sees the new entry
 const panel = createSettingsPanel({ root: uiRoot, settings, pause });
-const anyDialog = () => Boolean(menu.isOpen || howTo.isOpen || pauseMenu.isOpen || panel.isOpen || endScreen.isOpen);
+const anyDialog = () => Boolean(menu.isOpen || howTo.isOpen || pauseMenu.isOpen || panel.isOpen || endScreen.isOpen || report.isOpen);
 const hud = createHud({
   root: uiRoot,
-  handlers: { togglePause: () => { if (!anyDialog()) pause.toggleUser(); }, setSpeed: (n) => { state.speed = n; hud.setSpeed(n); }, openSettings: () => panel.open() },
+  handlers: { togglePause: () => { if (!anyDialog()) pause.toggleUser(); }, setSpeed: (n) => { state.speed = n; hud.setSpeed(n); }, openSettings: () => panel.open(), toggleDirector: game.mode === 'static' ? undefined : () => overlay.toggle() },
 });
 hud.set({ gold: game.gold, lives: game.lives, wave: game.waves.current, waveTotal: game.totalWaves });
 hud.setSpeed(state.speed);
@@ -124,9 +130,14 @@ if (!modeResult.ok) toaster.show(`Unknown mode "${params.get('mode')}", using St
 if (!wavesValid) toaster.show('Unknown game length, using the full 30 waves');
 
 const banner = createWaveBanner({ root: uiRoot, reducedMotion });
-game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => banner.show(describeBanner(ev, game.totalWaves)));
+game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => {
+  banner.show(describeBanner(ev, game.totalWaves), directionByType(ev.director));
+  if (ev.director && ev.director.reason === 'adapted') { if (reducedMotion()) renderer.fx.directorFade(); else renderer.fx.directorScan(); }
+});
 game.events.on(EVENT_TYPES.GAME_OVER, () => banner.hide());
-endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed, reducedMotion, onDownloadJson: () => exportRun('json'), onDownloadWaves: () => exportRun('waves-csv') });
+endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed, reducedMotion, onDownloadJson: () => exportRun('json'), onDownloadWaves: () => exportRun('waves-csv'), onOpenReport: () => report.open() });
+report = createReportController({ root: uiRoot, telemetry, toaster, onDownload: () => exportRun('json'), restoreFocus: () => endScreen.focusReportButton() });
+overlay = createDirectorOverlay({ root: uiRoot, game, log: decisionLog, toaster, onChange: (open) => hud.setDirectorPressed(open) });
 const waveControl = createWaveControl({ root: uiRoot, game, toaster, reducedMotion });
 createWavePreview({ root: uiRoot, game, controlRect: waveControl.rect });
 howTo = createHowToPlay({ root: uiRoot, pause });
@@ -171,7 +182,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) { pause.setUser(true); last = null; } // never auto-resume
 });
 
-const extraKeys = { ...build.extraKeys, Enter: () => { if (!blocked()) waveControl.start(); } };
+const extraKeys = { ...build.extraKeys, Enter: () => { if (!blocked()) waveControl.start(); }, i: () => { if (!anyDialog()) overlay.toggle(); } };
 if (debugTools) for (const [k, fn] of Object.entries(debugTools.extraKeys)) extraKeys[k] = (e) => { if (!anyDialog()) fn(e); };
 bindKeys({
   togglePause: () => { if (!anyDialog()) pause.toggleUser(); },
@@ -185,11 +196,13 @@ window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape' || e.defaultPrevented || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
   const action = resolveEscape({
     menuOpen: menu.isOpen, howToOpen: howTo.isOpen, pauseMenuOpen: pauseMenu.isOpen, endScreenOpen: endScreen.isOpen, settingsOpen: panel.isOpen,
-    buildMode: buildState.state.mode, gameOver: game.over,
+    buildMode: buildState.state.mode, gameOver: game.over, reportOpen: report.isOpen, overlayOpen: overlay.isOpen,
   });
   if (action === 'none') return;
   e.preventDefault();
   if (action === 'close-howto') howTo.close();
+  else if (action === 'close-report') report.close();
+  else if (action === 'close-overlay') overlay.close();
   else if (action === 'close-pause-menu') pauseMenu.close();
   else if (action === 'hide-end-screen') endScreen.hide();
   else if (action === 'cancel-placing') buildState.cancel();
@@ -245,6 +258,16 @@ function frame(now) {
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);
   }
   requestAnimationFrame(frame);
+}
+
+// Browser-check handle, only with ?debug=1: lets tools/browser-check drive and inspect a game. No other globals.
+const MAX_DEBUG_STEPS = 200000;
+if (debug) {
+  window.__siege = {
+    game, telemetry,
+    step(n) { for (let i = 0, k = Math.min(Math.max(0, Math.floor(n)), MAX_DEBUG_STEPS); i < k; i++) stepGame(game); return game.tick; },
+    startWave() { return startNextWave(game); },
+  };
 }
 
 renderer.ready.then(() => requestAnimationFrame(frame));

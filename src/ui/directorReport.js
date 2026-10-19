@@ -66,7 +66,7 @@ export function buildDirectorReport(run, { cfg = config } = {}) {
   const mode = run.meta.mode;
   const empty = { eligible: 0, adapted: 0, meanShift: 0 };
   if (mode !== 'adaptive' && mode !== 'random') {
-    return { available: false, reason: 'static', mode, title: TITLE, headline: '', insights: [], entries: [], stats: empty, rows: [], damage: [], toughest: null };
+    return { available: false, reason: 'static', mode, totalWaves: run.meta.totalWaves, title: TITLE, headline: '', insights: [], entries: [], stats: empty, rows: [], damage: [], toughest: null };
   }
   const entries = run.waves.map((w) => w.director).filter(Boolean).map((d) => copyPlain(d));
   const eligible = entries.filter((d) => d.eligible);
@@ -106,7 +106,7 @@ export function buildDirectorReport(run, { cfg = config } = {}) {
   if (mode === 'adaptive' && adapted.length > 0) insights.push(`On average ${Math.round(100 * meanShift)}% of each adapted wave's threat moved to different enemy types.`);
 
   return {
-    available: true, mode, title: TITLE,
+    available: true, mode, totalWaves: run.meta.totalWaves, title: TITLE,
     headline: `${modeLabel(mode)} · ${lengthLabel(run.meta.totalWaves)} · ${statusLabel(run.result.result)}`,
     insights: insights.slice(0, cfg.report.maxInsights),
     entries, stats: { eligible: eligible.length, adapted: adapted.length, meanShift }, rows, damage, toughest,

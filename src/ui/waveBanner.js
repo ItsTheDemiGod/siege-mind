@@ -2,6 +2,7 @@
 import { config } from '../data/config.js';
 import { h } from './dom.js';
 import { compositionChips } from './compositionChips.js';
+import { markChips } from './directionMark.js';
 
 const TOP_OFFSET = 72; // below the HUD strip
 
@@ -26,15 +27,18 @@ export function createWaveBanner({ root, reducedMotion }) {
     el.classList.remove('is-in');
   }
 
-  /** @param {{kicker: string, title: string, fixed: boolean, final: boolean, items: object[], hpLine: string, seconds: number}} d describeBanner result */
-  function show(d) {
+  /** @param {{kicker: string, title: string, fixed: boolean, final: boolean, items: object[], hpLine: string, seconds: number}} d describeBanner result
+   *  @param {Record<string, string>|null} [directions] Director direction per enemy type (marks are added to the chips) */
+  function show(d, directions = null) {
     clearTimeout(timer);
     kicker.textContent = d.kicker;
     title.textContent = d.title;
     hp.textContent = d.hpLine;
     director.hidden = !d.directorLine;
     director.textContent = d.directorLine ?? '';
-    chips.replaceChildren(...compositionChips(d.items));
+    const chipEls = compositionChips(d.items);
+    markChips(chipEls, directions);
+    chips.replaceChildren(...chipEls);
     el.classList.toggle('is-fixed', d.fixed);
     el.classList.toggle('is-final', d.final);
     el.hidden = false;

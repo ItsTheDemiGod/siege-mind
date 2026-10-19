@@ -1,10 +1,12 @@
 // Incoming-wave preview: sits just above the wave control during prep and intermission, hidden while a wave runs.
 import { config } from '../data/config.js';
 import { EVENT_TYPES } from '../sim/events.js';
-import { getWavePreview } from '../sim/waves.js';
+import { getWavePreview, planWaveWithDecision } from '../sim/waves.js';
 import { h } from './dom.js';
 import { describePreview } from './bannerState.js';
 import { compositionChips } from './compositionChips.js';
+import { markChips } from './directionMark.js';
+import { directionByType } from './directorView.js';
 
 const REFRESH_MS = 250; // phase flips happen after WAVE_ENDED fires, so a slow poll is the simplest correct trigger
 
@@ -36,7 +38,9 @@ export function createWavePreview({ root, game, controlRect }) {
     director.hidden = !d.directorLine;
     director.textContent = d.directorLine ?? '';
     hp.textContent = d.hpLine;
-    chips.replaceChildren(...compositionChips(d.items));
+    const chipEls = compositionChips(d.items);
+    if (preview.director) markChips(chipEls, directionByType(planWaveWithDecision(game, preview.wave).decision)); // additive: direction marks for adapted waves
+    chips.replaceChildren(...chipEls);
     el.classList.toggle('is-fixed', d.fixed);
     el.classList.toggle('is-final', d.final);
   }

@@ -23,8 +23,8 @@ function pulse(el, cls) {
 }
 
 /**
- * @param {{root: HTMLElement, handlers: {togglePause: () => void, setSpeed: (n: number) => void, openSettings: () => void}}} o
- * @returns {{set: Function, setSpeed: (n: number) => void, setPaused: (p: boolean) => void}}
+ * @param {{root: HTMLElement, handlers: {togglePause: () => void, setSpeed: (n: number) => void, openSettings: () => void, toggleDirector?: () => void}}} o toggleDirector adds the Director overlay button (Adaptive and Random modes only)
+ * @returns {{set: Function, setSpeed: (n: number) => void, setPaused: (p: boolean) => void, setDirectorPressed: (on: boolean) => void}}
  */
 export function createHud({ root, handlers }) {
   const gold = chip('gold', 'Gold', 'num', 'chip--gold');
@@ -43,9 +43,14 @@ export function createHud({ root, handlers }) {
   const pauseBtn = iconButton({ icon: 'pause', label: 'Pause', tooltip: 'Pause (Space)', onClick: () => handlers.togglePause() });
   const settingsBtn = iconButton({ icon: 'settings', label: 'Settings', tooltip: 'Settings', onClick: () => handlers.openSettings() });
 
+  const directorBtn = handlers.toggleDirector
+    ? iconButton({ icon: 'director', label: 'Director overlay (I)', tooltip: 'Director overlay (I)', onClick: () => handlers.toggleDirector(), className: 'btn btn--icon btn--director' })
+    : null;
+  directorBtn?.setAttribute('aria-pressed', 'false');
+
   const bar = h('div', { class: 'hud' }, [
     h('div', { class: 'hud-cluster' }, [gold.root, lives.root, wave.root]),
-    h('div', { class: 'hud-cluster' }, [...speedButtons, pauseBtn, settingsBtn]),
+    h('div', { class: 'hud-cluster' }, [...(directorBtn ? [directorBtn] : []), ...speedButtons, pauseBtn, settingsBtn]),
   ]);
   root.append(bar);
 
@@ -82,6 +87,11 @@ export function createHud({ root, handlers }) {
         last.lives = l;
       }
       if (w !== undefined) wave.num.textContent = `${w} / ${waveTotal ?? config.game.totalWaves}`;
+    },
+    setDirectorPressed(on) {
+      if (!directorBtn) return;
+      directorBtn.setAttribute('aria-pressed', String(on));
+      directorBtn.classList.toggle('is-active', on);
     },
     setSpeed(n) {
       speedButtons.forEach((b, i) => {
