@@ -274,6 +274,9 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 .end-subtitle { margin: 0 0 var(--space-3); text-align: center; color: var(--muted); }
 .end-card tr { animation: row-in 0.3s ease-out backwards; animation-delay: calc(0.3s + var(--i, 0) * 0.05s); }
 .strip-wrap { margin-bottom: var(--space-3); }
+.end-downloads { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center; margin-top: var(--space-2); }
+.btn--text { min-height: var(--download-height, 32px); font-size: 13px; color: var(--muted); }
+.btn--text:hover { color: var(--text); }
 .wave-strip { display: flex; align-items: flex-end; gap: 2px; height: 56px; }
 .strip-cell { flex: 1; min-width: 4px; height: 4px; background: var(--defense-primary); border-radius: 1px; transform-origin: 50% 100%; animation: strip-in 0.3s ease-out backwards; animation-delay: calc(0.5s + var(--i, 0) * 0.02s); }
 .strip-cell.is-hurt { height: calc(10px + var(--frac, 0) * 46px); background: var(--gold); }

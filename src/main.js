@@ -1,6 +1,10 @@
 // Bootstrap: wires sim + render + ui. No game logic here.
 import { config } from './data/config.js';
 import { createGame, startGame, stepGame } from './sim/game.js';
+import { attachTelemetry } from './sim/telemetry.js';
+import { runToJson, wavesCsv } from './sim/telemetryExport.js';
+import { exportFilename, mimeFor } from './ui/exportName.js';
+import { downloadText } from './ui/downloadRun.js';
 import { EVENT_TYPES } from './sim/events.js';
 import { enemiesRemaining, getWaveCountdownSeconds } from './sim/waveRunner.js';
 import { priceMultiplier } from './ui/trayState.js';
@@ -72,6 +76,7 @@ const applyReduced = () => document.documentElement.classList.toggle('reduced-mo
 applyReduced();
 
 const game = createGame({ seed, totalWaves, debugSpawnEveryTicks, startGold, startLives, startWave });
+const telemetry = attachTelemetry(game, { meta: { app: 'siege-mind' } }); // observation only; before startGame so no event is missed
 startGame(game);
 const stressTowers = stress ? applyStress(game) : 0;
 const stepper = createStepper();
@@ -89,6 +94,18 @@ const debugPanel = createDebugPanel({ root: uiRoot, visible: config.debug.showHu
 const debugTools = debug && config.debug.tools ? createDebugTools({ game, fx: renderer.fx, toaster }) : null;
 const reducedMotion = () => settings.get('reducedMotion');
 const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
+const EXPORTERS = { json: (run) => runToJson(run, { pretty: true }), 'waves-csv': wavesCsv };
+let exportErrorLogged = false;
+/** Download the current run as 'json' or 'waves-csv'. Only called from button handlers. */
+const exportRun = (kind) => {
+  try {
+    const run = telemetry.getRun();
+    downloadText(exportFilename(run, kind), EXPORTERS[kind](run), mimeFor(kind));
+  } catch (e) {
+    if (!exportErrorLogged) { exportErrorLogged = true; console.error('run export failed', e); }
+    toaster.show('Could not export run data');
+  }
+};
 
 let menu = null; let howTo = null; let pauseMenu = null; let endScreen = null; // assigned below; only read from event handlers
 const panel = createSettingsPanel({ root: uiRoot, settings, pause });
@@ -108,12 +125,12 @@ if (!wavesValid) toaster.show('Unknown game length, using the full 30 waves');
 const banner = createWaveBanner({ root: uiRoot, reducedMotion });
 game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => banner.show(describeBanner(ev, game.totalWaves)));
 game.events.on(EVENT_TYPES.GAME_OVER, () => banner.hide());
-endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed, reducedMotion });
+endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed, reducedMotion, onDownloadJson: () => exportRun('json'), onDownloadWaves: () => exportRun('waves-csv') });
 const waveControl = createWaveControl({ root: uiRoot, game, toaster, reducedMotion });
 createWavePreview({ root: uiRoot, game, controlRect: waveControl.rect });
 howTo = createHowToPlay({ root: uiRoot, pause });
 pauseMenu = createPauseMenu({
-  root: uiRoot, pause, openSettings: () => panel.open(), openHowTo: () => howTo.open(),
+  root: uiRoot, pause, openSettings: () => panel.open(), openHowTo: () => howTo.open(), onDownload: () => exportRun('json'),
   onRestart: () => window.location.assign(buildRestartUrl(window.location.href, { seed: game.seed })),
   onQuit: () => window.location.assign(buildMenuUrl(window.location.href)),
 });
@@ -212,6 +229,7 @@ function frame(now) {
     panelClock = 0;
     const tps = paused ? 0 : tickMeter.rate;
     const s = renderer.stats;
+    const tc = telemetry.counts();
     debugPanel.update(
       `FPS ${frameStats.fps.toFixed(0)}  frame avg ${frameStats.avgMs.toFixed(1)} / p95 ${frameStats.p95Ms.toFixed(1)} / max ${frameStats.maxMs.toFixed(1)} ms\n`
       + `ticks/s ${tps.toFixed(0)}  sim speed ${(tps * config.sim.stepSeconds).toFixed(2)}x  tick ${game.tick}  time ${game.time.toFixed(1)}s\n`
@@ -219,6 +237,7 @@ function frame(now) {
       + `backing ${fitInfo.w}x${fitInfo.h}  DPR ${fitInfo.dpr.toFixed(2)}  seed ${game.seed}  debug ${debug}\n`
       + `gold ${game.gold}  towers ${game.towers.length}  projectiles ${game.projectiles.length}  selected ${buildState.state.towerId ?? '-'}${stress ? `  stress mode: towers ${stressTowers}` : ''}\n`
       + `fx: particles ${s.particles}  ghosts ${s.ghosts}  beams ${s.beams}  decals ${s.decals}\n`
+      + `telemetry: enemies ${tc.enemyRecords} (dropped ${tc.enemyRecordsDropped}) waves ${tc.waveRecords} towers ${tc.towerRecords} active ${tc.active} ignored ${tc.ignoredEvents}\n`
       + `mode ${game.mode}  phase ${game.waves.phase}  wave ${game.waves.current}/${game.totalWaves}  lives ${game.lives}  countdown ${getWaveCountdownSeconds(game).toFixed(1)}s  remaining ${enemiesRemaining(game)}\n`
       + `enemy HP x${hpMultiplierForWave(game.waves.current).toFixed(2)} (next x${hpMultiplierForWave(game.waves.nextWave).toFixed(2)})  tower price x${priceMultiplier(game).toFixed(2)}\n`
       + `enemies alive ${game.enemies.length}  spawned ${game.nextEnemyId - 1}  queued ${game.spawnQueue.length}  tool ${debugTools ? debugTools.toolLabel : 'off'}`);

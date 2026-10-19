@@ -6,10 +6,10 @@ import { createConfirmClick } from './confirmClick.js';
 
 /**
  * @param {{root: HTMLElement, pause: {lock: Function, unlock: Function}, onRestart: () => void, onQuit: () => void,
- *   openSettings: () => void, openHowTo: () => void, now?: () => number}} o
+ *   openSettings: () => void, openHowTo: () => void, onDownload?: () => void, now?: () => number}} o
  * @returns {{open: () => void, close: () => void, readonly isOpen: boolean}}
  */
-export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, openHowTo, now = () => performance.now() / 1000 }) {
+export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, openHowTo, onDownload, now = () => performance.now() / 1000 }) {
   let backdrop = null;
   let opener = null;
   const timers = [];
@@ -46,6 +46,7 @@ export function createPauseMenu({ root, pause, onRestart, onQuit, openSettings, 
         resume,
         h('button', { type: 'button', class: 'btn', text: 'Settings', onclick: () => openSettings() }),
         h('button', { type: 'button', class: 'btn', text: 'How to play', onclick: () => openHowTo() }),
+        onDownload ? h('button', { type: 'button', class: 'btn', text: 'Download run data', 'aria-label': 'Download run data as JSON', onclick: () => onDownload() }) : '',
         confirmButton('Restart', onRestart),
         confirmButton('Quit to menu', onQuit),
       ]),

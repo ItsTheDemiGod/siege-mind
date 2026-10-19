@@ -7,3 +7,4 @@ Thumbs.db
 .env
 .vscode/
 .idea/
+tools/browser-check/out/

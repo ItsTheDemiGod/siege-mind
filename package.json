@@ -10,7 +10,9 @@
     "sim": "node experiments/run.js",
     "matchups": "node experiments/matchups.js",
     "playthrough": "node experiments/playthrough.js",
-    "summarize": "node experiments/summarize.js"
+    "summarize": "node experiments/summarize.js",
+    "browser-check": "node tools/browser-check/check.js",
+    "smoke:browser": "node tools/browser-check/smoke.js"
   },
   "engines": {
     "node": ">=22"

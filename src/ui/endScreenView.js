@@ -8,10 +8,10 @@ const STATUS_WORD = { clean: 'no lives lost', hurt: 'lives lost', failed: 'core 
 
 /**
  * @param {ReturnType<import('./endModel.js').buildEndModel>} model
- * @param {{onRetry: () => void, onNewSeed: () => void, onMenu: () => void}} handlers
+ * @param {{onRetry: () => void, onNewSeed: () => void, onMenu: () => void, onDownloadJson?: () => void, onDownloadWaves?: () => void}} handlers
  * @returns {{el: HTMLElement, focusFirst: () => void}} el is the full-stage backdrop (not yet attached)
  */
-export function renderEndScreen(model, { onRetry, onNewSeed, onMenu }) {
+export function renderEndScreen(model, { onRetry, onNewSeed, onMenu, onDownloadJson, onDownloadWaves }) {
   const verdict = model.victory ? 'is-victory' : 'is-defeat';
   const rows = model.rows.map((r, i) => {
     const tr = h('tr', { style: `--i:${i}` }, [h('th', { scope: 'row', text: r.label }), h('td', { text: r.value })]);
@@ -25,15 +25,21 @@ export function renderEndScreen(model, { onRetry, onNewSeed, onMenu }) {
   const retry = h('button', { type: 'button', class: 'btn btn--primary', text: 'Retry same seed', 'aria-label': 'Retry the same seed', onclick: onRetry });
   const fresh = h('button', { type: 'button', class: 'btn', text: 'New seed', 'aria-label': 'Start again with a new seed', onclick: onNewSeed });
   const menu = h('button', { type: 'button', class: 'btn', text: 'Main menu', 'aria-label': 'Return to the main menu', onclick: onMenu });
+  const downloads = onDownloadJson && onDownloadWaves ? h('div', { class: 'end-downloads' }, [
+    h('button', { type: 'button', class: 'btn btn--ghost btn--text', text: 'Download data (JSON)', 'aria-label': 'Download run data as JSON', onclick: onDownloadJson }),
+    h('button', { type: 'button', class: 'btn btn--ghost btn--text', text: 'Wave table (CSV)', 'aria-label': 'Download wave table as CSV', onclick: onDownloadWaves }),
+  ]) : '';
   const card = h('div', { class: `panel end-card ${verdict}`, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'end-title' }, [
     h('h2', { id: 'end-title', class: verdict, text: model.title }),
     h('p', { class: 'end-subtitle', text: model.subtitle }),
     h('table', {}, rows),
     h('div', { class: 'strip-wrap' }, [strip, h('div', { class: 'strip-caption', text: model.toughest })]),
     h('div', { class: 'actions' }, [retry, fresh, menu]),
+    downloads,
     h('div', { class: 'hint', text: 'Press Esc to close' }),
   ]);
   card.style.setProperty('--end-width', `${config.ui.endScreenWidth}px`);
+  card.style.setProperty('--download-height', `${config.ui.downloadButtonHeight}px`);
   const el = h('div', { class: 'end-backdrop' }, [card]);
   el.addEventListener('keydown', trapTab(card));
   return { el, focusFirst: () => retry.focus() };

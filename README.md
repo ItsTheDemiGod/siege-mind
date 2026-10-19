@@ -77,3 +77,18 @@ More dev controls:
 - Enemy HP and shield grow with the wave number: `config.waves.hpCurve` is `'exponential'` (`hpGrowthPerWave`, compounding) or `'polynomial'` (`1 + hpLinear * d + hpQuad * d^2`, d = wave - 1). Armor, speed, rewards and threat costs do not scale. Regeneration heals a fraction of the enemy type's BASE HP, so healing does not grow with the multiplier.
 - Tower prices grow with the number of towers owned: price = round(base * (1 + `config.economy.towerCostGrowth` * towers owned)); upgrades are not scaled; the cap is `config.towers.maxTowers` = 60. Selling refunds 70% of what was paid.
 - `npm run playthrough -- --bot=none|weak|balanced --seed=1` replays a whole game headlessly and prints the per-wave table; `tests/balance.test.js` asserts the bot ladder.
+
+## Run data (telemetry)
+
+Every game records what happened (observation only; it never changes the game): per-wave results, damage by tower type, per-tower and per-enemy records, gold and lives. Full schema and rules: [docs/TELEMETRY.md](docs/TELEMETRY.md).
+
+- **In the browser:** the end screen has **Download data (JSON)** and **Wave table (CSV)**; the pause menu (Esc) has **Download run data**. The debug panel (backquote) shows a `telemetry:` counter line.
+- **Headless:** `npm run playthrough -- --bot=balanced --seed=1 --waves=15 --telemetry=full` (or `summary`, which omits the per-enemy records) writes `<bot>_seed<N>_static_w<W>.json`, `.waves.csv`, `.wavetypes.csv`, `.towers.csv` and (full only) `.enemies.csv` into `experiments/results/` (change it with `--out=DIR`), then validates the run.
+- **Read a run:** `npm run summarize -- experiments/results/balanced_seed1_static_w15.json` prints per-wave, damage-by-source, per-enemy-type and tower tables.
+
+## Browser check (dev)
+
+Dev-only tools that drive a local headless Chrome, Chromium or Edge over the DevTools protocol (Node built-ins only; set `CHROME_PATH` if it is not found). They are not part of `npm test`.
+
+- `npm run smoke:browser` loads the menu, a game, the gallery and the 40-tower stress mode, checks each page came up, and saves screenshots into `tools/browser-check/out/` (git-ignored).
+- `npm run browser-check -- --url=/?seed=1&play=1 --wait=3000 --shot=game.png --eval="document.title"` loads one page (a path uses a built-in static server) and exits 1 on any console error, exception or failed request.

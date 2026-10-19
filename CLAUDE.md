@@ -90,7 +90,11 @@ siege-mind/
       projectiles.js         <- homing bolts, ballistic shells, impacts
       economy.js             <- gold: earn/spend/events
       director.js            <- adaptive Director AI (Phase 6)
-      telemetry.js           <- per-wave stats collection (Phase 5)
+      telemetry.js           <- observation-only collector: attachTelemetry(game) -> getRun()
+      telemetrySchema.js     <- ids, factories, roundTo, derived stats, CSV column lists
+      telemetryRecords.js    <- record builders and plain-data helpers for the collector
+      telemetryValidate.js   <- validateRun: consistency checks on a run
+      telemetryExport.js     <- pure JSON and CSV export of a run
     data/
       towers.js
       enemies.js
@@ -158,6 +162,8 @@ siege-mind/
       towerPanel.js          <- selected-tower panel
       towerInfo.js           <- tooltip/panel text helpers (pure)
       keys.js                <- dev keyboard controls
+      exportName.js          <- pure download file names and MIME types
+      downloadRun.js         <- Blob download helper (button handlers only)
       pauseState.js          <- pure pause model: user flag + named locks
       escapeResolver.js      <- pure: what Esc does, by priority (single Esc handler in main.js)
       confirmClick.js        <- pure two-click confirmation (Restart, Quit)
@@ -176,15 +182,19 @@ siege-mind/
     audio/
       synth.js               <- WebAudio procedural SFX
   tests/                     <- node:test unit tests (sim, enemies, damage, statuses, towers, targeting, combat, economy, matchups R1-R7, buildState, trayState, waves-data, lives, stats, waveRunner, balance, waveControlState, format, restart, panelPlacement, z-index tokens, towerAnim/towerShapes/towerVisuals, ghosts, shellArc, tint, effectPools, stress, perf, color, theme parity, tween, particles, quality, settings, icons, render rules)
+  tools/
+    browser-check/           <- dev only: headless Chrome over CDP (args, chrome, cdp, page, check, smoke); not part of npm test
   experiments/
     bots.js                  <- bot players (none, balanced); Phase 8 extends
     tiles.js                 <- shared tile ranking
-    playthrough.js           <- headless full-game playthrough (npm run playthrough)
+    playthrough.js           <- headless full-game playthrough (npm run playthrough; --telemetry=full|summary writes JSON/CSV)
+    summarize.js             <- plain-text tables from a run JSON (npm run summarize)
     run.js                   <- headless batch runner (Phase 8)
     matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
     results/                 <- generated CSV/JSON (gitignored if large)
     analysis/                <- charts / stats for the report
   docs/
+    TELEMETRY.md             <- telemetry schema, attribution rules, CSV tables
     DEMO_SCRIPT.md
     REPORT_NOTES.md
     screens/                 <- screenshots and GIFs for README/report
@@ -278,21 +288,23 @@ Weighted-bandit style, fully explainable. No deep learning.
 - **HP scaling:** the Director spends `STATIC_THREAT[wave]` in BASE threat units and every enemy it spawns gets the same `hpMultiplierForWave(wave)` as in Static mode.
 - **Budget source:** the Director must spend `STATIC_THREAT[wave]` (use `waveInfo(wave)` and `planThreat(groups)` from src/data/waves.js), not the formula target.
 - **Fairness invariant:** total threat per wave is identical between Static and Adaptive Mode. Adaptive may only change composition (and, as a stretch goal, spawn timing/clumping).
+- **Telemetry:** the Director reads the just-finished wave's `byType[type].leakRate` and `meanProgress` from telemetry (or recomputes them from the same events) and stores its decision with `telemetry.attachDirector(wave, record)`.
 - **Explainability output per wave:** old weights, new weights, per-type effectiveness inputs, and a one-line human-readable reason (e.g. "Fast Runners leaked 40% -> weight up; Armored Grunts died at 22% of path -> weight down").
 
-## 8. Telemetry Spec (Phase 5)
+## 8. Telemetry Spec (Phase 5, implemented)
 
-Collected via the event bus, never by sim code calling telemetry directly.
+Full reference: docs/TELEMETRY.md. Observation only: `attachTelemetry(game, { detail, meta })` (src/sim/telemetry.js) subscribes to the event bus, copies primitives out of payloads and never writes game state, uses an rng or a clock, or emits events. `getRun()` returns a fresh plain JSON object:
 
-- **Per enemy:** id, type, spawnTime, outcome (killed/leaked), pathProgress at outcome, damage taken by source tower type, time alive.
-- **Per tower:** type, placedAt wave, damage dealt, kills.
-- **Per wave:** wave number, composition, threat budget, leaks, lives lost, gold earned/spent, tower loadout snapshot, Director weights (if adaptive).
-- Exposed as plain JSON-serializable objects; exportable to JSON/CSV.
+- **run:** `schemaVersion`, `meta` (detail, seed, mode, totalWaves, startLives, startGold, stepSeconds, attachedAtTick, ignoredEvents, enemyRecordsDropped, extras), `config` and `definitions` (exact copies), `result`, `totals`, `offWave`, `waves`, `towers`, `enemies` (full detail only).
+- **per wave:** composition, hpMult, budget, threat, loadout snapshot, gold buckets (prep / during), per enemy type spawned / killed / leaked / leakRate / meanProgress / meanTimeAlive / damage and kills by source (lance, mortar, frost, poison, sniper, debug, other), tower activity (shots, impacts), director (null until Phase 6).
+- **per tower:** build wave and phase, upgrades, sold data, damage dealt, kills, shots, damage and kills by enemy type. **Per enemy:** spawn, outcome, progress, damage by source, killer.
+- Exports: JSON and four CSV tables (waves, wavetypes, enemies, towers) from src/sim/telemetryExport.js; `validateRun` checks consistency; `npm run summarize` prints tables.
 
 ## 9. Experiment Harness Spec (Phase 8)
 
 - Bot players in `experiments/bots.js`: `monoSplash`, `monoSniper`, `balanced`, `adaptiveBot` (shifts loadout toward whatever is leaking), `random`.
 - Runner: `npm run sim -- --mode=static|adaptive --bot=<name> --seeds=30` executes full 30-wave games headless using the exact same `src/sim/` code.
+- Runs export through `attachTelemetry` and the CSV tables (src/sim/telemetryExport.js); 'summary' detail (no per-enemy records) is the default for batch experiments.
 - Metrics: wave reached, lives lost, total leaks, leak rate per enemy type, gold efficiency, Director weight trajectories.
 - Output: CSV/JSON into `experiments/results/`; analysis scripts/charts in `experiments/analysis/` (JS with Chart.js, or optional Python pandas/matplotlib for report figures).
 - Report mean +/- 95% CI and a significance test for Static vs Adaptive per bot.
@@ -420,10 +432,14 @@ Done (covered by the phase-4a-complete tag).
 **Done when:** the game feels finished from first screen to last.
 Implemented; awaiting user playtest, then tag phase-4b-complete. Checked in headless Chrome (screenshots and scripted interaction), not by a human.
 
-### [ ] Phase 5 — Telemetry layer
-- [ ] Event-bus subscribers collecting per-enemy, per-tower, per-wave data (Section 8)
-- [ ] JSON/CSV export; telemetry unit tests
+### [~] Phase 5 — Telemetry layer
+- [x] Event-bus collector for per-enemy, per-tower, per-wave data (Section 8), observation only, deterministic
+- [x] Schema module, validateRun, JSON and four CSV tables, docs/TELEMETRY.md (docs test checks every column)
+- [x] Headless tooling: playthrough --telemetry / --out, npm run summarize
+- [x] UI: download buttons on the end screen and pause menu, debug panel counters
+- [x] Browser-check dev tool (tools/browser-check: check, smoke) outside npm test
 **Done when:** after any run, a complete telemetry object exists and exports cleanly.
+Implemented; awaiting user check, then tag phase-5-complete.
 
 ### [ ] Phase 6 — Adaptive Director AI
 - [ ] `director.js` implementing Section 7 with hyperparameters in `config.js`
@@ -579,6 +595,19 @@ Implemented; awaiting user playtest, then tag phase-4b-complete. Checked in head
 - 2026-10-19 | 4B | (j) Part 0 restored the original T7 and T5 (3 loss waves) in tests/balance.test.js; they pass at the current config with no config change; only the 60% share clause stays dropped (printed) | Phase 4A.2's relaxed targets were not needed
 - 2026-10-19 | 4B | (k) Verification used a real headless Chrome driven over the DevTools protocol (Node built-ins only; scripts kept out of the repo): menu, pause menu, how-to, banner, defeat screen and gallery rendered and read; interaction (Esc layering, two-click confirm, seed error, end-screen focus) scripted | Earlier phases only had stub-canvas checks
 
+- 2026-10-19 | 5 | (a) Telemetry is observation only and attached with attachTelemetry(game); it is not stored in snapshots and the full-game test proves snapshotGame is identical with and without it | The sim and every balance result stay exactly as in Phase 4B
+- 2026-10-19 | 5 | (b) Attribution: an enemy belongs to the wave that was OPEN when it spawned (outside a wave: offWave), damage and kills go by the source tower type (lance..sniper, debug, other) and by towerId | The brief said ENEMY_SPAWNED.wave; the sim reports the last finished wave for spawns during an intermission, which would corrupt a closed wave, so the open wave decides
+- 2026-10-19 | 5 | (c) The collector keeps its own tower counters (damage, kills, shots) | The sim removes a sold tower before the sold event fires
+- 2026-10-19 | 5 | (d) Ordering trap: GAME_OVER is emitted from inside ENEMY_LEAKED before the collector sees the leak, so GAME_OVER only notes the result; the partial wave is built on demand in getRun() | The final leak must still be counted
+- 2026-10-19 | 5 | (e) offWave aggregate (JSON only) for debug spawns, shots and impacts outside a wave and lives lost outside a wave | Totals reconcile exactly: totals = sum over waves + offWave
+- 2026-10-19 | 5 | (f) Gold buckets: prep (no wave open, until the next wave starts) and during (wave open); run totals always accumulate every gold event | Shows what the player did between waves versus in combat
+- 2026-10-19 | 5 | (g) 'full' detail keeps one record per enemy (cap 20000, overflow counted in meta.enemyRecordsDropped); 'summary' keeps aggregates only and is the batch default | Bounded memory and file size (a 30-wave full run is 1.3 MB JSON)
+- 2026-10-19 | 5 | (h) Floats are rounded to 6 digits in JSON and 4 in CSV with a table of powers of ten (-0 becomes 0); meta, config and definitions are exact copies | Rounding stepSeconds (1/60) would skew every derived time; the brief's "every float" was narrowed for this reason
+- 2026-10-19 | 5 | (i) Every run embeds config and definitions | Files are self-describing; a result can be reproduced and understood without the repo state
+- 2026-10-19 | 5 | (j) attachDirector(wave, record) stores a validated deep copy in waves[n].director | The Phase 6 hook
+- 2026-10-19 | 5 | (k) tools/browser-check is a dev tool (Node built-ins, real Chrome over CDP) and lives outside npm test | Needs a local browser; smoke:browser verifies the menu, game, gallery and 40-tower stress mode
+- 2026-10-19 | 5 | (l) Other: validateRun also checks tower finalLevel against the upgrade list and ignores the free-form director and killer fields in the numeric check; the pause menu download button sits before Restart; the Download buttons are shown only when both callbacks are given (the gallery demos stay without them); impacts of shells still flying after a wave ended count in offWave | Small gaps the brief left open
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -605,6 +634,10 @@ Implemented; awaiting user playtest, then tag phase-4b-complete. Checked in head
 - The wave control subtitle ("Place towers, then start (Enter) - Enemy HP x1.0") wraps to two lines inside the 300 px control next to the countdown ring; legible, but cramped.
 - Digit-only seeds such as "007" become the number 7 (text seeds keep their exact text).
 - The gallery core canvases draw the core only (no particles or darkening); the particle and screen effects of the fall and the victory are only visible in the live game.
+- Phase 5 was checked in headless Chrome (software rendering): download buttons were verified by intercepting the anchor click and reading the Blob (name, type, contents), not by saving a real file; the layout of the taller end card (its top edge now overlaps the HUD strip slightly) needs a human look.
+- The collector adds about 4% wall time to a headless 30-wave run (2095 ms without, 2181 ms with full telemetry); there is no browser frame-time measurement of it.
+- Late attachment loses everything before attach (counted in meta.ignoredEvents); startGold is then the gold at attach time.
+- A 30-wave full run is 1.3 MB of JSON (enemies.csv 387 KB); the 20000-record cap is far above any real run (about 3200 enemies).
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -619,3 +652,4 @@ Implemented; awaiting user playtest, then tag phase-4b-complete. Checked in head
 - 2026-10-18 | Phase 4A | Lives, 30-wave static script with pure builder, wave runner, win/lose, stats, wave control and end screen, bots, playthrough and calibration (budgetScale 3.6); 488 tests pass; no real-browser run | User playtests, then Phase 4B
 - 2026-10-19 | Phase 4A.2 | Wave HP scaling (polynomial), base-HP regeneration, tower price growth and cap 60, weak bot, bot ladder calibration (Stage C), price in the tray and HP multiplier in the wave control; 512 tests pass; no real-browser run | User playtests, then Phase 4B
 - 2026-10-19 | Phase 4B | Test tightening, Quick game (15 waves), waveLog and wave preview in the sim, main menu, how-to, pause menu, wave banner, wave preview, countdown ring, four core states with destroyed and victory animations, animated end screens with wave strip, pause locks and a single Escape handler, gallery 4b; 615 tests pass; verified in headless Chrome | User playtests, then tag phase-4b-complete; Phase 5 only when the user says so
+- 2026-10-19 | Phase 5 | Telemetry collector, schema, validateRun, JSON/CSV export, docs/TELEMETRY.md, playthrough --telemetry, summarize, download buttons, debug telemetry line, browser-check dev tool (check, smoke); 700 tests pass; 30-wave balanced seed 1 still wins with 8 lives in 43.4 min (15 waves 18.9 min), none loses at wave 3, weak at wave 10; headless Chrome smoke passes | User checks, then tag phase-5-complete; Phase 6 only when the user says so

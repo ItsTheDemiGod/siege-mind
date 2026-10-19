@@ -11,10 +11,11 @@ import { buildMenuUrl } from './menuState.js';
 const REDUCED_DELAY = 0.2;
 
 /**
- * @param {{root: HTMLElement, game: object, newSeed: () => number, reducedMotion?: () => boolean, navigate?: (url: string) => void, href?: () => string}} o
+ * @param {{root: HTMLElement, game: object, newSeed: () => number, reducedMotion?: () => boolean, navigate?: (url: string) => void, href?: () => string,
+ *   onDownloadJson?: () => void, onDownloadWaves?: () => void}} o
  * @returns {{readonly isOpen: boolean, hide: () => void}}
  */
-export function createEndScreen({ root, game, newSeed, reducedMotion = () => false, navigate = (url) => window.location.assign(url), href = () => window.location.href }) {
+export function createEndScreen({ root, game, newSeed, onDownloadJson, onDownloadWaves, reducedMotion = () => false, navigate = (url) => window.location.assign(url), href = () => window.location.href }) {
   let open = false;
   let view = null;
   let showButton = null;
@@ -30,7 +31,7 @@ export function createEndScreen({ root, game, newSeed, reducedMotion = () => fal
   }
 
   function present() {
-    view = renderEndScreen(buildEndModel(game), { onRetry: () => go(game.seed), onNewSeed: () => go(newSeed()), onMenu: () => navigate(buildMenuUrl(href())) });
+    view = renderEndScreen(buildEndModel(game), { onRetry: () => go(game.seed), onNewSeed: () => go(newSeed()), onMenu: () => navigate(buildMenuUrl(href())), onDownloadJson, onDownloadWaves });
     root.append(view.el);
 
     // "Show results" lives where the wave control was, so the dialog can be reopened after Esc
