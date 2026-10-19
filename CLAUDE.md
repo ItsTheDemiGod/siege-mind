@@ -239,7 +239,11 @@ siege-mind/
     amendmentReport.js       <- amendment A1 report (legacy versus A1 final tilt); npm run amendment-report
     diagnose.js              <- static-mode diagnostics of the reward signal incl. rewardContrast (diagnoseFormat.js, diagnoseCli.js; npm run diagnose)
     figures/                 <- hand-written SVG toolkit (palette, svg, draw) and the six figure builders (figuresA.js, figuresB.js)
-    figuresCli.js            <- npm run figures: writes docs/results/figures
+    figuresCli.js            <- npm run figures: writes docs/results/figures (legacy, protocol v2)
+    figuresV4/               <- protocol-v4 figures: palette (six modes, status tags), markers, kit (frame + forest panel), figuresA/B (six builders), data (loadFigureInputs, replicationTable, pairContrasts), figures.js (list)
+    figuresV4Cli.js          <- npm run figures:final: six SVGs + index.html into docs/results/figures-final
+    resultsFormat.js         <- the ONE shared number formatter (figures and results document)
+    resultsDoc.js            <- pure generator of docs/RESULTS.md (guards against stale fixed text); resultsDocTables.js has tables and guards; resultsDocCli.js is npm run results-doc
     directorCompare.js       <- Static vs Adaptive vs Random over bots and seeds, report-only hypotheses (npm run compare)
     run.js                   <- headless batch runner (Phase 8)
     matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
@@ -249,6 +253,7 @@ siege-mind/
     TELEMETRY.md             <- telemetry schema, attribution rules, CSV tables
     DIRECTOR.md              <- the Director algorithm, config keys, decision record, controls, overlay and report
     EXPERIMENT.md            <- the pre-registered experiment protocol
+    RESULTS.md               <- GENERATED results of the held-out run (npm run results-doc); never edited by hand
     results/                 <- committed experiment outputs; README.md explains every file (calibration, tuning, amendment-A1, diagnostics, figures/, archive/)
     fixtures/                <- demo-adaptive-w15.json: a recorded adaptive run for the gallery and tests
     DEMO_SCRIPT.md
@@ -584,13 +589,17 @@ Done (tagged phase-9a2b1-complete).
 - [x] Pre-registration document: docs/EXPERIMENT.md 'Amendment A3'
 Implemented; awaiting user check, then tag phase-9a2b2-complete (this is the freeze of the confirmatory plan).
 
-### [ ] Phase 9B — Held-out evaluation and final figures
-- [ ] Check the freeze: tag phase-9a2b2-complete exists, `git status` clean, experiments/heldout.lock.json absent
-- [ ] `npm run plan-heldout`
-- [ ] `npm run experiment -- --set=heldout --final --yes` (150 seeds x 5 styles x 6 modes, once, through the lock)
-- [ ] `npm run confirm -- --in=docs/results/heldout.rows.json --out=docs/results/heldout-confirmatory`
-- [ ] Regenerate the figures for the new modes and styles (the figure builders still target protocol version 2 and must be updated)
-- [ ] The write-up
+### [x] Phase 9B-1 — Held-out evaluation
+- [x] The single held-out run through the lock (150 seeds x 5 styles x 6 modes, lock run index 1) and `npm run confirm` (docs/results/heldout.rows.json, heldout.csv, heldout-confirmatory.json and .md)
+- [x] Outcome in words: K1 not supported, K2 and K3 supported
+Done (tagged phase-9b1-complete).
+
+### [~] Phase 9B-2 — Results package
+- [x] Six figures for protocol v4 and six modes (experiments/figuresV4/, `npm run figures:final` -> docs/results/figures-final/ with index.html); the legacy v2 figure modules stay unchanged
+- [x] Generated results document docs/RESULTS.md (`npm run results-doc`; every number read from the JSON outputs; the generator throws when the fixed text no longer matches the data)
+- [x] Correction pass: superseded-notes under exploratory statements; docs/EXPERIMENT.md 'Results of the held-out run', docs/DIRECTOR.md 'Held-out findings', docs/results/README.md
+- [x] No experiment was run in this phase; the held-out data, the lock, protocol.js and src/ are byte-identical to commit d9649e6
+Implemented; awaiting user check, then tag phase-9b2-complete.
 
 ### [ ] Phase 9C — Polish, audio and balance
 - [ ] Balance pass using harness data
@@ -819,6 +828,12 @@ Implemented; awaiting user check, then tag phase-9a2b2-complete (this is the fre
 - 2026-10-19 | 9A-2b-2 | (g) Dry-run safety: npm run confirm without --dry-run requires set heldout, protocol version 4, the current protocol hash and a numeric lock runIndex and refuses any output name containing dryrun; with --dry-run it requires a dryrun output name and labels everything EXPLORATORY DRY RUN ON TRAINING DATA: NOT CONFIRMATORY; incomplete data produce no statistic
 - 2026-10-19 | 9A-2b-2 | (h) Other: (1) allowedModesFor('calibration') stays the protocol modes (not only static) because existing calibration tests use adaptive; (2) the held-out run defaults to the six confirmatory modes and refuses --modes and --styles (as before) and unitsFor rejects any other mode list for heldout; (3) contrastSeedValues was factored out of firstLookContrast.js (the first-look output is byte-identical, checked); (4) PROTOCOL_PREVIOUS_HASHES holds the version 3 hash so version 3 rows can still be analyzed with a note; (5) the K2/K3 unlocked-only rule changes nothing at wave 9 (all types unlocked) and drops the regenerator and bruiser pairs at wave 5; (6) the post hoc power note uses alpha 0.016667 (Holm level of the smallest of three p-values)
 
+- 2026-10-20 | 9B-2 | (a) Held-out result and the non-replication of the training attribution: K1 (random minus static, lives lost) was not supported on the held-out seeds although the training seeds had suggested a large effect; most of Director v1's added lives lost sits in the fixed durability lean (prior minus random), learning on top is small with a mixed sign across metrics; K2 and K3 were supported (both Directors' weights separate defenses at wave 9), Director v2 is not detectably different from static in lives lost and win rate. Exploratory statements that rested on the training attribution got a superseded-note instead of being deleted
+- 2026-10-20 | 9B-2 | (b) docs/RESULTS.md is generated (experiments/resultsDoc.js) from the JSON outputs through one formatter; the generator THROWS if K1/K2/K3 supported flags are not false/true/true and also guards every claim the fixed sentences make (prior-random is the largest attribution part, learning on top is small and mixed in sign across metrics, Director v2 intervals include 0, counter arm above Director v1 at wave 9, coverage rule not met, wave-5 training contrast under half the held-out one), so a different outcome cannot silently produce stale text
+- 2026-10-20 | 9B-2 | (c) Legacy figure modules (experiments/figures, figuresCli.js, their tests) are untouched; the v4 figures live in experiments/figuresV4/ with a separate CLI (npm run figures:final)
+- 2026-10-20 | 9B-2 | (d) No number is typed by hand in figures or the results document; fixed text contains words only. docs/EXPERIMENT.md, docs/DIRECTOR.md and docs/results/README.md use words and file pointers for the held-out findings
+- 2026-10-20 | 9B-2 | (e) Other: (1) contrastSeedValues (experiments/firstLookContrast.js) now also returns pairValues (per-seed pair values); existing fields and every output are unchanged (analyzeConfirmatory on the held-out rows reproduces heldout-confirmatory.json exactly, checked); per-pair CIs reuse it instead of a second implementation; (2) pairContrasts re-aggregates the pair values seed by seed and throws if they do not reproduce the aggregate contrast (internally and against the held-out analysis) within 1e-6; (3) the figure kit draws the waterfall inside the forest panel (bars with data-value attributes); fig2 throws if the three parts do not sum to the total within 1e-4 (rounding of 6-digit estimates); (4) fig5 uses five panels with their own axes because K1 (lives), K2/K3 (contrast), lives lost, win rate and contrasts have different units; (5) the per-pair table in RESULTS.md lists waves 5 and 9, fig6 draws both, wave 13 is computed but not shown; (6) the figure N line of fig5 is shortened so it fits the width
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -861,6 +876,7 @@ Implemented; awaiting user check, then tag phase-9a2b2-complete (this is the fre
 - The wave control title can wrap for long set-piece names in the intermission ('Next: Wave 10 — The Vanguard' was not measured).
 - Gallery overlays are driven by a stand-in game object; they show the recorded run's decisions, not live ones.
 - Exploratory tuning-set results (Phase 8A, 30 seeds): the primary P1 (adaptive vs static) shows +1.48 lives lost (95% CI 0.85 to 2.15); P2 (adaptive vs random) is null (+0.06, CI -0.65 to 0.75); T1 is reversed (the random control leans toward the predicted types more often than the Director: 17% / 0% / 73% / 20% versus 47% / 43% / 83% / 60% for the four predicted styles). Most of the "harder than static" effect is also present in the random control (C1 +1.42).
+  > Superseded by the held-out run (see docs/RESULTS.md): K1 was not supported (random composition alone did not cost lives); most of Director v1's added difficulty was the fixed durability bias.
 - The Director's final weights are similar for every style (Regenerator and Bruiser up, Fast Runner and Armored Grunt down): it behaves like a tankiness detector more than a counter to the player's mix.
 - balancedR (a random tower mix) wins only about 45% of static games and its Director results barely move (a possible ceiling or floor effect); the calibration constrains the mean, not the spread between styles.
 - All styles lose most lives in the same few waves; seeds only change lanes and the bots' random choices, so seed-level variation is modest (sd of seed-level P1 differences 1.9 lives).
@@ -887,6 +903,7 @@ Implemented; awaiting user check, then tag phase-9a2b2-complete (this is the fre
 - During this phase `node experiments/runExperimentCli.js --set=tuning --split=validation` was run once while main() did not yet consult the lock, so it executed the whole tuning set (450 games, base tuning-validation) with no lock; the two output files were deleted without being read. Seeds 1021-1030 had already been run as part of the committed 9A-1 tuning set, and the new arms were NOT run on them. The CLI now refuses without --final, --yes and a clean tree and is covered by tests.
 - Incident (recorded in Phase 9A-2b-1, see docs/EXPERIMENT.md Incident log): the validation split was run once without a lock in Phase 9A-2a (whole tuning set, 450 games, outputs deleted unread, new arms not run on it). Seeds 1021-1030 were already read as part of the tuning set in 9A-1, so they are not pristine; only the held-out seeds 2001+ are confirmatory. The lock gate is covered by tests/cli-lock.test.js.
 - Phase 9A-2b-1 six-mode first look (TRAIN seeds, exploratory, nothing tuned, population 71 of 100 units): attribution of lives lost: random - static +1.470 (0.484 to 2.454, p 0.011), prior - random +0.228 (-0.657 to 1.144, p 0.640), adaptive - prior +0.169 (-0.605 to 1.043, p 0.721), total adaptive - static +1.867 (0.733 to 3.158, p 0.005); adaptive2 - prior -1.308 (-2.538 to -0.220, p 0.037); counter - prior -0.987 (-2.259 to 0.147, p 0.136). In these data most of v1's total sits in composition variability, and the prior alone is about as hard as v1 (both 38 wins in all 100 units, versus 44 for random and 51 for static); the identity holds (largest error 8.9e-16).
+  > Superseded by the held-out run (see docs/RESULTS.md): K1 was not supported (random composition alone did not cost lives); most of Director v1's added difficulty was the fixed durability bias.
 - Tilt agreement (pooled): adaptive vs prior 0.214, adaptive2 vs prior 0.340, adaptive vs adaptive2 0.278, random vs prior 0.872: v1's weights are close to the fixed durability prior, v2's are further from it.
 - The fixed-wave contrast of random and prior is exactly 0 at every wave (checked and printed); counter is clearly positive (+0.29 at wave 5, +0.34 to +0.43 at waves 9 to 14), adaptive about +0.12 at wave 9 and +0.26 to +0.31 at waves 12 to 14, adaptive2 smaller (+0.03 at wave 9, up to about +0.1 at waves 12 to 15); coverage limits all of these to 56% to 85% of the population.
 - The pre-registered fixed-wave rule was not met on the training data (no candidate reached 75% minimum coverage); wave 9 was chosen as the best minimum coverage (70%). Amendment A3 must decide what to do with a rule that is not met at 20 seeds (150 held-out seeds will change coverage counts only a little in relative terms).
@@ -897,6 +914,11 @@ Implemented; awaiting user check, then tag phase-9a2b2-complete (this is the fre
 - The figure builders (npm run figures) still target protocol version 2 and the default input paths do not exist; they must be rewritten in Phase 9B.
 - npm run plan-heldout times six training games for its runtime estimate (about 6.5 minutes for 4500 games on this machine); it is rough and linear.
 - The held-out rows file is written only when the whole run completes (writeResults after runExperiment); an interrupted run leaves a lock without rows, and a re-run then needs --new-lock (runIndex 2, to be reported).
+- The wave-5 contrast of Director v1 was much smaller on the training seeds than on the held-out seeds; the gap is unexplained beyond sampling variation (20 versus 150 seeds); it is stated in docs/RESULTS.md Limits.
+- The figures of protocol version 2 (experiments/figures, npm run figures) are legacy: their default input paths do not exist and they are not regenerated; the protocol-v4 figures are `npm run figures:final`.
+- Held-out learning-on-top (adaptive minus prior) is small and its sign differs between metrics (lives lost and win rate favour the player slightly, final wave, leaked threat and penetration the Director); it is reported as an estimate without a test.
+- The fixed-wave coverage rule was not met on the held-out data either (minimum coverage at wave 9 below 75%); all wave-9 and wave-13 contrasts are conditional on survival.
+- Phase 9B-2 figures were checked as rendered images in headless Chrome (software rendering), not in other viewers; one screenshot per figure under tools/browser-check/out (not committed).
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -920,3 +942,4 @@ Implemented; awaiting user check, then tag phase-9a2b2-complete (this is the fre
 - 2026-10-19 | Phase 9A-2a | Golden pin of the existing modes, train/validation split with a validation lock, static baseline table, Director v2 and the counter arm, runner modes, tiltByWave, minimal UI for the arms, first-look tool, first look on the train seeds (500 games), docs; 1035 tests pass; Phase 7 results reproduce exactly (static 8 lives 18.9 min, adaptive 1 life 19.9 min, random 5 lives 19.0 min); the 300 static/random/adaptive rows equal the committed tuning rows; validation and held-out seeds not run for the new arms | User checks, then tag phase-9a2a-complete; Phase 9A-2b only when the user says so
 - 2026-10-19 | Phase 9A-2b-1 | Goldens for adaptive2/counter, CLI lock gate tests with stubs, incident record, prior control arm, first-look attribution chain, fixed-wave rule, tilt agreement, matched-set sensitivity, six-mode first look on the train seeds (600 games); 1081 tests pass; Phase 7 results reproduce exactly; the 500 older rows equal firstlook-train.rows.json in every column; protocol.js byte-identical; validation and held-out seeds not run | User checks, then tag phase-9a2b1-complete; Phase 9A-2b-2 only when the user says so
 - 2026-10-19 | Phase 9A-2b-2 | Amendment A3 (protocol version 4: held-out 150 seeds, six confirmatory modes, PROTOCOL.confirmatory with K1-K3), v3 hypotheses golden, held-out gate for exactly the six modes, checkProtocolHash and PROTOCOL_PREVIOUS_HASHES, requiredN at the Holm level, confirmatory analysis code, confirm CLI with dry-run naming rules, plan-heldout, dry run on the train rows, pre-registration in docs/EXPERIMENT.md; 1109 tests pass; Phase 7 results reproduce exactly; nothing under src changed; held-out and validation seeds not run | User checks, then tag phase-9a2b2-complete (the freeze); Phase 9B (the held-out run) only when the user says so
+- 2026-10-20 | Phase 9B-2 | Figures for protocol v4 (six builders, replication table, per-pair contrasts, CLI), generated docs/RESULTS.md with guards, correction pass (superseded notes, EXPERIMENT/DIRECTOR/results README), tests for all of it; no experiment run; held-out data, lock, protocol.js and src byte-identical to d9649e6 | User checks, then tag phase-9b2-complete; Phase 9C only when the user says so

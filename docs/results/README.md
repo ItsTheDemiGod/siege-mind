@@ -15,7 +15,9 @@ Experiment outputs, committed here (experiments/results stays git-ignored for sc
 | firstlook-train6.rows.json, firstlook-train6.csv | 600 games on the TRAIN seeds 1001-1020 (5 styles x 6 modes: static, random, prior, adaptive, adaptive2, counter), protocol version 3 | `npm run experiment -- --set=tuning --split=train --modes=static,random,prior,adaptive,adaptive2,counter --base=firstlook-train6` | exploratory; nothing tuned; the 500 rows of the five older modes equal firstlook-train.rows.json column for column |
 | firstlook-train6-summary.json, .md, .fixedwave.json | The six-mode first look: attribution chain with its identity check, fixed-wave style contrast with coverage and the matched-set sensitivity, the pre-registered fixed-wave choice (counts only), tilt agreement, mean tilts, early-ends check | `npm run first-look -- --in=docs/results/firstlook-train6.rows.json --out=docs/results/firstlook-train6-summary` | exploratory |
 | confirm-dryrun-train.json, .md | Dry run of the confirmatory analysis (amendment A3) on the six-mode TRAIN rows, labelled EXPLORATORY DRY RUN ON TRAINING DATA: NOT CONFIRMATORY | `npm run confirm -- --in=docs/results/firstlook-train6.rows.json --dry-run --out=docs/results/confirm-dryrun-train` | exploratory; did not change the plan |
-| heldout.rows.json, heldout.csv, heldout-confirmatory.json, .md | The single held-out run (150 seeds x 5 styles x 6 modes) and its confirmatory analysis | `npm run experiment -- --set=heldout --final --yes`, then `npm run confirm -- --in=docs/results/heldout.rows.json --out=docs/results/heldout-confirmatory` | **not yet produced** (the held-out set has not been run) |
+| heldout.rows.json, heldout.csv, heldout-confirmatory.json, .md | The single held-out run (150 seeds x 5 styles x 6 modes) and its confirmatory analysis | `npm run experiment -- --set=heldout --final --yes`, then `npm run confirm -- --in=docs/results/heldout.rows.json --out=docs/results/heldout-confirmatory` | **confirmatory** (the single held-out run, lock run index 1); the only confirmatory data in this folder |
+| figures-final/ (fig1-confirmatory ... fig6-pair-contrasts .svg, index.html) | The six protocol-v4 figures (held-out data, training comparison, post hoc per-pair contrasts); every figure shows its N and an evidence-status tag | `npm run figures:final` | held-out estimates (fig1 confirmatory, fig2-5 estimates, fig6 post hoc) |
+| ../RESULTS.md | The generated results document; every number is read from the JSON files here, and the generator refuses to run if the fixed text no longer matches the data | `npm run results-doc` | generated from the held-out run |
 | archive/ | Superseded outputs, see below | kept for the record | superseded |
 
 ## archive/
@@ -26,6 +28,6 @@ Experiment outputs, committed here (experiments/results stays git-ignored for sc
 - `diagnostics-focus.*`: static-mode diagnostics of the reward signal for the focus styles.
 - `figures-focus/`: the six SVG figures built from the focus-style analysis. The figures are regenerated for the new styles in a later phase.
 
-The figures (`npm run figures`) are not regenerated in this phase: the figure builders still target protocol version 2 and the default input paths no longer exist; Phase 9B regenerates them.
+The legacy figures (`npm run figures`, protocol version 2) are not regenerated: they stay as they were and their default input paths no longer exist; the figures of the held-out evaluation are `npm run figures:final`.
 
-Nothing here is confirmatory: the held-out seed set has not been run (experiments/heldout.lock.json does not exist).
+Status: the training, tuning, calibration, first-look and diagnostics outputs above are **exploratory** and were used to design the confirmatory plan. Only heldout.* and heldout-confirmatory.* are confirmatory (experiments/heldout.lock.json, run index 1); generated outputs (anything a script writes here) are never edited by hand.

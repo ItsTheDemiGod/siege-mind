@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 492" width="960" height="492" role="img" aria-labelledby="fig-title fig-desc">
+<title id="fig-title">Figure 1. The three confirmatory hypotheses</title>
+<desc id="fig-desc">Forest plot of the estimates, 95% cluster-bootstrap intervals and Holm-adjusted p-values for K1 (not supported), K2 (supported) and K3 (supported).</desc>
+<rect width="960" height="492" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#1a1a1a">
+<defs><pattern id="pat-random" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><circle cx="3" cy="3" r="1.4" fill="#009E73"/></pattern><pattern id="pat-prior" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M 0 2 H 6 M 0 5 H 6" stroke="#CC79A7" stroke-width="1.5" fill="none"/></pattern><pattern id="pat-adaptive" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M -1 7 L 7 -1 M -1 1 L 1 -1 M 5 7 L 7 5" stroke="#D55E00" stroke-width="1.6" fill="none"/></pattern><pattern id="pat-adaptive2" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M 3 0 V 6 M 0 3 H 6" stroke="#E69F00" stroke-width="1.5" fill="none"/></pattern><pattern id="pat-counter" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#ffffff"/><path d="M 2 0 V 6 M 5 0 V 6" stroke="#56B4E9" stroke-width="1.5" fill="none"/></pattern></defs>
+<text x="20" y="30" font-size="18" text-anchor="start" font-weight="bold" fill="#1a1a1a">Figure 1. The three confirmatory hypotheses</text>
+<rect x="670.4" y="12" width="269.6" height="26" fill="none" stroke="#1a1a1a" stroke-width="1.5" data-status="confirmatory"/>
+<text x="805.2" y="30" font-size="12" text-anchor="middle" font-weight="bold" fill="#1a1a1a">CONFIRMATORY (pre-registered test)</text>
+<text x="20" y="54" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">N = 150 held-out seeds x 5 styles x 6 modes = 4500 games; primary population 614 units (static game reached wave 5); K1 n = 150 seeds, K2 n = 124, K3 n = 127</text>
+<text x="20" y="90" font-size="13" text-anchor="start" font-weight="bold" fill="#1a1a1a">K1: lives lost, Random control minus Static (population units)</text>
+<line x1="357.25" y1="102" x2="357.25" y2="154" stroke="#d9d9d9" stroke-width="1"/>
+<text x="357.25" y="169" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">-0.20</text>
+<line x1="488.07" y1="102" x2="488.07" y2="154" stroke="#1a1a1a" stroke-width="1.4"/>
+<text x="488.07" y="169" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0.00</text>
+<line x1="618.88" y1="102" x2="618.88" y2="154" stroke="#d9d9d9" stroke-width="1"/>
+<text x="618.88" y="169" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0.20</text>
+<line x1="320" y1="154" x2="740" y2="154" stroke="#555555" stroke-width="1"/>
+<text x="530" y="187" font-size="12" text-anchor="middle" font-weight="normal" fill="#555555">difference in lives lost (a lost game counts as 20)</text>
+<g data-id="K1"><text x="20" y="125" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">K1: Composition variability alone (random</text><text x="20" y="139" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">versus static) costs the player lives</text><line x1="342.5" y1="128" x2="717.5" y2="128" stroke="#009E73" stroke-width="2"/><line x1="342.5" y1="124" x2="342.5" y2="132" stroke="#009E73" stroke-width="2"/><line x1="717.5" y1="124" x2="717.5" y2="132" stroke="#009E73" stroke-width="2"/><path d="M 531.82 123 L 536.82 133 L 526.82 133 Z" fill="#009E73" stroke="#009E73" stroke-width="1.6"/><text x="754" y="118" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">0.07 [-0.22, 0.35]</text><text x="754" y="132" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Holm p 0.6522</text><text x="754" y="146" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">not supported</text></g>
+<text x="20" y="220" font-size="13" text-anchor="start" font-weight="bold" fill="#1a1a1a">K2, K3: fixed-wave style contrast at wave 9 (0 = weights do not depend on the defense)</text>
+<line x1="342.5" y1="232" x2="342.5" y2="336" stroke="#1a1a1a" stroke-width="1.4"/>
+<text x="342.5" y="351" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0.00</text>
+<line x1="428.38" y1="232" x2="428.38" y2="336" stroke="#d9d9d9" stroke-width="1"/>
+<text x="428.38" y="351" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0.05</text>
+<line x1="514.27" y1="232" x2="514.27" y2="336" stroke="#d9d9d9" stroke-width="1"/>
+<text x="514.27" y="351" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0.10</text>
+<line x1="600.15" y1="232" x2="600.15" y2="336" stroke="#d9d9d9" stroke-width="1"/>
+<text x="600.15" y="351" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0.15</text>
+<line x1="686.03" y1="232" x2="686.03" y2="336" stroke="#d9d9d9" stroke-width="1"/>
+<text x="686.03" y="351" font-size="11" text-anchor="middle" font-weight="normal" fill="#555555">0.20</text>
+<line x1="320" y1="336" x2="740" y2="336" stroke="#555555" stroke-width="1"/>
+<text x="530" y="369" font-size="12" text-anchor="middle" font-weight="normal" fill="#555555">style contrast of the final weights</text>
+<g data-id="K2"><text x="20" y="255" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">K2: Director v1 final weights separate</text><text x="20" y="269" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">defenses in the predicted direction at wave 9</text><line x1="605.92" y1="258" x2="717.5" y2="258" stroke="#D55E00" stroke-width="2"/><line x1="605.92" y1="254" x2="605.92" y2="262" stroke="#D55E00" stroke-width="2"/><line x1="717.5" y1="254" x2="717.5" y2="262" stroke="#D55E00" stroke-width="2"/><path d="M 657.05 253 h 10 v 10 h -10 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.6"/><text x="754" y="248" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">0.19 [0.15, 0.22]</text><text x="754" y="262" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Holm p &lt; 0.0001</text><text x="754" y="276" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">supported</text></g>
+<g data-id="K3"><text x="20" y="307" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">K3: Director v2 weights separate defenses in</text><text x="20" y="321" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">the predicted direction at wave 9</text><line x1="480.5" y1="310" x2="539.46" y2="310" stroke="#E69F00" stroke-width="2"/><line x1="480.5" y1="306" x2="480.5" y2="314" stroke="#E69F00" stroke-width="2"/><line x1="539.46" y1="306" x2="539.46" y2="314" stroke="#E69F00" stroke-width="2"/><path d="M 504.71 305 L 514.71 315 M 504.71 315 L 514.71 305" fill="none" stroke="#E69F00" stroke-width="2.2"/><text x="754" y="300" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">0.10 [0.08, 0.11]</text><text x="754" y="314" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Holm p &lt; 0.0001</text><text x="754" y="328" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">supported</text></g>
+<path d="M 27 397 L 32 407 L 22 407 Z" fill="#009E73" stroke="#009E73" stroke-width="1.6"/>
+<rect x="40" y="396" width="18" height="12" fill="url(#pat-random)" stroke="#009E73" stroke-width="1.2"/>
+<text x="66" y="406" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Random control</text>
+<path d="M 322 397 h 10 v 10 h -10 Z" fill="#D55E00" stroke="#D55E00" stroke-width="1.6"/>
+<rect x="340" y="396" width="18" height="12" fill="url(#pat-adaptive)" stroke="#D55E00" stroke-width="1.2"/>
+<text x="366" y="406" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Director v1</text>
+<path d="M 622 397 L 632 407 M 622 407 L 632 397" fill="none" stroke="#E69F00" stroke-width="2.2"/>
+<rect x="640" y="396" width="18" height="12" fill="url(#pat-adaptive2)" stroke="#E69F00" stroke-width="1.2"/>
+<text x="666" y="406" font-size="12" text-anchor="start" font-weight="normal" fill="#1a1a1a">Director v2</text>
+
+<text x="20" y="440" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">Point estimate with 95% cluster-bootstrap interval over seeds and the Holm-adjusted p for each pre-registered hypothesis. K1</text>
+<text x="20" y="456" font-size="12" text-anchor="start" font-weight="normal" fill="#555555">is random minus static in lives lost; K2 and K3 are the wave-9 style contrasts of Director v1 and v2.</text>
+</g>
+</svg>

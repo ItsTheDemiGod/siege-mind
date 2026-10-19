@@ -136,3 +136,14 @@ A third research arm (`?mode=prior`, URL only), added in Phase 9A-2b-1. It is a 
 - **Config (`config.prior`):** `firstAdaptiveWave` 5, `beta` 1, `tiltMax` 3, `advClipHigh` 2, `absentFloorShare` 0.05, `baselineFloorFraction` 0.1; validated by `validatePriorConfig`; `createGame({ priorConfig })` overrides it.
 - **Decision record:** v1's `DECISION_KEYS` plus `arm` (`'prior'`) and `baselineAdvantage` (five numbers) (`DECISION_KEYS_PRIOR`); `version` 2; `observed` and `scores` are zeros, `basedOnWave` 0. Explain line: `<Name>: weight x<tilt>, a fixed weight from static baseline rewards (enemy durability), not learned from your defense`.
 - **Why it exists.** The learning Directors tend to favour durable enemy types whatever the player builds. The prior reproduces that enemy-durability bias with no learning at all, so the difference prior minus random isolates the bias and adaptive minus prior isolates what learning adds on top of it. By construction its tilts cannot depend on the defense, so its fixed-wave style contrast is exactly 0.
+
+> Superseded by the held-out run (see docs/RESULTS.md): K1 was not supported (random composition alone did not cost lives); most of Director v1's added difficulty was the fixed durability bias.
+
+## Held-out findings
+
+Results of the single held-out run (docs/RESULTS.md has the numbers, docs/results/heldout-confirmatory.md the confirmatory analysis, docs/results/figures-final the figures):
+
+- The weights of both Directors (v1 and v2) separate defenses in the predicted direction at the pre-registered wave (K2 and K3 were supported); the informed counter arm, a reference, separates them more strongly.
+- Random composition alone did not cost lives (K1 was not supported). Most of Director v1's added difficulty is a fixed lean toward durable enemy types, which the prior control reproduces without any learning; what learning adds on top of it is small and its sign is mixed across metrics.
+- Director v2 removes that bias: its lives lost and win rate are not detectably different from static while its weights still separate defenses.
+- Limits: scripted bots on one map; contrasts at later waves are conditional on surviving to them (coverage is reported); the wave-5 contrast was much smaller on the training seeds than on the held-out seeds and that gap is unexplained; nothing here says the game is better or more enjoyable for human players.

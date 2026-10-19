@@ -81,6 +81,8 @@ Seeds are the clusters: the same seed with different modes shares its random cho
 
 Director v2 and an informed counter arm will be built in Phase 9A-2 and tuned on the tuning seeds only; the v1 tuning results are reported as the "before". The confirmatory hypothesis family for the held-out run will be fixed in a further amendment (A3) BEFORE that run. The held-out set is run once through the lock with the final Director.
 
+> Superseded by the held-out run (see docs/RESULTS.md): this plan was replaced by amendment A3 and carried out as the single held-out run; no arm was tuned.
+
 ## Diagnostics
 
 `npm run diagnose` measures, in STATIC games on the tuning seeds only (no Director involved), why the Director's weights follow enemy tankiness more than the player's defense. The hypothesis: the reward formula (leak damage times progress squared per unit of threat) is higher for tanky enemy types (Regenerator, Shielded Bruiser) than for fragile ones whatever the player builds, so a learner that follows the reward ends up favoring tanks. It reports (1) the pooled reward per enemy type in static baselines and its ratio to the all-type average, for all waves and for waves 5 and later; (2) a variance decomposition: the share of the variance of per-wave rewards explained by the bot style (etaStyle) and by the wave (etaWave); (3) a noise floor: the wave-to-wave sd of the reward for the same style, wave and type across seeds, compared with the spread between types. The diagnostics are used by no code in this phase; Director v2 may use them, developed on the tuning seeds only.
@@ -92,6 +94,8 @@ The reward contrast (`rewardContrast` in `experiments/diagnose.js`, static games
 ## Figures
 
 The figures below were built for protocol version 2 and are regenerated for the new styles in a later phase (the old set is in docs/results/archive/figures-focus). `npm run figures` builds six hand-written SVG figures (white background, Okabe-Ito colors, patterns and marker shapes in addition to color) and an index page into docs/results/figures: fig1-forest.svg (all hypotheses), fig2-lives-lost.svg, fig3-win-rate.svg, fig4-weights.svg (mean final weights), fig5-tilt-alignment.svg and fig6-diagnostics.svg. Captions describe what is plotted, never causes.
+
+> Superseded by the held-out run (see docs/RESULTS.md): the protocol-v4 figures (six modes, held-out data) are in docs/results/figures-final (`npm run figures:final`); the figures described here are legacy, built for protocol version 2.
 
 ## Status after Phase 8A (exploratory, tuning set, protocol version 1, focus styles; archived)
 
@@ -114,6 +118,8 @@ Phase 9A-2b will:
 2. run the validation seeds (1021-1030) ONCE through the validation lock for the chosen configuration, v1 and the counter arm;
 3. write amendment A3 with the confirmatory hypotheses, the primary population (units whose static game reached wave 5), the fixed-wave contrast wave chosen by a coverage rule on the training data, and a held-out size of 150 seeds, before any held-out run.
 
+> Superseded by the held-out run (see docs/RESULTS.md): this plan was replaced by amendment A3 and carried out as the single held-out run; no arm was tuned.
+
 ## Incident log
 
 - **2026-10-19, validation split run without a lock.** During Phase 9A-2a the command `node experiments/runExperimentCli.js --set=tuning --split=validation` was run once before the lock was wired into the CLI, so it executed the whole tuning set (450 games) without a lock. The output files were deleted without being read and no results were seen; the new arms were not run on those seeds. **Consequence:** seeds 1021-1030 were already part of the tuning set whose results were read in Phase 9A-1, so they are **not pristine**; the held-out seeds 2001+ are untouched and are the only confirmatory data. The lock path (gate before any game, lock written before the runner, refusals, dirty tree, existing lock, research arms refused for the held-out set) is now covered by tests/cli-lock.test.js with stubbed dependencies.
@@ -126,6 +132,8 @@ Phase 9A-2b will:
 
 **Attribution chain.** On the population (units whose static game reached wave 5), seed-level paired differences of lives lost split Director v1's total effect into three parts that add up exactly per seed: (adaptive - static) = (random - static) [composition variability] + (prior - random) [enemy-durability bias beyond variability] + (adaptive - prior) [learning on top of the prior]. The first-look output checks the identity per seed (tolerance 1e-9) and prints an error line if it ever fails. The same differences are reported for all five metrics and for adaptive2 and counter against static and prior. Nothing is adjusted for multiple comparisons.
 
+> Superseded by the held-out run (see docs/RESULTS.md): K1 was not supported (random composition alone did not cost lives); most of Director v1's added difficulty was the fixed durability bias.
+
 **Fixed-wave rule.** The fixed wave for the style contrast is chosen from coverage COUNTS only (never outcome values): the smallest eligible wave >= 9 whose minimum coverage over adaptive, adaptive2, counter, prior and random is at least 0.75; otherwise the wave with the largest minimum coverage (ties: the smaller wave). On these training data no candidate reached 75%, and the rule chose wave 9 (minimum coverage 70%) with `metRule` false; the table is written to firstlook-train6-summary.fixedwave.json. The contrast is also reported at every eligible wave 5, 7, 9, 11, 12, 13, 14, 15, with a matched-set sensitivity restricted to units observed at W in all of adaptive, adaptive2 and counter.
 
 **Tilt agreement.** For pairs (adaptive, prior), (adaptive2, prior), (adaptive, adaptive2) and (random, prior): over units observed in both modes at an eligible wave, the mean over the five enemy types of |tilt A - tilt B|, per wave and pooled over all unit-wave cells. random against prior shows the scale of a disagreement; adaptive against prior shows how close v1 is to a fixed durability prior.
@@ -135,6 +143,8 @@ Phase 9A-2b will:
 ### Planned next steps (written before the next phase)
 
 Amendment A3 (protocol version 4) will fix, before any held-out run: the confirmatory modes (static, random, prior, adaptive, adaptive2, counter); the primary population (units whose static game reached wave 5); the fixed wave W* from the rule above; a confirmatory hypothesis family of two response hypotheses (fixed-wave style contrast of adaptive and of adaptive2 greater than 0) and four attribution hypotheses on lives lost (random - static greater than 0; prior - random, adaptive - prior and adaptive2 - prior two-sided) with Holm across the family; all other hypotheses reported as descriptive; a held-out size of 150 seeds; and no tuning of any arm before the held-out run. The held-out set is then run once through the lock.
+
+> Superseded by the held-out run (see docs/RESULTS.md): this plan was replaced by amendment A3 and carried out as the single held-out run; no arm was tuned.
 
 ## Amendment A3 (protocol version 4)
 
@@ -166,6 +176,16 @@ For K2 and K3 the seed-level value is the fixed-wave style contrast: the applied
 **9. The no-tuning rule.** After this commit and before the held-out run no arm, parameter, population, wave or hypothesis may be changed. Any change requires a new amendment (A4) written before the run.
 
 **10. Freeze.** This document, the code and the protocol at the freeze commit define the confirmatory analysis; the user creates the git tag `phase-9a2b2-complete` at the freeze; the held-out lock records the git commit of the run, so a run on any other commit is visible.
+
+## Results of the held-out run (run index 1)
+
+The single held-out run (150 seeds x 5 styles x 6 modes, lock run index 1) was evaluated with `npm run confirm`. The full results document is docs/RESULTS.md (generated; every number in it is read from the JSON outputs); the confirmatory analysis itself is docs/results/heldout-confirmatory.json and .md; the protocol-v4 figures are in docs/results/figures-final (`npm run figures:final`, index.html); the held-out rows and CSV are docs/results/heldout.rows.json and heldout.csv.
+
+- **K1** (random minus static, lives lost) was not supported: random composition alone did not cost lives, and the training estimate that had suggested otherwise did not replicate.
+- **K2** (Director v1 weights separate defenses at wave 9) was supported.
+- **K3** (Director v2 weights separate defenses at wave 9) was supported.
+
+Everything else is estimation with intervals and no p-values; the per-pair contrasts in docs/RESULTS.md are post hoc. The amendments that fixed the plan are A1, A2 and A3 above; the incident log above records the one unlocked validation-split run (seeds 1021-1030 are not pristine and were not used for confirmation).
 
 ## Reproduction
 

@@ -66,3 +66,7 @@ test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the 
   for (const f of ['fig1-forest.svg', 'fig2-lives-lost.svg', 'fig3-win-rate.svg', 'fig4-weights.svg', 'fig5-tilt-alignment.svg', 'fig6-diagnostics.svg']) assert.ok(doc.includes(f), f);
   for (const w of ['etaStyle', 'noise floor', 'npm run diagnose', 'npm run figures']) assert.ok(doc.includes(w), w);
 });
+
+test('docs/EXPERIMENT.md reports the held-out run and points to the generated results document', () => {
+  for (const w of ['Results of the held-out run', 'RESULTS.md', 'heldout-confirmatory', 'figures-final']) assert.ok(doc.includes(w), w);
+});
