@@ -47,6 +47,7 @@ import { formatDirectorLine } from './ui/format.js';
 import { createAudioEngine } from './audio/engine.js';
 import { bindUnlock } from './audio/unlock.js';
 import { MAPPED_EVENTS } from './audio/eventMap.js';
+import { wireHints } from './ui/hintsWiring.js';
 
 const { width, height } = config.view;
 const canvas = document.getElementById('game');
@@ -123,10 +124,11 @@ const exportRun = (kind) => {
   }
 };
 
+let hints = null; // first-run hints, wired below
 let menu = null; let howTo = null; let pauseMenu = null; let endScreen = null; let overlay = null; let report = null; // assigned below; only read from event handlers
 const decisionLog = createDecisionLog();
 game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => decisionLog.push(ev.director)); // registered before the overlay so it always sees the new entry
-const panel = createSettingsPanel({ root: uiRoot, settings, pause, audioAvailable: () => audio.status().available });
+const panel = createSettingsPanel({ root: uiRoot, settings, pause, audioAvailable: () => audio.status().available, onResetHints: () => hints.tutorial.reset() });
 const anyDialog = () => Boolean(menu.isOpen || howTo.isOpen || pauseMenu.isOpen || panel.isOpen || endScreen.isOpen || report.isOpen);
 const changeSpeed = (n) => { if (n !== state.speed) { state.speed = n; hud.setSpeed(n); audio.play('speedChange'); } };
 const hud = createHud({
@@ -149,7 +151,7 @@ game.events.on(EVENT_TYPES.WAVE_STARTED, (ev) => {
 game.events.on(EVENT_TYPES.GAME_OVER, () => banner.hide());
 endScreen = createEndScreen({ root: uiRoot, game, newSeed: randomSeed, reducedMotion, onDownloadJson: () => exportRun('json'), onDownloadWaves: () => exportRun('waves-csv'), onOpenReport: () => report.open() });
 report = createReportController({ root: uiRoot, telemetry, toaster, onDownload: () => exportRun('json'), restoreFocus: () => endScreen.focusReportButton() });
-overlay = createDirectorOverlay({ root: uiRoot, game, log: decisionLog, toaster, onChange: (open) => hud.setDirectorPressed(open) });
+overlay = createDirectorOverlay({ root: uiRoot, game, log: decisionLog, toaster, onChange: (open) => { hud.setDirectorPressed(open); if (open) hints.overlayOpened(); } });
 const waveControl = createWaveControl({ root: uiRoot, game, toaster, reducedMotion });
 createWavePreview({ root: uiRoot, game, controlRect: waveControl.rect });
 howTo = createHowToPlay({ root: uiRoot, pause });
@@ -161,6 +163,7 @@ pauseMenu = createPauseMenu({
 });
 menu = createMainMenu({ root: uiRoot, pause, params, randomSeed, openHowTo: () => howTo.open(), openSettings: () => panel.open() });
 if (menuOpenAtBoot) menu.open();
+hints = wireHints({ game, settings, root: uiRoot, debug, isSuspended: () => anyDialog() });
 
 const blocked = () => anyDialog() || game.over; // build and wave hotkeys are off while a dialog is open or the game ended
 const build = createBuildController({ game, canvas, renderer, buildState, toaster, debugTools, isModalOpen: blocked, onDeny: () => audio.play('uiDeny') });

@@ -382,3 +382,11 @@ svg.icon { display: inline-block; flex: none; vertical-align: middle; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- first-run hint card (geometry is set from tutorialText.js) ---------- */
+.hint-card { position: absolute; z-index: var(--z-hud); box-sizing: border-box; padding: var(--space-2) var(--space-3); pointer-events: none; overflow: hidden; }
+.hint-card[hidden] { display: none; }
+.hint-card.is-in { animation: fade-in var(--dur-fast) ease-out; }
+.hint-text { margin: 0 0 var(--space-1); font-size: 12px; line-height: 1.25; }
+.hint-actions { display: flex; gap: var(--space-2); }
+.hint-actions .btn { pointer-events: auto; min-height: 24px; padding: 0 var(--space-3); font-size: 12px; }

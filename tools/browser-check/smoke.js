@@ -66,6 +66,14 @@ const CHECKS = [
     })()`,
   },
   {
+    name: 'first-run hint (fresh profile)', path: '/?seed=1&play=1&waves=15&mode=static', wait: 3000, shot: 'smoke-hint.png',
+    expr: `(() => { const c = document.querySelector('.hint-card'); const parts = { visible: !!c && !c.hidden, text: c ? c.querySelector('.hint-text').textContent : null }; return { ok: parts.visible && parts.text.startsWith('Build a tower'), detail: JSON.stringify(parts) }; })()`,
+  },
+  {
+    name: 'no hint in a debug game', path: '/?debug=1&seed=1&play=1&waves=15', wait: 3000, shot: 'smoke-nohint-debug.png',
+    expr: `(() => { const c = document.querySelector('.hint-card'); const shown = !!c && !c.hidden; return { ok: !shown, detail: JSON.stringify({ shown }) }; })()`,
+  },
+  {
     name: 'mute key (M) toggles sound with toasts', path: '/?seed=1&play=1&waves=15&mode=static', wait: 2500, shot: 'smoke-mute.png',
     expr: `(async () => {
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
