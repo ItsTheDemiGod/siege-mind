@@ -70,3 +70,10 @@ test('docs/EXPERIMENT.md has the Diagnostics and Figures sections and names the 
 test('docs/EXPERIMENT.md reports the held-out run and points to the generated results document', () => {
   for (const w of ['Results of the held-out run', 'RESULTS.md', 'heldout-confirmatory', 'figures-final']) assert.ok(doc.includes(w), w);
 });
+
+test('docs/EXPERIMENT.md has the wording-corrections addendum and CLAUDE.md records the study freeze', () => {
+  assert.ok(doc.includes('Addendum: wording corrections'));
+  const claude = readFileSync(fileURLToPath(new URL('../CLAUDE.md', import.meta.url)), 'utf8');
+  assert.ok(claude.includes('STUDY FREEZE'));
+  assert.ok(claude.includes('Out of scope for the study'));
+});

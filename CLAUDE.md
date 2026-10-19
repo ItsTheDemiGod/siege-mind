@@ -241,9 +241,9 @@ siege-mind/
     figures/                 <- hand-written SVG toolkit (palette, svg, draw) and the six figure builders (figuresA.js, figuresB.js)
     figuresCli.js            <- npm run figures: writes docs/results/figures (legacy, protocol v2)
     figuresV4/               <- protocol-v4 figures: palette (six modes, status tags), markers, kit (frame + forest panel), figuresA/B (six builders), data (loadFigureInputs, replicationTable, pairContrasts), figures.js (list)
-    figuresV4Cli.js          <- npm run figures:final: six SVGs + index.html into docs/results/figures-final
+    figuresV4Cli.js          <- npm run figures:final: six SVGs + index.html into docs/results/figures-final (reads the training rows too)
     resultsFormat.js         <- the ONE shared number formatter (figures and results document)
-    resultsDoc.js            <- pure generator of docs/RESULTS.md (guards against stale fixed text); resultsDocTables.js has tables and guards; resultsDocCli.js is npm run results-doc
+    resultsDoc.js            <- pure generator of docs/RESULTS.md (guards against stale fixed text); resultsDocTables.js has tables and guards, resultsDocParts.js the pairing/replication wording with its guards and the named thresholds; resultsDocCli.js is npm run results-doc
     directorCompare.js       <- Static vs Adaptive vs Random over bots and seeds, report-only hypotheses (npm run compare)
     run.js                   <- headless batch runner (Phase 8)
     matchups.js              <- tower-vs-enemy matchup harness (npm run matchups)
@@ -594,28 +594,33 @@ Implemented; awaiting user check, then tag phase-9a2b2-complete (this is the fre
 - [x] Outcome in words: K1 not supported, K2 and K3 supported
 Done (tagged phase-9b1-complete).
 
-### [~] Phase 9B-2 — Results package
-- [x] Six figures for protocol v4 and six modes (experiments/figuresV4/, `npm run figures:final` -> docs/results/figures-final/ with index.html); the legacy v2 figure modules stay unchanged
-- [x] Generated results document docs/RESULTS.md (`npm run results-doc`; every number read from the JSON outputs; the generator throws when the fixed text no longer matches the data)
-- [x] Correction pass: superseded-notes under exploratory statements; docs/EXPERIMENT.md 'Results of the held-out run', docs/DIRECTOR.md 'Held-out findings', docs/results/README.md
-- [x] No experiment was run in this phase; the held-out data, the lock, protocol.js and src/ are byte-identical to commit d9649e6
-Implemented; awaiting user check, then tag phase-9b2-complete.
+### [x] Phase 9B-2 — Results package
+- [x] Six figures for protocol v4 and six modes, generated docs/RESULTS.md with guards, correction pass (superseded notes)
+Done (tagged phase-9b2-complete).
 
-### [ ] Phase 9C — Polish, audio and balance
-- [ ] Balance pass using harness data
+### [~] Phase 9B-3 — Wording and replication fixes, simulation freeze
+- [x] Generator wording corrected (random composition: no detectable effect on lives lost, not proof of no effect; two of four pairings; fixed durability lean reproduces most of v1's added difficulty along one path), every claim guarded by the generator with named thresholds (STRONG_PAIR, WEAK_PAIR, COUNTER_MIN, FEW_UNITS)
+- [x] K1-K3 repeat other replication rows (25 distinct of 28), 'Same quantity as' column, distinct-row counts
+- [x] Per-pair replication (post hoc): training rows (firstlook-train6.rows.json) against held-out rows, a RESULTS.md section and figure 6 with open training markers
+- [x] Freeze tripwire tests/study-freeze.test.js (hash of src/sim and src/data, lock and protocol hash)
+Implemented; awaiting user check, then tag phase-9b3-complete.
+
+**STUDY FREEZE.** From the 9B-3 commit on, src/sim and src/data are frozen (tests/study-freeze.test.js fails on any change). The held-out study describes exactly this simulation; a change to the game defines a new version outside the study (new tag, update the hash constant on purpose). Remaining work is UI, render, audio, docs and deployment only.
+
+**Out of scope for the study (would define a new version):**
+- Late-game gold sink (for example a third upgrade tier): the balanced bot ends 30-wave games with thousands of unspent gold
+- Separate early and late HP-curve slopes (lives are only lost in waves 2-10 today)
+- Quick-mode finale wave (wave 15 is an ordinary wave in a Quick game)
+- Balance pass and rebalance from harness data (the Mortar deals about a third of all damage; recalibrate with npm run calibrate after any balance change)
+- Re-check of the 60% worst-wave-share clause of T5
+
+### [ ] Phase 9C-1 — Polish, audio and accessibility (no change to src/sim or src/data)
 - [ ] Procedural WebAudio SFX plus optional music
-- [ ] Performance profiling against Section 2 criterion 8
-- [ ] Accessibility pass (colorblind check, reduced motion)
-- [ ] Final visual tuning in the gallery
-- [ ] Tutorial/tooltips
-- [ ] Settings screen
-- [ ] Late-game gold sink (for example a third upgrade tier): the balanced bot ends 30-wave games with thousands of unspent gold
-- [ ] Separate early and late HP-curve slopes (lives are only lost in waves 2-10 today)
-- [ ] Quick-mode finale wave (wave 15 is an ordinary wave in a Quick game)
-- [ ] Re-check the 60% worst-wave-share clause of T5 that Phase 4A.2 dropped
+- [ ] Tutorial/tooltips and hints
+- [ ] Performance profiling against Section 2 criterion 8, and an accessibility pass (colorblind check, reduced motion)
+- [ ] Settings screen and final visual tuning in the gallery
 - [ ] Wave control and end-card polish if the user finds issues
-- [ ] Rebalance after Phase 8 data: the Mortar deals about a third of all damage; recalibrate the static guard (npm run calibrate) after any balance change
-**Done when:** the game feels good to play for 15+ minutes and balance data supports it.
+**Done when:** the game feels good to play for 15+ minutes.
 
 ### [ ] Phase 10 — Docs, deployment, and demo
 - [ ] README (what, why, how to run, architecture diagram, screenshots/GIFs)
@@ -834,6 +839,12 @@ Implemented; awaiting user check, then tag phase-9b2-complete.
 - 2026-10-20 | 9B-2 | (d) No number is typed by hand in figures or the results document; fixed text contains words only. docs/EXPERIMENT.md, docs/DIRECTOR.md and docs/results/README.md use words and file pointers for the held-out findings
 - 2026-10-20 | 9B-2 | (e) Other: (1) contrastSeedValues (experiments/firstLookContrast.js) now also returns pairValues (per-seed pair values); existing fields and every output are unchanged (analyzeConfirmatory on the held-out rows reproduces heldout-confirmatory.json exactly, checked); per-pair CIs reuse it instead of a second implementation; (2) pairContrasts re-aggregates the pair values seed by seed and throws if they do not reproduce the aggregate contrast (internally and against the held-out analysis) within 1e-6; (3) the figure kit draws the waterfall inside the forest panel (bars with data-value attributes); fig2 throws if the three parts do not sum to the total within 1e-4 (rounding of 6-digit estimates); (4) fig5 uses five panels with their own axes because K1 (lives), K2/K3 (contrast), lives lost, win rate and contrasts have different units; (5) the per-pair table in RESULTS.md lists waves 5 and 9, fig6 draws both, wave 13 is computed but not shown; (6) the figure N line of fig5 is shortened so it fits the width
 
+- 2026-10-20 | 9B-3 | (a) Wording corrections: random composition is 'no detectable effect on lives lost' (not proof of no effect: it slightly lowers the final wave reached); the Directors respond mainly through two of the four pairings (post hoc); the fixed durability lean 'reproduces' most of v1's added difficulty along one path through the arms (static, random, prior, v1), it is not shown to be the origin; the one-path caveat is a Limits bullet. Why: the first wording read as stronger than the data
+- 2026-10-20 | 9B-3 | (b) K1, K2 and K3 repeat the replication rows random - static (lives lost) and adaptive/adaptive2 at wave 9 exactly (distinctRows throws if the four numbers differ), so the document counts 25 distinct rows of 28 and shows a 'Same quantity as' column
+- 2026-10-20 | 9B-3 | (c) Per-pair replication (post hoc): the same pair-contrast machinery on the training rows and the held-out rows. Every training pair rests on few units (below FEW_UNITS), which is a plain sampling explanation candidate for the wave-5 gap, but the gap was not investigated further and the document says so
+- 2026-10-20 | 9B-3 | (d) Freeze tripwire: tests/study-freeze.test.js pins a sha256 over src/sim and src/data (LF-normalized) and checks the lock against the protocol hash; a game change defines a new version outside the study (new tag, update the constant on purpose). Balance, gold sink, HP-curve and Quick-finale items moved to 'Out of scope for the study'
+- 2026-10-20 | 9B-3 | (e) Other: (1) the thin-data sentence is one sentence per (wave, pair) with the range of training unit counts across modes (a sentence per mode would repeat 18 times); (2) the guard 'wave-5 training contrast is under half the held-out one' was removed with the wording it guarded (approved reversal); (3) fig5 now needs K rows that repeat their alias rows (its test inputs use makeAliasedAnalysis); (4) open markers of the stroke-only shapes (x and +) are drawn with a lighter stroke because they cannot be hollow; (5) the balance pass and the T5 re-check were moved to the out-of-scope list as well, because they would change the game; (6) figuresV4/data.js now reads a file (loadTrainingRows), so it is no longer fully pure
+
 ## 14. Known Issues / TODO
 <!-- Add items as they appear; remove when fixed -->
 - Browser behaviour of the debug scene (resize, DPR, key handling) was syntax-checked and served but only the user's manual check covers real rendering.
@@ -919,6 +930,9 @@ Implemented; awaiting user check, then tag phase-9b2-complete.
 - Held-out learning-on-top (adaptive minus prior) is small and its sign differs between metrics (lives lost and win rate favour the player slightly, final wave, leaked threat and penetration the Director); it is reported as an estimate without a test.
 - The fixed-wave coverage rule was not met on the held-out data either (minimum coverage at wave 9 below 75%); all wave-9 and wave-13 contrasts are conditional on survival.
 - Phase 9B-2 figures were checked as rendered images in headless Chrome (software rendering), not in other viewers; one screenshot per figure under tools/browser-check/out (not committed).
+- Per-pair training estimates rest on few units (every pair is below 30 training units at waves 5 and 9), so single-pair replication is weak evidence either way; the wave-5 gap between training and held-out was not investigated further.
+- Figure 6 has up to six series per row and the markers of one row overlap where estimates are close; the numbers are in the right-hand text and in docs/RESULTS.md.
+- The freeze hash is over file text, so reformatting a file in src/sim or src/data also trips it (by design).
 
 ## 15. Session Log
 <!-- Format: YYYY-MM-DD | Phase | What was done | What's next -->
@@ -943,3 +957,4 @@ Implemented; awaiting user check, then tag phase-9b2-complete.
 - 2026-10-19 | Phase 9A-2b-1 | Goldens for adaptive2/counter, CLI lock gate tests with stubs, incident record, prior control arm, first-look attribution chain, fixed-wave rule, tilt agreement, matched-set sensitivity, six-mode first look on the train seeds (600 games); 1081 tests pass; Phase 7 results reproduce exactly; the 500 older rows equal firstlook-train.rows.json in every column; protocol.js byte-identical; validation and held-out seeds not run | User checks, then tag phase-9a2b1-complete; Phase 9A-2b-2 only when the user says so
 - 2026-10-19 | Phase 9A-2b-2 | Amendment A3 (protocol version 4: held-out 150 seeds, six confirmatory modes, PROTOCOL.confirmatory with K1-K3), v3 hypotheses golden, held-out gate for exactly the six modes, checkProtocolHash and PROTOCOL_PREVIOUS_HASHES, requiredN at the Holm level, confirmatory analysis code, confirm CLI with dry-run naming rules, plan-heldout, dry run on the train rows, pre-registration in docs/EXPERIMENT.md; 1109 tests pass; Phase 7 results reproduce exactly; nothing under src changed; held-out and validation seeds not run | User checks, then tag phase-9a2b2-complete (the freeze); Phase 9B (the held-out run) only when the user says so
 - 2026-10-20 | Phase 9B-2 | Figures for protocol v4 (six builders, replication table, per-pair contrasts, CLI), generated docs/RESULTS.md with guards, correction pass (superseded notes, EXPERIMENT/DIRECTOR/results README), tests for all of it; no experiment run; held-out data, lock, protocol.js and src byte-identical to d9649e6 | User checks, then tag phase-9b2-complete; Phase 9C only when the user says so
+- 2026-10-20 | Phase 9B-3 | Per-pair replication data and section, wording corrections with guards and named thresholds, distinct-row counts, figure 6 with training markers, freeze tripwire, regenerated figures and RESULTS.md, docs; no experiment run; held-out data, lock, protocol.js and src byte-identical to f092b59 | User checks, then tag phase-9b3-complete; Phase 9C-1 only when the user says so

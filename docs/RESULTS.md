@@ -12,9 +12,9 @@ The players are five scripted bot defenses (balancedR, noLance, noMortar, noPois
 
 ## Headline
 
-- Both Directors respond to the player's defense. At wave 9 the weights of Director v1 separate defenses in the predicted direction (contrast 0.19, 95% CI [0.15, 0.22], Holm p < 0.0001) and so do those of Director v2 (0.10, [0.08, 0.11], Holm p < 0.0001). Both confirmatory hypotheses were supported. The informed counter arm, a reference, separates defenses more strongly (0.44).
-- Random composition alone did not cost lives. K1 (random minus static, lives lost) was 0.07 ([-0.22, 0.35]) and was not supported. The training seeds had suggested 1.47 ([0.48, 2.45]); that estimate did not replicate.
-- Most of Director v1's added difficulty came from a fixed lean toward durable enemy types, not from randomness and not from learning. Of v1's 1.44 extra lives lost against static, the estimate attributes 0.07 to composition variability, 1.63 to the durability bias (a fixed, non-learning arm built from static baselines) and -0.26 to learning on top; the last is small and its sign is not consistent across metrics (see the estimands).
+- Both Directors respond to the player's defense, mainly through two of the four counter relationships. At wave 9 the weights of Director v1 separate defenses in the predicted direction (contrast 0.19, 95% CI [0.15, 0.22], Holm p < 0.0001) and so do those of Director v2 (0.10, [0.08, 0.11], Holm p < 0.0001). Both confirmatory hypotheses were supported. By pairing (post hoc): noMortar -> swarmling 0.25 [0.20, 0.31] for Director v1 and 0.19 [0.15, 0.22] for Director v2; noSniper -> shieldedBruiser 0.31 [0.28, 0.34] for Director v1 and 0.13 [0.11, 0.14] for Director v2; noPoison -> regenerator 0.07 [0.01, 0.13] for Director v1 and 0.01 [-0.01, 0.02] for Director v2; noLance -> armoredGrunt 0.04 [0.01, 0.07] for Director v1 and 0.01 [-0.01, 0.03] for Director v2. The informed counter arm, a reference, separates defenses on all four pairings (0.37 to 0.50; overall 0.44).
+- Random composition alone had no detectable effect on lives lost. K1 (random minus static, lives lost) was 0.07 ([-0.22, 0.35]) and was not supported. That is not proof of no effect: random composition did lower the final wave reached slightly (random minus static -0.21 [-0.33, -0.09] waves, an estimate outside the confirmatory family). The training seeds had suggested 1.47 ([0.48, 2.45]) for lives lost; that estimate did not replicate.
+- A fixed, non-learning lean toward durable enemy types reproduces most of Director v1's added difficulty. Of v1's 1.44 extra lives lost against static, an attribution along the path static, random control, prior control, Director v1 assigns 0.07 to composition variability, 1.63 to the durability bias (the prior control: fixed weights from static baselines, no learning, no look at the defense) and -0.26 to learning on top; the last is small and its sign is not consistent across metrics (see the estimates).
 - Director v2 removes that bias: its lives lost and win rate are not detectably different from static (lives lost -0.03 [-0.20, 0.13], win rate 0.000 [-0.018, 0.018]) while its weights still separate defenses (K3).
 
 ## Confirmatory results
@@ -159,40 +159,69 @@ Late-wave contrasts are conditional on surviving to that wave.
 
 ## Replication check
 
-| Row | Training (exploratory) | Held-out | Intervals overlap | Same sign |
-| --- | --- | --- | --- | --- |
-| K1 | 1.47 [0.48, 2.45] | 0.07 [-0.22, 0.35] | no | yes |
-| K2 | 0.12 [-0.02, 0.25] | 0.19 [0.15, 0.22] | yes | yes |
-| K3 | 0.03 [-0.05, 0.11] | 0.10 [0.08, 0.11] | yes | yes |
-| livesLost: random - static | 1.47 [0.48, 2.45] | 0.07 [-0.22, 0.35] | no | yes |
-| livesLost: prior - random | 0.23 [-0.66, 1.14] | 1.63 [1.24, 2.05] | no | yes |
-| livesLost: adaptive - prior | 0.17 [-0.60, 1.04] | -0.26 [-0.51, -0.02] | yes | no |
-| livesLost: adaptive2 - prior | -1.31 [-2.54, -0.22] | -1.73 [-2.06, -1.41] | yes | yes |
-| livesLost: adaptive - static | 1.87 [0.73, 3.16] | 1.44 [1.16, 1.76] | yes | yes |
-| livesLost: adaptive2 - static | 0.39 [-0.05, 0.86] | -0.03 [-0.20, 0.13] | yes | no |
-| livesLost: counter - static | 0.71 [0.14, 1.45] | 0.47 [0.23, 0.72] | yes | yes |
-| livesLost: counter - prior | -0.99 [-2.26, 0.15] | -1.22 [-1.58, -0.88] | yes | yes |
-| won: random - static | -0.098 [-0.183, -0.019] | -0.018 [-0.040, 0.004] | yes | yes |
-| won: prior - random | -0.077 [-0.158, -0.002] | -0.110 [-0.140, -0.082] | yes | yes |
-| won: adaptive - prior | -0.015 [-0.090, 0.052] | 0.020 [-0.004, 0.046] | yes | no |
-| won: adaptive2 - prior | 0.094 [0.037, 0.156] | 0.128 [0.101, 0.156] | yes | yes |
-| won: adaptive - static | -0.190 [-0.281, -0.105] | -0.108 [-0.131, -0.085] | yes | yes |
-| won: adaptive2 - static | -0.081 [-0.156, -0.010] | 0.000 [-0.018, 0.018] | yes | yes |
-| won: counter - static | -0.099 [-0.210, -0.007] | -0.031 [-0.054, -0.009] | yes | yes |
-| won: counter - prior | 0.076 [0.005, 0.150] | 0.097 [0.069, 0.128] | yes | yes |
-| contrast: adaptive at wave 5 | 0.01 [-0.12, 0.14] | 0.13 [0.09, 0.16] | yes | yes |
-| contrast: adaptive2 at wave 5 | 0.01 [-0.08, 0.09] | 0.09 [0.06, 0.11] | yes | yes |
-| contrast: counter at wave 5 | 0.39 [0.23, 0.54] | 0.48 [0.42, 0.54] | yes | yes |
-| contrast: adaptive at wave 9 | 0.12 [-0.02, 0.25] | 0.19 [0.15, 0.22] | yes | yes |
-| contrast: adaptive2 at wave 9 | 0.03 [-0.05, 0.11] | 0.10 [0.08, 0.11] | yes | yes |
-| contrast: counter at wave 9 | 0.34 [0.23, 0.47] | 0.44 [0.41, 0.47] | yes | yes |
-| contrast: adaptive at wave 13 | 0.29 [0.15, 0.43] | 0.26 [0.21, 0.32] | yes | yes |
-| contrast: adaptive2 at wave 13 | 0.10 [-0.02, 0.20] | 0.18 [0.15, 0.22] | yes | yes |
-| contrast: counter at wave 13 | 0.43 [0.32, 0.56] | 0.49 [0.46, 0.52] | yes | yes |
+| Row | Same quantity as | Training (exploratory) | Held-out | Intervals overlap | Same sign |
+| --- | --- | --- | --- | --- | --- |
+| K1 | livesLost: random - static | 1.47 [0.48, 2.45] | 0.07 [-0.22, 0.35] | no | yes |
+| K2 | contrast: adaptive at wave 9 | 0.12 [-0.02, 0.25] | 0.19 [0.15, 0.22] | yes | yes |
+| K3 | contrast: adaptive2 at wave 9 | 0.03 [-0.05, 0.11] | 0.10 [0.08, 0.11] | yes | yes |
+| livesLost: random - static |  | 1.47 [0.48, 2.45] | 0.07 [-0.22, 0.35] | no | yes |
+| livesLost: prior - random |  | 0.23 [-0.66, 1.14] | 1.63 [1.24, 2.05] | no | yes |
+| livesLost: adaptive - prior |  | 0.17 [-0.60, 1.04] | -0.26 [-0.51, -0.02] | yes | no |
+| livesLost: adaptive2 - prior |  | -1.31 [-2.54, -0.22] | -1.73 [-2.06, -1.41] | yes | yes |
+| livesLost: adaptive - static |  | 1.87 [0.73, 3.16] | 1.44 [1.16, 1.76] | yes | yes |
+| livesLost: adaptive2 - static |  | 0.39 [-0.05, 0.86] | -0.03 [-0.20, 0.13] | yes | no |
+| livesLost: counter - static |  | 0.71 [0.14, 1.45] | 0.47 [0.23, 0.72] | yes | yes |
+| livesLost: counter - prior |  | -0.99 [-2.26, 0.15] | -1.22 [-1.58, -0.88] | yes | yes |
+| won: random - static |  | -0.098 [-0.183, -0.019] | -0.018 [-0.040, 0.004] | yes | yes |
+| won: prior - random |  | -0.077 [-0.158, -0.002] | -0.110 [-0.140, -0.082] | yes | yes |
+| won: adaptive - prior |  | -0.015 [-0.090, 0.052] | 0.020 [-0.004, 0.046] | yes | no |
+| won: adaptive2 - prior |  | 0.094 [0.037, 0.156] | 0.128 [0.101, 0.156] | yes | yes |
+| won: adaptive - static |  | -0.190 [-0.281, -0.105] | -0.108 [-0.131, -0.085] | yes | yes |
+| won: adaptive2 - static |  | -0.081 [-0.156, -0.010] | 0.000 [-0.018, 0.018] | yes | yes |
+| won: counter - static |  | -0.099 [-0.210, -0.007] | -0.031 [-0.054, -0.009] | yes | yes |
+| won: counter - prior |  | 0.076 [0.005, 0.150] | 0.097 [0.069, 0.128] | yes | yes |
+| contrast: adaptive at wave 5 |  | 0.01 [-0.12, 0.14] | 0.13 [0.09, 0.16] | yes | yes |
+| contrast: adaptive2 at wave 5 |  | 0.01 [-0.08, 0.09] | 0.09 [0.06, 0.11] | yes | yes |
+| contrast: counter at wave 5 |  | 0.39 [0.23, 0.54] | 0.48 [0.42, 0.54] | yes | yes |
+| contrast: adaptive at wave 9 |  | 0.12 [-0.02, 0.25] | 0.19 [0.15, 0.22] | yes | yes |
+| contrast: adaptive2 at wave 9 |  | 0.03 [-0.05, 0.11] | 0.10 [0.08, 0.11] | yes | yes |
+| contrast: counter at wave 9 |  | 0.34 [0.23, 0.47] | 0.44 [0.41, 0.47] | yes | yes |
+| contrast: adaptive at wave 13 |  | 0.29 [0.15, 0.43] | 0.26 [0.21, 0.32] | yes | yes |
+| contrast: adaptive2 at wave 13 |  | 0.10 [-0.02, 0.20] | 0.18 [0.15, 0.22] | yes | yes |
+| contrast: counter at wave 13 |  | 0.43 [0.32, 0.56] | 0.49 [0.46, 0.52] | yes | yes |
 
 The training estimates came from 20 seeds (71 units) and were used to design the confirmatory plan; where they differ from the held-out estimates, the held-out estimates are the ones to report. K1 is the clearest case.
 
-3 of 28 rows have intervals that do not overlap: K1; livesLost: random - static; livesLost: prior - random.
+2 of 25 distinct rows (28 rows; K1, K2 and K3 repeat other rows and are counted once) have intervals that do not overlap: livesLost: random - static; livesLost: prior - random.
+
+## Per-pair replication (post hoc)
+
+*Post hoc, not pre-registered; the same pair contrasts as above, estimated on the training seeds and on the held-out seeds.*
+
+| Wave | Mode | Defense style -> enemy type | Training estimate [CI] (units) | Held-out estimate [CI] (units) | Intervals overlap |
+| --- | --- | --- | --- | --- | --- |
+| 5 | Director v1 | noLance -> armoredGrunt | -0.12 [-0.29, 0.05] (11) | 0.05 [0.01, 0.10] (109) | yes |
+| 5 | Director v1 | noMortar -> swarmling | 0.13 [0.03, 0.23] (16) | 0.18 [0.14, 0.22] (129) | yes |
+| 5 | Director v2 | noLance -> armoredGrunt | -0.08 [-0.17, 0.02] (11) | 0.02 [-0.01, 0.05] (109) | yes |
+| 5 | Director v2 | noMortar -> swarmling | 0.09 [0.01, 0.16] (16) | 0.14 [0.11, 0.17] (129) | yes |
+| 5 | Counter arm (reference) | noLance -> armoredGrunt | 0.44 [0.37, 0.50] (11) | 0.42 [0.38, 0.45] (109) | yes |
+| 5 | Counter arm (reference) | noMortar -> swarmling | 0.38 [0.18, 0.58] (16) | 0.53 [0.43, 0.62] (129) | yes |
+| 9 | Director v1 | noLance -> armoredGrunt | 0.09 [0.00, 0.16] (8) | 0.04 [0.01, 0.07] (68) | yes |
+| 9 | Director v1 | noMortar -> swarmling | 0.14 [-0.13, 0.38] (15) | 0.25 [0.20, 0.31] (116) | yes |
+| 9 | Director v1 | noPoison -> regenerator | 0.01 [-0.12, 0.15] (8) | 0.07 [0.01, 0.13] (81) | yes |
+| 9 | Director v1 | noSniper -> shieldedBruiser | 0.30 [0.19, 0.42] (8) | 0.31 [0.28, 0.34] (106) | yes |
+| 9 | Director v2 | noLance -> armoredGrunt | 0.02 [-0.02, 0.05] (10) | 0.01 [-0.01, 0.03] (73) | yes |
+| 9 | Director v2 | noMortar -> swarmling | 0.08 [-0.11, 0.25] (15) | 0.19 [0.15, 0.22] (119) | yes |
+| 9 | Director v2 | noPoison -> regenerator | 0.00 [-0.05, 0.05] (9) | 0.01 [-0.01, 0.02] (82) | yes |
+| 9 | Director v2 | noSniper -> shieldedBruiser | 0.09 [0.01, 0.17] (10) | 0.13 [0.11, 0.14] (109) | yes |
+| 9 | Counter arm (reference) | noLance -> armoredGrunt | 0.43 [0.34, 0.51] (9) | 0.45 [0.42, 0.48] (68) | yes |
+| 9 | Counter arm (reference) | noMortar -> swarmling | 0.38 [0.18, 0.59] (15) | 0.50 [0.44, 0.56] (116) | yes |
+| 9 | Counter arm (reference) | noPoison -> regenerator | 0.38 [0.25, 0.51] (8) | 0.42 [0.40, 0.45] (85) | yes |
+| 9 | Counter arm (reference) | noSniper -> shieldedBruiser | 0.12 [-0.07, 0.36] (10) | 0.37 [0.31, 0.43] (107) | yes |
+
+At wave 5 the per-pair estimates for Director v1 were noLance -> armoredGrunt -0.12 (11 training units) and noMortar -> swarmling 0.13 (16) in training, against 0.05 and 0.18 held-out. The larger difference between training and held-out is in noLance -> armoredGrunt (held-out minus training 0.17); the other pair differs by 0.05. This was not investigated further.
+
+noLance -> armoredGrunt had only 11 training units at wave 5. noMortar -> swarmling had only 16 training units at wave 5. noLance -> armoredGrunt had only 8 to 10 training units at wave 9. noMortar -> swarmling had only 15 training units at wave 9. noPoison -> regenerator had only 8 to 9 training units at wave 9. noSniper -> shieldedBruiser had only 8 to 10 training units at wave 9.
 
 ## Limits
 
@@ -203,7 +232,8 @@ The training estimates came from 20 seeds (71 units) and were used to design the
 - The counter arm reads the loadout; it is a reference, not a fair competitor.
 - The validation seeds (1021-1030) were not used for confirmation because they are not pristine.
 - The secondary metrics show small effects of random composition that the confirmatory family does not cover (final wave, random minus static: -0.21 [-0.33, -0.09]; leaked threat fraction: 0.005 [0.002, 0.008]).
-- The wave-5 contrast of Director v1 was much smaller on training data (0.01) than held-out (0.13) and this gap is unexplained beyond sampling variation.
+- The wave-5 contrast of Director v1 was 0.01 on training data and 0.13 held-out; the per-pair replication table shows where the two differ and the gap was not investigated further.
+- The attribution follows one path through the arms (static, random control, prior control, Director v1); the three parts add up exactly, but a different path would split the total differently.
 
 ## What this does not show
 

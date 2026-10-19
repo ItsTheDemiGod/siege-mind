@@ -187,6 +187,10 @@ The single held-out run (150 seeds x 5 styles x 6 modes, lock run index 1) was e
 
 Everything else is estimation with intervals and no p-values; the per-pair contrasts in docs/RESULTS.md are post hoc. The amendments that fixed the plan are A1, A2 and A3 above; the incident log above records the one unlocked validation-split run (seeds 1021-1030 are not pristine and were not used for confirmation).
 
+### Addendum: wording corrections
+
+After the first version of docs/RESULTS.md the wording was corrected (docs/RESULTS.md is regenerated; the data and the confirmatory analysis are unchanged). Random composition is described as having no detectable effect on lives lost, which is not proof of no effect (it slightly lowers the final wave reached, an estimate outside the confirmatory family). The Directors are described as responding mainly through two of the four pairings of defense and enemy type (a post hoc description from per-pair contrasts), and the fixed durability lean is described as reproducing most of Director v1's added difficulty, along one path through the arms, not as the origin of it. K1, K2 and K3 repeat other rows of the replication table, so the number of distinct rows is stated and the repeats are counted once. A per-pair replication table (training seeds against held-out seeds, post hoc) was added, built from docs/results/firstlook-train6.rows.json and the held-out rows; the training estimates for single pairs rest on few units and the wave-5 gap between training and held-out was not investigated further. Every claim in the fixed wording is checked by the generator against the data and it refuses to write the document when a claim is not true. Finally, tests/study-freeze.test.js pins a hash of src/sim and src/data: the study describes exactly that simulation, and a game change would define a new version outside the study.
+
 ## Reproduction
 
 ```
