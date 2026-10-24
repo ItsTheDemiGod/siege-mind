@@ -1,0 +1,3 @@
+[
+  { "path": "docs/results/heldout.rows.json", "rule": "large-file", "reason": "frozen held-out result rows of the pre-registered study (read-only, must stay byte-identical)" }
+]

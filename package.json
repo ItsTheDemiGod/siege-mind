@@ -1,7 +1,22 @@
 {
   "name": "siege-mind",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Siege Mind: a browser tower defense game whose enemy side is an adaptive, explainable Director AI, with a headless experiment harness.",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ItsTheDemiGod/siege-mind.git"
+  },
+  "keywords": [
+    "tower-defense",
+    "game",
+    "canvas",
+    "dynamic-difficulty-adjustment",
+    "game-ai",
+    "explainable-ai",
+    "procedural-audio"
+  ],
   "type": "module",
   "scripts": {
     "start": "node scripts/serve.js",
@@ -29,7 +44,8 @@
     "baseline": "node experiments/makeBaseline.js",
     "first-look": "node experiments/firstLookCli.js",
     "confirm": "node experiments/confirmCli.js",
-    "plan-heldout": "node experiments/heldoutPlan.js"
+    "plan-heldout": "node experiments/heldoutPlan.js",
+    "hygiene": "node tools/hygiene/scan.js"
   },
   "engines": {
     "node": ">=22"
