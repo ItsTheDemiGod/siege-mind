@@ -50,7 +50,8 @@
     "smoke:dist": "node tools/browser-check/smoke.js --root=dist",
     "smoke:live": "node tools/browser-check/smoke.js",
     "shots": "node tools/browser-check/shots.js",
-    "set-live-url": "node scripts/setLiveUrl.js"
+    "set-live-url": "node scripts/setLiveUrl.js",
+    "report-doc": "node tools/docs/buildReport.js"
   },
   "engines": {
     "node": ">=22"
