@@ -9,11 +9,12 @@ import { inspectPage, isClean } from './page.js';
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 
 /**
- * Start the project's static server on a free port.
+ * Start a static server (the project root by default) on a free port.
+ * @param {string} [root] directory to serve
  * @returns {Promise<{base: string, close: () => void}>}
  */
-export async function startLocalServer() {
-  const server = createStaticServer(ROOT);
+export async function startLocalServer(root = ROOT) {
+  const server = createStaticServer(root);
   await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
   return { base: `http://127.0.0.1:${server.address().port}`, close: () => server.close() };
 }

@@ -1,4 +1,5 @@
-// CLI: node tools/browser-check/smoke.js. Loads the main pages in a headless Chrome and checks that they came up. Exit 0 = all pass, 1 = a check failed, 2 = no browser.
+// CLI: node tools/browser-check/smoke.js [--root=DIR | --base=URL]. --root serves that directory (for example dist) instead of the project root; --base tests an already running
+// site (a deployed URL) and starts no server. Loads the main pages in a headless Chrome and checks that they came up. Exit 0 = all pass, 1 = a check failed, 2 = no browser.
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { inspectPage, isClean } from './page.js';
@@ -170,8 +171,22 @@ const CHECKS = [
   },
 ];
 
+/** @param {string[]} argv @returns {{root?: string, base?: string}} */
+export function parseSmokeArgs(argv) {
+  const out = {};
+  for (const a of argv) {
+    const m = /^--(root|base)=(.+)$/.exec(a);
+    if (!m) throw new Error(`unknown argument: ${a}`);
+    out[m[1]] = m[2];
+  }
+  if (out.root && out.base) throw new Error('use either --root or --base, not both');
+  return out;
+}
+
 async function main() {
-  const server = await startLocalServer();
+  let opts;
+  try { opts = parseSmokeArgs(process.argv.slice(2)); } catch (e) { console.error(e.message); return 2; }
+  const server = opts.base ? { base: opts.base.replace(/\/$/, ''), close() {} } : await startLocalServer(opts.root ? resolve(opts.root) : undefined);
   let failed = 0;
   try {
     for (const c of CHECKS) {

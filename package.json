@@ -45,7 +45,10 @@
     "first-look": "node experiments/firstLookCli.js",
     "confirm": "node experiments/confirmCli.js",
     "plan-heldout": "node experiments/heldoutPlan.js",
-    "hygiene": "node tools/hygiene/scan.js"
+    "hygiene": "node tools/hygiene/scan.js",
+    "build:site": "node scripts/build-site.js",
+    "smoke:dist": "node tools/browser-check/smoke.js --root=dist",
+    "smoke:live": "node tools/browser-check/smoke.js"
   },
   "engines": {
     "node": ">=22"
