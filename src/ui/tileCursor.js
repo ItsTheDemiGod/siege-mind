@@ -71,12 +71,23 @@ export function cycleSelection(game, direction, currentId) {
 }
 
 /**
- * What Enter does. An open dialog takes the key; placing places at the cursor; otherwise a startable wave starts. The Director overlay does not take Enter.
- * @param {{buildMode: 'idle'|'placing'|'selected', waveStartable: boolean, overlayOpen: boolean, dialogOpen: boolean}} ui
+ * What Enter does. An open dialog takes the key; placing with a moved cursor places; placing with an unmoved cursor (a tower was just placed or armed) starts a startable
+ * wave; otherwise a startable wave starts. The Director overlay does not take Enter.
+ * @param {{buildMode: 'idle'|'placing'|'selected', waveStartable: boolean, overlayOpen: boolean, dialogOpen: boolean, cursorMoved: boolean}} ui
  * @returns {'place-at-cursor' | 'start-wave' | 'none'}
  */
-export function resolveEnter({ buildMode, waveStartable, dialogOpen }) {
+export function resolveEnter({ buildMode, waveStartable, dialogOpen, cursorMoved }) {
   if (dialogOpen) return 'none';
-  if (buildMode === 'placing') return 'place-at-cursor';
+  if (buildMode === 'placing' && cursorMoved) return 'place-at-cursor';
   return waveStartable ? 'start-wave' : 'none';
+}
+
+/**
+ * Whether the keyboard cursor has been moved since the last arm or placement: only an arrow move sets it, every other action ('arm', 'placed', 'cancel') clears it.
+ * @param {boolean} moved the previous value (kept in the signature so a richer state can replace it) @param {'arm'|'moved'|'placed'|'cancel'} action @returns {boolean}
+ */
+export function nextCursorState(moved, action) {
+  if (action === 'moved') return true;
+  if (action === 'arm' || action === 'placed' || action === 'cancel') return false;
+  throw new RangeError(`unknown cursor action: ${action}`);
 }

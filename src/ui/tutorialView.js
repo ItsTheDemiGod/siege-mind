@@ -1,20 +1,19 @@
-// The first-run hint card: top-left under the HUD, text via textContent, never over a dialog. The state lives in tutorialState.js.
-import { config } from '../data/config.js';
+// The first-run hint card: placed once at a position clear of the path (see hintPlacement.js), text via textContent, never over a dialog. The state lives in tutorialState.js.
 import { h } from './dom.js';
 import { HINTS, HINT_GEOMETRY } from './tutorialText.js';
 
 /**
- * @param {{root: HTMLElement, tutorial: ReturnType<import('./tutorialState.js').createTutorial>, isSuspended: () => boolean, hints?: readonly {id: string, text: string}[]}} o
+ * @param {{root: HTMLElement, rect: {left: number, top: number}, tutorial: ReturnType<import('./tutorialState.js').createTutorial>, isSuspended: () => boolean, hints?: readonly {id: string, text: string}[]}} o
  * @returns {{update: () => void, el: HTMLElement}} update() syncs the card with the state (call it a few times per second)
  */
-export function createTutorialView({ root, tutorial, isSuspended, hints = HINTS }) {
+export function createTutorialView({ root, rect, tutorial, isSuspended, hints = HINTS }) {
   const g = HINT_GEOMETRY;
   const text = h('p', { class: 'hint-text' });
   const gotIt = h('button', { type: 'button', class: 'btn btn--primary', text: 'Got it', 'aria-label': 'Dismiss hint', onclick: () => { tutorial.dismiss(); update(); } });
   const skip = h('button', { type: 'button', class: 'btn btn--ghost', text: 'Skip all hints', onclick: () => { tutorial.skipAll(); update(); } });
   const el = h('div', { class: 'hint-card panel', role: 'status', 'aria-live': 'polite', hidden: true }, [text, h('div', { class: 'hint-actions' }, [gotIt, skip])]);
-  el.style.left = `${g.left}px`;
-  el.style.top = `${config.view.hudHeight + g.topOffset}px`;
+  el.style.left = `${rect.left}px`;
+  el.style.top = `${rect.top}px`;
   el.style.width = `${g.width}px`;
   el.style.maxHeight = `${g.maxHeight}px`;
   root.append(el);

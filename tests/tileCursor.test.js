@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createTileCursor, describeTile, cycleSelection, resolveEnter } from '../src/ui/tileCursor.js';
+import { createTileCursor, describeTile, cycleSelection, resolveEnter, nextCursorState } from '../src/ui/tileCursor.js';
 import { createMap } from '../src/sim/map.js';
 import { DEFAULT_MAP } from '../src/data/map.js';
 import { createGame, startGame } from '../src/sim/game.js';
@@ -96,11 +96,30 @@ test('cycleSelection wraps in id order, handles a missing current id and the emp
   assert.equal(cycleSelection(g, 1, a), c);
 });
 
-test('resolveEnter: a dialog takes the key, placing places, otherwise a startable wave starts (all 24 combinations)', () => {
-  for (const buildMode of ['idle', 'placing', 'selected']) for (const waveStartable of [false, true]) for (const overlayOpen of [false, true]) for (const dialogOpen of [false, true]) {
-    const expected = dialogOpen ? 'none' : buildMode === 'placing' ? 'place-at-cursor' : waveStartable ? 'start-wave' : 'none';
-    assert.equal(resolveEnter({ buildMode, waveStartable, overlayOpen, dialogOpen }), expected, JSON.stringify({ buildMode, waveStartable, overlayOpen, dialogOpen }));
+test('resolveEnter: a dialog takes the key; placing places only after the cursor moved, otherwise a startable wave starts (all 48 combinations)', () => {
+  for (const buildMode of ['idle', 'placing', 'selected']) for (const waveStartable of [false, true]) for (const overlayOpen of [false, true]) for (const dialogOpen of [false, true]) for (const cursorMoved of [false, true]) {
+    const expected = dialogOpen ? 'none' : buildMode === 'placing' && cursorMoved ? 'place-at-cursor' : waveStartable ? 'start-wave' : 'none';
+    assert.equal(resolveEnter({ buildMode, waveStartable, overlayOpen, dialogOpen, cursorMoved }), expected, JSON.stringify({ buildMode, waveStartable, overlayOpen, dialogOpen, cursorMoved }));
   }
+});
+
+test('nextCursorState: only an arrow move sets the flag; arm, placed and cancel clear it; unknown actions throw', () => {
+  assert.equal(nextCursorState(false, 'moved'), true);
+  assert.equal(nextCursorState(true, 'moved'), true);
+  for (const action of ['arm', 'placed', 'cancel']) for (const from of [false, true]) assert.equal(nextCursorState(from, action), false, action);
+  assert.throws(() => nextCursorState(false, 'jump'), RangeError);
+});
+
+test('the keyboard sequence arm, move, place, Enter starts the wave', () => {
+  let moved = false;
+  const enter = (waveStartable) => resolveEnter({ buildMode: 'placing', waveStartable, overlayOpen: false, dialogOpen: false, cursorMoved: moved });
+  moved = nextCursorState(moved, 'arm');
+  assert.equal(enter(true), 'start-wave'); // armed, not moved
+  moved = nextCursorState(moved, 'moved');
+  assert.equal(enter(true), 'place-at-cursor');
+  moved = nextCursorState(moved, 'placed');
+  assert.equal(enter(true), 'start-wave');
+  assert.equal(enter(false), 'none');
 });
 
 test('every buildable tile is reachable from every other within cols + rows arrow moves', () => {

@@ -11,7 +11,7 @@ test('there are exactly four hints with unique ids and texts of at most 140 char
 });
 
 test('the geometry constants are the specified ones', () => {
-  assert.deepEqual({ ...HINT_GEOMETRY }, { width: 300, margin: 16, maxHeight: 96, topOffset: 8, left: 16, autoHideSeconds: 14, delaySeconds: 0.8 });
+  assert.deepEqual({ ...HINT_GEOMETRY }, { width: 300, margin: 16, maxHeight: 96, autoHideSeconds: 14, delaySeconds: 0.8 });
 });
 
 test('the hints name the real keys', () => {

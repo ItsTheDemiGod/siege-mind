@@ -1,7 +1,8 @@
 // Connects the keyboard tile cursor to the game: arrow keys move the placement ghost, Enter places or starts the wave, [ and ] cycle the selected tower,
 // and a visually hidden live region announces the tile. Browser wiring only; the decisions are in tileCursor.js.
-import { createTileCursor, cycleSelection, resolveEnter } from './tileCursor.js';
+import { createTileCursor, cycleSelection, resolveEnter, nextCursorState } from './tileCursor.js';
 import { h } from './dom.js';
+import { EVENT_TYPES } from '../sim/events.js';
 
 const ARROWS = Object.freeze({ ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' });
 
@@ -20,6 +21,19 @@ export function wireCursor({ root, game, buildState, build, waveControl, blocked
   // arming a tower shows the ghost at the cursor straight away (a pointer on the map keeps its own hover)
   buildState.subscribe(() => { if (buildState.state.mode === 'placing' && buildState.state.hoverCol === null) show(); });
 
+  // Enter places only after the cursor was moved; right after arming or a placement it starts the wave instead
+  let moved = false;
+  let lastKey = null;
+  const track = (action) => { moved = nextCursorState(moved, action); };
+  buildState.subscribe(() => {
+    const s = buildState.state;
+    const key = s.mode === 'placing' ? s.typeId : null;
+    if (key === lastKey) return;
+    lastKey = key;
+    track(key === null ? 'cancel' : 'arm');
+  });
+  game.events.on(EVENT_TYPES.TOWER_PLACED, () => track('placed')); // by Enter or by click
+
   const fromPointer = () => { const s = buildState.state; if (s.hoverCol !== null) cursor.set(s.hoverCol, s.hoverRow); }; // the pointer handed control back
   const keys = {};
   for (const [key, dir] of Object.entries(ARROWS)) {
@@ -27,12 +41,12 @@ export function wireCursor({ root, game, buildState, build, waveControl, blocked
       if (blocked() || buildState.state.mode !== 'placing') return;
       e.preventDefault(); // no page scrolling while the cursor is in use
       fromPointer();
-      cursor.move(dir);
+      if (cursor.move(dir)) track('moved');
       show();
     };
   }
   keys.Enter = () => {
-    const action = resolveEnter({ buildMode: buildState.state.mode, waveStartable: game.waves.phase === 'prep' || game.waves.phase === 'intermission', overlayOpen: overlayOpen(), dialogOpen: blocked() });
+    const action = resolveEnter({ buildMode: buildState.state.mode, waveStartable: game.waves.phase === 'prep' || game.waves.phase === 'intermission', overlayOpen: overlayOpen(), dialogOpen: blocked(), cursorMoved: moved });
     if (action === 'place-at-cursor') { fromPointer(); const p = cursor.get(); build.placeAt(p.col, p.row); announce(); }
     else if (action === 'start-wave') waveControl.start();
   };

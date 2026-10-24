@@ -3,6 +3,15 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { inspectPage, isClean } from './page.js';
 import { startLocalServer } from './check.js';
+import { createMap } from '../../src/sim/map.js';
+import { DEFAULT_MAP } from '../../src/data/map.js';
+import { config } from '../../src/data/config.js';
+import { HINT_GEOMETRY as HG } from '../../src/ui/tutorialText.js';
+import { hintRectFor, tileRects } from '../../src/ui/hintPlacement.js';
+
+// the expected hint card rectangle and the path tiles, computed with the same pure code the page uses
+const HINT_RECT = hintRectFor(createMap(DEFAULT_MAP), HG.width, HG.maxHeight, HG.margin);
+const PATH_RECTS = tileRects(createMap(DEFAULT_MAP), config.world.tileSize, config.view.hudHeight).path;
 
 const GALLERY_SECTIONS = ['palette', 'type', 'enemies', 'states', 'towers', 'icons', 'screens', 'fx', 'ui', 'director', 'map', 'cvd', 'audio', 'quality'];
 
@@ -87,6 +96,38 @@ const CHECKS = [
       const after = gold();
       const parts = { before, after, live };
       return { ok: before === 150 && after === 90 && /^Column \\d+, row \\d+: /.test(live), detail: JSON.stringify(parts) };
+    })()`,
+  },
+  {
+    name: 'Enter starts the wave after a placement (no cursor move)', path: '/?seed=1&play=1&waves=15&mode=static', wait: 2500, shot: 'smoke-enter-start.png',
+    expr: `(async () => {
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const key = (k, code) => window.dispatchEvent(new KeyboardEvent('keydown', { key: k, code, bubbles: true }));
+      const gold = () => Number(document.querySelector('.chip--gold .num').textContent);
+      const ctl = () => document.querySelector('.wave-control').textContent;
+      const g0 = gold(); const c0 = ctl();
+      key('a', 'KeyA'); await sleep(150);
+      key('ArrowRight', 'ArrowRight'); key('ArrowDown', 'ArrowDown'); key('ArrowRight', 'ArrowRight'); await sleep(150);
+      key('Enter', 'Enter'); await sleep(400);
+      const g1 = gold(); const c1 = ctl();
+      key('Enter', 'Enter'); await sleep(800);
+      const c2 = ctl(); const phase = document.querySelector('.hud').textContent;
+      const parts = { g0, g1, c0, c1, c2 };
+      return { ok: g1 < g0 && c1 === c0 && c2 !== c1, detail: JSON.stringify(parts) };
+    })()`,
+  },
+  {
+    name: 'hint card position is the computed one and clear of the path', path: '/?seed=1&play=1&waves=15&mode=static', wait: 3000, shot: 'smoke-hint-position.png',
+    expr: `(() => {
+      const c = document.querySelector('.hint-card'); const root = document.getElementById('ui-root').getBoundingClientRect();
+      if (!c || c.hidden) return { ok: false, detail: 'no visible hint card' };
+      const b = c.getBoundingClientRect(); const scale = root.width / 1280;
+      const r = { left: (b.left - root.left) / scale, top: (b.top - root.top) / scale, w: b.width / scale, h: b.height / scale };
+      const want = ${JSON.stringify(HINT_RECT)};
+      const near = (a, e) => Math.abs(a - e) <= 1;
+      const same = near(r.left, want.left) && near(r.top, want.top) && near(r.w, want.w) && r.h <= want.h + 1;
+      const hits = ${JSON.stringify(PATH_RECTS)}.filter((t) => r.left < t.left + t.w && t.left < r.left + r.w && r.top < t.top + t.h && t.top < r.top + r.h).length;
+      return { ok: same && hits === 0, detail: JSON.stringify({ r, want, pathTilesHit: hits }) };
     })()`,
   },
   {
